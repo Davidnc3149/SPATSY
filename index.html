@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SPATSY</title>
+<meta name="description" content="App de SPATSY: clientas, atenciones, promociones e inventario.">
+<meta name="theme-color" content="#A84A6E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SPATSY">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: app de una mano — encabezado del día, contenido por pestaña, barra inferior fija */
+:root {
+  --bg: #FBF6F7; --surface: #FFFFFF; --ink: #2B2128; --muted: #7D6E77; --line: #EEDDE4;
+  --rosa: #A84A6E; --rosa-soft: #F6E4EB; --ciruela: #4E3A48; --on-accent: #FFFFFF;
+  --ok: #1F7A4D; --ok-soft: #E3F3EA; --warn: #8A6A07; --warn-soft: #FBF1D3; --bad: #B0382A; --bad-soft: #F9E0DC;
+  --wa: #1F8A4C;
+  --f-display: "Young Serif", Georgia, "Times New Roman", serif;
+  --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r: 14px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #1A1418; --surface: #241C21; --ink: #F3E9EE; --muted: #B3A2AC; --line: #3A2E35;
+  --rosa: #E58AAE; --rosa-soft: #3C2531; --ciruela: #E9D6E1; --on-accent: #22151C;
+  --ok: #6FD39C; --ok-soft: #1D3328; --warn: #E9C766; --warn-soft: #362D14; --bad: #F08E80; --bad-soft: #3B201D; --wa: #5CCB8A;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #1A1418; --surface: #241C21; --ink: #F3E9EE; --muted: #B3A2AC; --line: #3A2E35;
+  --rosa: #E58AAE; --rosa-soft: #3C2531; --ciruela: #E9D6E1; --on-accent: #22151C;
+  --ok: #6FD39C; --ok-soft: #1D3328; --warn: #E9C766; --warn-soft: #362D14; --bad: #F08E80; --bad-soft: #3B201D; --wa: #5CCB8A;
+  color-scheme: dark }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 96px; max-width: 640px; margin: 0 auto; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--rosa); outline-offset: 2px; }
+
+/* Encabezado */
+.top { padding-block: 18px 10px; display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+.marca { font-family: var(--f-display); font-size: 26px; color: var(--rosa); letter-spacing: .5px; }
+.fecha { color: var(--muted); font-size: 13px; text-transform: capitalize; }
+.refresh { border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 6px 12px; font-size: 13px; color: var(--muted); }
+
+/* Barra inferior */
+nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--line);
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)); }
+nav.tabs button { border: 0; background: none; padding: 6px 2px; border-radius: 10px; display: grid; justify-items: center; gap: 2px; font-size: 11px; font-weight: 600; color: var(--muted); }
+nav.tabs button svg { width: 22px; height: 22px; }
+nav.tabs button[aria-selected="true"] { color: var(--rosa); background: var(--rosa-soft); }
+
+/* Bloques */
+.seccion { margin-top: 20px; }
+.seccion > h2 { font-family: var(--f-display); font-weight: 400; font-size: 19px; color: var(--ciruela); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.seccion > h2 .n { font-family: var(--f-body); font-size: 13px; font-weight: 700; color: var(--rosa); background: var(--rosa-soft); padding: 1px 9px; border-radius: 99px; }
+.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; }
+.kpi .t { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; font-weight: 600; }
+.kpi .v { font-family: var(--f-display); font-size: 26px; color: var(--ink); font-variant-numeric: tabular-nums; margin-top: 2px; }
+.kpi .s { font-size: 12px; color: var(--muted); }
+.kpi.principal { background: var(--rosa); border-color: var(--rosa); }
+.kpi.principal .t, .kpi.principal .s, .kpi.principal .v { color: var(--on-accent); }
+
+.lista { display: grid; gap: 8px; }
+.fila { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 11px 12px; display: flex; align-items: center; gap: 10px; }
+.fila .txt { flex: 1; min-width: 0; }
+.fila .nom { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fila .det { font-size: 13px; color: var(--muted); }
+.fila.hecha { opacity: .55; }
+.fila.clic { cursor: pointer; text-align: left; width: 100%; }
+.avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--rosa-soft); color: var(--rosa); display: grid; place-items: center; font-weight: 700; font-size: 14px; flex: none; }
+.vacio { color: var(--muted); font-size: 13.5px; padding: 6px 2px; }
+
+.btn { border: 0; border-radius: 99px; padding: 9px 16px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; font-size: 14px; }
+.btn-prim { background: var(--rosa); color: var(--on-accent); }
+.btn-sec { background: var(--rosa-soft); color: var(--ciruela); }
+.btn-wa { background: var(--wa); color: #FFFFFF; padding: 8px 13px; font-size: 13px; flex: none; }
+.btn-mini { padding: 6px 11px; font-size: 12.5px; }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn-ghost { background: none; border: 1px solid var(--line); color: var(--muted); }
+
+.chip { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 2px 9px; border-radius: 99px; background: var(--rosa-soft); color: var(--ciruela); }
+.chip.ok { background: var(--ok-soft); color: var(--ok); } .chip.bad { background: var(--bad-soft); color: var(--bad); } .chip.warn { background: var(--warn-soft); color: var(--warn); }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.aviso { border-radius: 12px; padding: 10px 12px; font-size: 13.5px; }
+.aviso.bad { background: var(--bad-soft); color: var(--bad); } .aviso.ok { background: var(--ok-soft); color: var(--ok); } .aviso.warn { background: var(--warn-soft); color: var(--warn); }
+
+/* Formularios */
+label.l { display: block; font-size: 12.5px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+input, select, textarea { width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; min-width: 0; }
+textarea { resize: vertical; min-height: 70px; }
+.campos { display: grid; gap: 12px; }
+.dos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.linea { display: grid; grid-template-columns: 1fr 96px 36px; gap: 8px; align-items: center; }
+.linea.p { grid-template-columns: 1fr 58px 84px 36px; }
+.quitar { border: 0; background: var(--bad-soft); color: var(--bad); border-radius: 10px; height: 40px; font-weight: 700; }
+.agregar { border: 1px dashed var(--rosa); background: none; color: var(--rosa); border-radius: 12px; padding: 9px; font-weight: 600; width: 100%; }
+.total { display: flex; justify-content: space-between; align-items: baseline; background: var(--rosa-soft); border-radius: var(--r); padding: 12px 14px; }
+.total .v { font-family: var(--f-display); font-size: 26px; color: var(--rosa); font-variant-numeric: tabular-nums; }
+.buscar { position: relative; }
+.sug { position: absolute; z-index: 5; left: 0; right: 0; top: calc(100% + 4px); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 24px rgba(40, 20, 30, .12); }
+.sug button { display: block; width: 100%; border: 0; background: none; text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.sug button small { color: var(--muted); }
+.elegida { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--rosa-soft); border-radius: 12px; padding: 10px 12px; }
+
+/* Panel de ficha */
+.panel { position: fixed; inset: 0; z-index: 30; background: var(--bg); overflow-y: auto;
+  padding: calc(14px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(30px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.panel-in { max-width: 640px; margin: 0 auto; }
+.volver { border: 0; background: none; color: var(--rosa); font-weight: 600; padding: 4px 0; }
+.ficha-nom { font-family: var(--f-display); font-size: 26px; margin-top: 8px; }
+.dato { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+.dato span:first-child { color: var(--muted); }
+.dato span:last-child { font-weight: 600; text-align: right; }
+.mov { padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.mov .f { color: var(--muted); font-size: 12.5px; }
+.num { font-variant-numeric: tabular-nums; }
+.ia-out { white-space: pre-wrap; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; font-size: 14px; }
+.burbuja { background: var(--ok-soft); color: var(--ink); border-radius: 14px 14px 14px 4px; padding: 10px 12px; white-space: pre-wrap; font-size: 14px; }
+.var { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; display: grid; gap: 8px; }
+.var h3 { font-size: 14px; color: var(--ciruela); }
+.carga { display: flex; align-items: center; gap: 10px; color: var(--muted); padding: 30px 0; justify-content: center; }
+.spin { width: 18px; height: 18px; border: 3px solid var(--rosa-soft); border-top-color: var(--rosa); border-radius: 50%; animation: g .8s linear infinite; }
+@keyframes g { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+#toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(84px + env(safe-area-inset-bottom, 0px)); background: var(--ciruela); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px; z-index: 70; max-width: 90%; }
+.ejemplo { font-size: 12px; color: var(--muted); }
+
+/* Lector de código de barras: campo para lector Bluetooth/teclado + botón de cámara (foto) */
+.scan { display: flex; gap: 8px; align-items: stretch; }
+.scan input { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: .4px; border-style: dashed; border-color: var(--rosa); background: var(--rosa-soft); }
+.scan .cam { flex: none; width: 50px; border: 0; border-radius: 12px; background: var(--rosa); color: var(--on-accent); display: grid; place-items: center; }
+.scan .cam svg { width: 24px; height: 24px; }
+.scan .cam:disabled { opacity: .6; }
+.filtros { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.filtros button { border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 99px; padding: 5px 12px; font-size: 13px; font-weight: 600; }
+.filtros button[aria-pressed="true"] { background: var(--rosa); border-color: var(--rosa); color: var(--on-accent); }
+.stock { flex: none; text-align: right; }
+.stock .q { font-family: var(--f-display); font-size: 22px; line-height: 1; font-variant-numeric: tabular-nums; }
+.stock .u { font-size: 11px; color: var(--muted); }
+.stock.bajo .q { color: var(--bad); }
+.codigo { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+.contador { display: grid; grid-template-columns: 52px 1fr 52px; gap: 8px; }
+.contador button { border: 0; border-radius: 12px; background: var(--rosa-soft); color: var(--rosa); font-size: 22px; font-weight: 700; }
+.contador input { text-align: center; font-family: var(--f-display); font-size: 24px; padding: 8px; }
+.scan .cam { cursor: pointer; }
+.scan .cam.ocupado { opacity: .6; pointer-events: none; }
+/* Cámara en vivo */
+.camara { position: fixed; inset: 0; z-index: 60; background: #000; color: #fff; }
+.camara[hidden] { display: none; }
+.camara video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.camara .marco { position: absolute; left: 7%; right: 7%; top: 34%; height: 24%; border: 3px solid rgba(255,255,255,.9); border-radius: 18px; box-shadow: 0 0 0 9999px rgba(0,0,0,.45); }
+.camara .marco.ok { border-color: #6FD39C; }
+.camara .laser { position: absolute; left: 6%; right: 6%; top: 50%; height: 2px; background: #E58AAE; box-shadow: 0 0 10px #E58AAE; animation: laser 1.6s ease-in-out infinite alternate; }
+@keyframes laser { from { top: 12%; } to { top: 88%; } }
+@media (prefers-reduced-motion: reduce) { .camara .laser { animation: none; } }
+.camara .cam-top { position: absolute; left: 0; right: 0; top: 0; padding: calc(16px + env(safe-area-inset-top, 0px)) 16px 12px; text-align: center; font-size: 16px; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+.camara .cam-ult { position: absolute; left: 50%; transform: translateX(-50%); top: calc(60% + 14px); background: rgba(31,122,77,.92); color: #fff; padding: 8px 14px; border-radius: 12px; font-size: 14px; max-width: 86%; text-align: center; }
+.camara .cam-ult[hidden] { display: none; }
+.camara .cam-bot { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.camara .cam-bot .btn { min-width: 110px; padding: 12px 16px; }
+.camara .cam-bot .btn-ghost { color: #fff; border-color: rgba(255,255,255,.5); background: rgba(0,0,0,.25); }
+.foto-oculta { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; left: -10px; top: 0; }
+.quien { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.quien button { border: 0; background: none; color: var(--rosa); font-weight: 600; padding: 0 0 0 4px; font-size: 12.5px; }
+
+/* Entrada con PIN */
+.login { position: fixed; inset: 0; z-index: 50; background: var(--bg); display: grid; place-items: center; padding: 24px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); }
+.login[hidden] { display: none; }
+.login-in { width: 100%; max-width: 340px; text-align: center; display: grid; gap: 14px; }
+.login .marca { font-size: 40px; }
+.login p { margin: 0; color: var(--muted); font-size: 14px; }
+.login input { text-align: center; font-size: 28px; letter-spacing: 10px; padding: 12px; font-family: var(--f-display); }
+.login .btn { padding: 13px; font-size: 16px; }
+</style>
+<style>
+  html { -webkit-text-size-adjust: 100%; }
+  body { padding-top: env(safe-area-inset-top, 0px); }
+  select.mini { padding: 7px 10px; font-size: 13.5px; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div><div class="marca" id="marca">SPATSY</div><div class="fecha" id="fecha"></div><div class="quien" id="quien" hidden></div></div>
+  <button class="refresh" id="btnRecargar" type="button">Actualizar</button>
+</header>
+<div id="estado"></div>
+<main id="vista"><div class="carga"><span class="spin"></span>Cargando SPATSY…</div></main>
+
+<nav class="tabs" role="tablist">
+  <button type="button" role="tab" data-tab="hoy" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>Hoy</button>
+  <button type="button" role="tab" data-tab="clientas" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c1.9.7 3 2.4 3.5 5.2"/></svg>Clientas</button>
+  <button type="button" role="tab" data-tab="registrar" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Registrar</button>
+  <button type="button" role="tab" data-tab="promos" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10v4a1 1 0 0 0 1 1h2l5 4V5L7 9H5a1 1 0 0 0-1 1z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>Promos</button>
+  <button type="button" role="tab" data-tab="inventario" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/></svg>Inventario</button>
+</nav>
+<input type="file" id="foto" class="foto-oculta" accept="image/*" capture="environment" tabindex="-1" aria-hidden="true">
+<div id="camara" class="camara" hidden>
+  <video id="video" playsinline muted autoplay></video>
+  <div class="marco" id="marco"><div class="laser"></div></div>
+  <div class="cam-top" id="camMsg">Pon el código de barras dentro del recuadro</div>
+  <div class="cam-ult" id="camUlt" hidden></div>
+  <div class="cam-bot">
+    <button type="button" class="btn btn-ghost" id="camLuz" hidden>Linterna</button>
+    <label class="btn btn-ghost" for="foto" id="camFoto">Usar foto</label>
+    <button type="button" class="btn btn-prim" id="camCerrar">Listo</button>
+  </div>
+</div>
+<div id="login" class="login" hidden><form class="login-in" id="loginForm" autocomplete="off">
+  <div class="marca">SPATSY</div>
+  <p>Escribe tu PIN para entrar</p>
+  <input id="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off" aria-label="PIN">
+  <button class="btn btn-prim" type="submit" id="btnEntrar">Entrar</button>
+  <div id="loginMsg"></div>
+  <p style="font-size:12.5px">¿No tienes PIN? Pídeselo a la dueña.</p>
+</form></div>
+<div id="toast" hidden></div>
+<div id="panel" class="panel" hidden><div class="panel-in" id="panelIn"></div></div>
+
+<script>
+/* ============================================================
+   SPATSY · App móvil (página independiente, p. ej. GitHub Pages)
+   Habla con la hoja por fetch → doPost del proyecto "SPATSY App".
+   Todo pasa por api(token, acción, args) del servidor. Acciones: appInicio, obtenerFicha,
+   registrarAtencion, registrarRecordatorioEnviado, obtenerSegmento,
+   prepararCampana, marcarEnviado, registrarEntrada, guardarProducto,
+   asignarCodigoProducto.
+   ============================================================ */
+let D = null, tab = 'hoy';
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const dinero = n => '$' + Math.round(Number(n) || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+const primer = s => String(s || '').trim().split(/\s+/)[0] || '';
+const iniciales = s => String(s || '').trim().split(/\s+/).slice(0, 2).map(x => x[0] || '').join('').toUpperCase();
+const isoMx = s => s ? s.split('-').reverse().join('/') : '';
+function toast(m, ms) { const t = $('toast'); t.textContent = m; t.hidden = false; clearTimeout(t._h); t._h = setTimeout(() => t.hidden = true, ms || 2800); }
+/* ---------- Sesión con PIN ---------- */
+const LLAVE = 'spatsy_sesion';
+let SES = (() => { try { return JSON.parse(localStorage.getItem(LLAVE) || 'null'); } catch (e) { return null; } })();
+function guardarSesion(s) { SES = s; try { if (s) localStorage.setItem(LLAVE, JSON.stringify(s)); else localStorage.removeItem(LLAVE); } catch (e) { } }
+/* La hoja de SPATSY responde en esta dirección (proyecto "SPATSY App", doPost). */
+const API_URL = 'https://script.google.com/macros/s/AKfycbxTJeybqS0iDV_DsJud9K7xnoy0PDyA3RhSlJ3tqK9VmqD57XZumcVGyYy8rkNOV429/exec';
+async function llamarApi(cuerpo) {
+  let r;
+  try {
+    // text/plain: Google lo acepta sin "preflight" de CORS
+    r = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(cuerpo), redirect: 'follow', credentials: 'omit' });
+  } catch (e) { throw new Error('Sin conexión a internet. Revisa tu señal y vuelve a intentar.'); }
+  let j;
+  try { j = await r.json(); } catch (e) { throw new Error('La hoja no respondió bien (código ' + r.status + '). Intenta de nuevo en un momento.'); }
+  if (!j || !j.ok) throw new Error((j && j.error) || 'Error desconocido');
+  return j.data;
+}
+function run(fn, args) {
+  if (fn === 'entrar') return llamarApi({ accion: 'entrar', pin: args[0] });
+  if (fn === 'salir') return llamarApi({ accion: 'salir', token: args[0] });
+  return llamarApi({ accion: 'api', token: args[0], fn: args[1], args: args[2] });
+}
+function srv(fn) {
+  const args = Array.prototype.slice.call(arguments, 1);
+  if (!SES) { pedirPin(); return Promise.reject(new Error('Entra con tu PIN.')); }
+  return run('api', [SES.token, fn, args]).catch(e => {
+    if (/SESION:/.test(e.message)) { guardarSesion(null); pedirPin(errorTexto(e)); }
+    throw e;
+  });
+}
+function pedirPin(msg) {
+  $('login').hidden = false; $('pin').value = '';
+  $('loginMsg').innerHTML = msg ? '<div class="aviso warn">' + esc(msg) + '</div>' : '';
+  setTimeout(() => $('pin').focus(), 50);
+}
+$('loginForm').onsubmit = async e => {
+  e.preventDefault();
+  const pin = $('pin').value.replace(/\D/g, ''), b = $('btnEntrar');
+  if (pin.length < 4) { $('loginMsg').innerHTML = '<div class="aviso bad">El PIN tiene al menos 4 números.</div>'; return; }
+  b.disabled = true; b.textContent = 'Entrando…';
+  try {
+    const r = await run('entrar', [pin]);
+    guardarSesion({ token: r.token, nombre: r.nombre });
+    $('login').hidden = true; $('pin').value = '';
+    pintarQuien(); cargar();
+  } catch (err) { $('loginMsg').innerHTML = '<div class="aviso bad">' + esc(errorTexto(err)) + '</div>'; $('pin').value = ''; $('pin').focus(); }
+  finally { b.disabled = false; b.textContent = 'Entrar'; }
+};
+function pintarQuien() {
+  const q = $('quien'); if (!SES) { q.hidden = true; return; }
+  q.hidden = false; q.innerHTML = esc(SES.nombre) + ' ·<button type="button" id="btnSalir">Salir</button>';
+  $('btnSalir').onclick = () => {
+    if (!confirm('¿Salir de la App? Para volver a entrar se necesita el PIN.')) return;
+    run('salir', [SES.token]).catch(() => { });
+    guardarSesion(null); D = null; q.hidden = true;
+    $('vista').innerHTML = ''; pedirPin();
+  };
+}
+function wa(tel, txt) { const t = String(tel || '').replace(/\D/g, '').slice(-10); return t.length === 10 ? 'https://wa.me/52' + t + (txt ? '?text=' + encodeURIComponent(txt) : '') : ''; }
+function sumaDias(isoS, n) { const d = new Date(isoS + 'T12:00:00'); d.setDate(d.getDate() + n); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function errorTexto(e) {
+  const m = String(e && e.message || e);
+  if (/NetworkError|network|Failed to fetch|conexi/i.test(m)) return 'Sin conexión a internet. Revisa tu señal y vuelve a intentar.';
+  if (/Authorization is required|autorizaci|permission|permiso/i.test(m)) return 'La App necesita que la dueña la autorice otra vez (correr "autorizar" en el editor).';
+  return m.replace(/^(Exception|Error):\s*/, '').replace(/^SESION:\s*/, '');
+}
+
+/* ---------- Carga ---------- */
+async function cargar() {
+  $('estado').innerHTML = '';
+  if (!SES) { pedirPin(); return; }
+  try {
+    D = await srv('appInicio');
+    $('marca').textContent = D.negocio;
+    render();
+  } catch (e) {
+    $('estado').innerHTML = '<div class="aviso bad">' + esc(errorTexto(e)) + '</div>';
+    if (!D) $('vista').innerHTML = '<div class="seccion"><h2>Tus pendientes de hoy</h2><div class="vacio">Aquí aparecerán cumpleaños, citas, tratamientos que tocan y recompras en cuanto la app pueda leer la hoja. Toca Actualizar para reintentar.</div></div>';
+  }
+}
+function render() {
+  document.querySelectorAll('nav.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+  if (!D) return;
+  ({ hoy: vHoy, clientas: vClientas, registrar: vRegistrar, promos: vPromos, inventario: vInventario })[tab]();
+  window.scrollTo(0, 0);
+}
+
+/* ---------- Hoy ---------- */
+function vHoy() {
+  const k = D.kpis;
+  const total = D.pendientes.reduce((s, x) => s + x.items.length, 0);
+  let h = '<div class="kpis">' +
+    '<div class="kpi principal"><div class="t">Vendido hoy</div><div class="v">' + dinero(k.ventasHoy) + '</div><div class="s">' + k.ticketsHoy + ' ticket' + (k.ticketsHoy === 1 ? '' : 's') + '</div></div>' +
+    '<div class="kpi"><div class="t">Pendientes</div><div class="v">' + total + '</div><div class="s">mensajes por mandar</div></div>' +
+    '<div class="kpi"><div class="t">Este mes</div><div class="v">' + dinero(k.ventasMes) + '</div><div class="s">' + k.ticketsMes + ' tickets</div></div>' +
+    '<div class="kpi"><div class="t">Activas</div><div class="v">' + k.activas + '</div><div class="s">de ' + k.clientas + ' clientas</div></div></div>';
+  const VACIO = { CUMPLE: 'Nadie cumple años en los próximos 7 días.', CITA: 'No hay citas sugeridas para hoy ni mañana.', RECOMPRA: 'Nadie está por terminarse su producto.', TOCA: 'Nadie está pendiente de su siguiente sesión.', REACTIVAR: 'No hay clientas por reactivar esta semana.' };
+  D.pendientes.forEach((s, si) => {
+    h += '<section class="seccion"><h2>' + esc(s.titulo.replace(/^\S+\s/, '')) + '<span class="n">' + s.items.length + '</span></h2><div class="lista">' +
+      (s.items.length ? s.items.map((x, i) => '<div class="fila" id="p' + si + '_' + i + '"><div class="avatar">' + esc(iniciales(x.nombre)) + '</div><div class="txt"><div class="nom">' + esc(x.nombre) + '</div><div class="det">' + esc(x.detalle) + '</div></div>' +
+        (x.link ? '<a class="btn btn-wa" href="' + esc(x.link) + '" target="_blank" rel="noopener" data-s="' + si + '" data-i="' + i + '">WhatsApp</a>' : '<span class="chip bad">Sin WhatsApp</span>') + '</div>').join('')
+        : '<div class="vacio">' + esc(VACIO[s.tipo] || 'Nada pendiente.') + '</div>') + '</div></section>';
+  });
+  h += '<p class="ejemplo" style="margin-top:18px">Al tocar WhatsApp se abre el mensaje listo y la clienta sale de la lista unos días.</p>';
+  $('vista').innerHTML = h;
+  $('vista').querySelectorAll('a.btn-wa').forEach(a => a.addEventListener('click', () => {
+    const s = D.pendientes[+a.dataset.s], x = s.items[+a.dataset.i], fila = $('p' + a.dataset.s + '_' + a.dataset.i);
+    setTimeout(() => {
+      fila.classList.add('hecha'); a.outerHTML = '<span class="chip ok">Enviado</span>';
+      srv('registrarRecordatorioEnviado', s.tipo, x.id, x.detalle).catch(e => toast(errorTexto(e), 4000));
+    }, 300);
+  }));
+}
+
+/* ---------- Clientas y ficha ---------- */
+let filtro = '';
+function vClientas() {
+  $('vista').innerHTML = '<input id="q" type="search" placeholder="Buscar por nombre, WhatsApp o ID" value="' + esc(filtro) + '" autocomplete="off" style="margin-top:6px"><div class="lista" id="lc" style="margin-top:12px"></div>';
+  const pintar = () => {
+    const q = norm(filtro), qt = filtro.replace(/\D/g, '');
+    const l = D.clientas.filter(c => !q || norm(c.nombre).includes(q) || norm(c.id).includes(q) || (qt.length >= 3 && c.whatsapp.includes(qt)))
+      .sort((a, b) => (b.ultima || '').localeCompare(a.ultima || '')).slice(0, 80);
+    $('lc').innerHTML = l.length ? l.map(c => '<button type="button" class="fila clic" data-id="' + esc(c.id) + '"><div class="avatar">' + esc(iniciales(c.nombre)) + '</div><div class="txt"><div class="nom">' + esc(c.nombre) + '</div><div class="det">' +
+      esc([c.id, c.piel, c.ultima ? 'última visita ' + isoMx(c.ultima) : 'sin visitas'].filter(Boolean).join(' · ')) + '</div></div><span class="chip ' + (c.estado === 'Activa' ? 'ok' : c.estado === 'Inactiva' ? 'bad' : '') + '">' + esc(c.estado || '—') + '</span></button>').join('')
+      : '<div class="vacio">No hay clientas que coincidan.</div>';
+    $('lc').querySelectorAll('button[data-id]').forEach(b => b.onclick = () => abrirFicha(b.dataset.id));
+  };
+  $('q').oninput = e => { filtro = e.target.value; pintar(); };
+  pintar();
+}
+
+async function abrirFicha(id) {
+  $('panelIn').innerHTML = '<div class="carga"><span class="spin"></span>Cargando ficha…</div>'; $('panel').hidden = false;
+  try {
+    const F = await srv('obtenerFicha', id), c = F.clienta;
+    const dato = (a, b) => '<div class="dato"><span>' + esc(a) + '</span><span>' + esc(b || '—') + '</span></div>';
+    let h = '<button class="volver" type="button" id="cerrar">← Volver</button><h1 class="ficha-nom">' + esc(c.nombre) + '</h1><div class="chips" style="margin:8px 0 12px">' +
+      '<span class="chip">' + esc(c.id) + '</span><span class="chip ' + (c.estado === 'Activa' ? 'ok' : c.estado === 'Inactiva' ? 'bad' : '') + '">' + esc(c.estado || '—') + '</span>' +
+      (c.aviso === 'Sí' ? '<span class="chip ok">Aviso firmado</span>' : '<span class="chip bad">Sin aviso</span>') + (c.cumpleMes ? '<span class="chip warn">Cumple este mes</span>' : '') + '</div>';
+    if (c.alergias && c.alergias !== 'Ninguna') h += '<div class="aviso bad" style="margin-bottom:10px"><b>Alergias:</b> ' + esc(c.alergias) + '</div>';
+    h += '<div class="chips" style="gap:8px">' + (F.linkWhatsApp ? '<a class="btn btn-wa" href="' + esc(F.linkWhatsApp) + '" target="_blank" rel="noopener">WhatsApp</a>' : '') + '<button class="btn btn-prim" type="button" id="fAt">Registrar atención</button></div>';
+    h += '<div class="kpis" style="margin-top:14px"><div class="kpi"><div class="t">Ha gastado</div><div class="v">' + dinero(c.total) + '</div></div><div class="kpi"><div class="t">Visitas</div><div class="v">' + F.totalVisitas + '</div></div></div>';
+    if (F.proximaCita || F.leToca || F.sugeridos.length || F.recompras.length) {
+      h += '<section class="seccion"><h2>Siguiente paso</h2><div class="lista">';
+      if (F.proximaCita) h += '<div class="aviso ok">Cita sugerida el <b>' + esc(F.proximaCita) + '</b></div>';
+      if (F.leToca) h += '<div class="aviso warn">Le toca su <b>' + esc(F.leToca.servicio) + '</b>: van ' + F.leToca.dias + ' días (se recomienda cada ' + F.leToca.frecuencia + ')</div>';
+      F.recompras.forEach(r => h += '<div class="aviso warn">' + esc(r.producto) + ': recompra ' + esc(r.recompra) + '</div>');
+      if (F.sugeridos.length) h += '<div style="font-size:13px;color:var(--muted)">Ideal para su piel y aún no lo prueba:</div><div class="chips">' + F.sugeridos.map(s => '<span class="chip warn">' + esc(s.servicio) + (s.precio ? ' · ' + dinero(s.precio) : '') + '</span>').join('') + '</div>';
+      h += '</div></section>';
+    }
+    h += '<section class="seccion"><h2>Perfil</h2>' + dato('WhatsApp', c.whatsapp) + dato('Cumpleaños', c.nacimiento ? isoMx(c.nacimiento).slice(0, 5) + (F.edad !== '' ? ' · ' + F.edad + ' años' : '') : '') +
+      dato('Tipo de piel', c.piel) + dato('Preocupación', c.preocupacion) + dato('Servicio favorito', F.favorito) + dato('Ticket promedio', dinero(F.ticketPromedio)) + dato('Clienta desde', isoMx(c.registro)) +
+      (c.notas ? '<div class="aviso warn" style="margin-top:10px">' + esc(c.notas) + '</div>' : '') + '</section>';
+    h += '<section class="seccion"><h2>Servicios</h2>' + (F.visitas.length ? F.visitas.map(v => '<div class="mov"><div style="display:flex;justify-content:space-between;gap:8px"><b>' + esc(v.servicio) + '</b><span class="num">' + dinero(v.monto) + '</span></div><div class="f">' + esc(v.fechaMX) + ' · ' + esc(v.atendio || '') + (v.notas ? ' · ' + esc(v.notas) : '') + '</div></div>').join('') : '<div class="vacio">Aún no tiene servicios.</div>') + '</section>';
+    h += '<section class="seccion"><h2>Productos</h2>' + (F.compras.length ? F.compras.map(v => '<div class="mov"><div style="display:flex;justify-content:space-between;gap:8px"><b>' + esc(v.producto) + ' ×' + v.cantidad + '</b><span class="num">' + dinero(v.total) + '</span></div><div class="f">' + esc(v.fechaMX) + (v.recompra ? ' · recompra ' + esc(v.recompra) : '') + '</div></div>').join('') : '<div class="vacio">Aún no compra productos.</div>') + '</section>';
+    $('panelIn').innerHTML = h; $('panel').scrollTop = 0;
+    $('cerrar').onclick = () => $('panel').hidden = true;
+    $('fAt').onclick = () => { $('panel').hidden = true; nueva = nuevaAtencion(id); tab = 'registrar'; render(); };
+  } catch (e) {
+    $('panelIn').innerHTML = '<button class="volver" type="button" onclick="document.getElementById(\'panel\').hidden=true">← Volver</button><div class="aviso bad" style="margin-top:10px">' + esc(errorTexto(e)) + '</div>';
+  }
+}
+
+/* ---------- Registrar atención ---------- */
+let nueva = null, forzarExistencia = false;
+function nuevaAtencion(idc) { return { idc: idc || '', fecha: D.hoy, atendio: '', pago: '', servicios: [{ s: '', m: '' }], productos: [], proxima: '', notas: '', res: null }; }
+const clientaPorId = id => D.clientas.find(c => c.id === id);
+
+function vRegistrar() {
+  if (!nueva) nueva = nuevaAtencion();
+  const n = nueva;
+  if (n.res) return vHecho();
+  const c = clientaPorId(n.idc);
+  const opt = (l, v, vacio) => (vacio ? '<option value="">' + vacio + '</option>' : '') + l.map(x => { const val = typeof x === 'object' ? x.v : x, t = typeof x === 'object' ? x.t : x; return '<option value="' + esc(val) + '"' + (val === v ? ' selected' : '') + '>' + esc(t) + '</option>'; }).join('');
+  let h = '<div class="campos" style="margin-top:6px">';
+  h += '<div><label class="l">Clienta</label>' + (c
+    ? '<div class="elegida"><div><b>' + esc(c.nombre) + '</b><div style="font-size:12.5px;color:var(--muted)">' + esc(c.id + ' · ' + c.whatsapp) + '</div>' + (c.alergias && c.alergias !== 'Ninguna' ? '<span class="chip bad">Alergias: ' + esc(c.alergias) + '</span>' : '') + '</div><button class="btn btn-ghost btn-mini" type="button" id="cambiar">Cambiar</button></div>'
+    : '<div class="buscar"><input id="bc" placeholder="Busca a la clienta" autocomplete="off"><div class="sug" id="bcs" hidden></div></div>') + '</div>';
+  h += '<div class="dos"><div><label class="l" for="rf">Fecha</label><input type="date" id="rf" value="' + n.fecha + '" max="' + D.hoy + '"></div><div><label class="l" for="rp">Forma de pago</label><select id="rp">' + opt(D.listas.pago, n.pago, 'Elige…') + '</select></div></div>';
+  h += '<div><label class="l" for="ra">Atendió</label><select id="ra">' + opt(D.listas.atendio, n.atendio, '—') + '</select></div>';
+  h += '<div><label class="l">Servicios</label><div class="campos" style="gap:8px">' + n.servicios.map((s, i) =>
+    '<div class="linea"><select data-s="' + i + '">' + opt(D.listas.servicio, s.s, 'Servicio…') + '</select><input data-m="' + i + '" type="number" inputmode="numeric" min="0" placeholder="$" value="' + esc(s.m) + '"><button class="quitar" type="button" data-qs="' + i + '" aria-label="Quitar servicio">×</button></div>').join('') +
+    '<button class="agregar" type="button" id="addS">+ Servicio</button></div></div>';
+  h += '<div><label class="l">Productos</label><div class="campos" style="gap:8px">' + barraLector('rscan', 'Escanea el producto') + n.productos.map((p, i) =>
+    '<div class="linea p"><select data-p="' + i + '">' + opt(D.productos.map(x => ({ v: x.id, t: x.nombre + (x.existencia !== '' && x.existencia != null ? ' (' + x.existencia + ')' : '') })), p.id, 'Producto…') + '</select><input data-c="' + i + '" type="number" inputmode="numeric" min="1" value="' + esc(p.c) + '"><input data-pr="' + i + '" type="number" inputmode="numeric" min="0" placeholder="$" value="' + esc(p.pr) + '"><button class="quitar" type="button" data-qp="' + i + '" aria-label="Quitar producto">×</button></div>').join('') +
+    '<button class="agregar" type="button" id="addP">+ Producto</button></div></div>';
+  h += '<div><label class="l" for="rx">Próxima cita sugerida</label><input type="date" id="rx" value="' + n.proxima + '"></div>';
+  h += '<div><label class="l" for="rn">Notas</label><textarea id="rn" placeholder="Reacción de la piel, recomendaciones…">' + esc(n.notas) + '</textarea></div>';
+  h += '<div class="total"><span>Total</span><span class="v" id="tot">' + dinero(total()) + '</span></div><div id="rmsg"></div>';
+  h += '<button class="btn btn-prim" type="button" id="guardar" style="padding:13px">Registrar atención</button></div>';
+  $('vista').innerHTML = h;
+
+  const sync = () => {
+    n.fecha = $('rf').value; n.pago = $('rp').value; n.atendio = $('ra').value; n.proxima = $('rx').value; n.notas = $('rn').value;
+    document.querySelectorAll('[data-m]').forEach(el => n.servicios[+el.dataset.m].m = el.value);
+    document.querySelectorAll('[data-c]').forEach(el => n.productos[+el.dataset.c].c = el.value);
+    document.querySelectorAll('[data-pr]').forEach(el => n.productos[+el.dataset.pr].pr = el.value);
+  };
+  document.querySelectorAll('#vista input, #vista textarea, #vista select').forEach(el => el.addEventListener('input', () => { sync(); $('tot').textContent = dinero(total()); }));
+  document.querySelectorAll('[data-s]').forEach(el => el.onchange = () => {
+    sync(); const s = n.servicios[+el.dataset.s]; s.s = el.value;
+    const cfg = D.servicios[el.value];
+    if (cfg && cfg.precio && !s.m) s.m = cfg.precio;
+    if (cfg && cfg.dias && !n.proxima) { n.proxima = sumaDias(n.fecha || D.hoy, cfg.dias); toast('Próxima cita sugerida en ' + cfg.dias + ' días'); }
+    vRegistrar();
+  });
+  document.querySelectorAll('[data-p]').forEach(el => el.onchange = () => { sync(); const p = n.productos[+el.dataset.p]; p.id = el.value; const pr = D.productos.find(x => x.id === el.value); p.pr = pr ? pr.precio : ''; vRegistrar(); });
+  document.querySelectorAll('[data-qs]').forEach(el => el.onclick = () => { sync(); n.servicios.splice(+el.dataset.qs, 1); vRegistrar(); });
+  document.querySelectorAll('[data-qp]').forEach(el => el.onclick = () => { sync(); n.productos.splice(+el.dataset.qp, 1); vRegistrar(); });
+  $('addS').onclick = () => { sync(); n.servicios.push({ s: '', m: '' }); vRegistrar(); };
+  $('addP').onclick = () => { sync(); n.productos.push({ id: '', c: 1, pr: '' }); vRegistrar(); };
+  if ($('cambiar')) $('cambiar').onclick = () => { sync(); n.idc = ''; vRegistrar(); };
+  activarLector('rscan', (c, deTeclado) => {
+    sync();
+    const pr = productoPorCodigo(c);
+    if (!pr) { pitido(false); toast('El código ' + c + ' no está registrado. Dalo de alta en Inventario.', 4000); return; }
+    pitido(true);
+    const ya = n.productos.find(x => x.id === pr.id);
+    if (ya) ya.c = (Number(ya.c) || 0) + 1;
+    else { const vacia = n.productos.find(x => !x.id); if (vacia) { vacia.id = pr.id; vacia.c = 1; vacia.pr = pr.precio; } else n.productos.push({ id: pr.id, c: 1, pr: pr.precio }); }
+    const cant = Number((ya || n.productos.find(x => x.id === pr.id)).c);
+    vRegistrar();
+    toast(pr.nombre + ' × ' + cant + (pr.existencia !== '' && pr.existencia != null && cant > pr.existencia ? ' · ¡solo hay ' + pr.existencia + '!' : ''));
+    if (deTeclado) $('rscan').focus();
+  }, true);
+  if ($('bc')) {
+    const inp = $('bc'), box = $('bcs');
+    inp.oninput = () => {
+      const q = norm(inp.value), qt = inp.value.replace(/\D/g, '');
+      if (!q) { box.hidden = true; return; }
+      const l = D.clientas.filter(c => norm(c.nombre).includes(q) || norm(c.id).includes(q) || (qt.length >= 3 && c.whatsapp.includes(qt))).slice(0, 8);
+      box.innerHTML = l.length ? l.map(c => '<button type="button" data-id="' + esc(c.id) + '"><b>' + esc(c.nombre) + '</b><br><small>' + esc(c.id + ' · ' + c.whatsapp) + '</small></button>').join('') : '<button type="button" disabled><small>Sin resultados. Regístrala en la hoja o con el formulario.</small></button>';
+      box.hidden = false;
+      box.querySelectorAll('button[data-id]').forEach(b => b.onclick = () => { sync(); n.idc = b.dataset.id; vRegistrar(); });
+    };
+  }
+  $('guardar').onclick = () => { sync(); guardar(); };
+}
+function total() { const n = nueva; return n.servicios.reduce((s, x) => s + (Number(x.m) || 0), 0) + n.productos.reduce((s, p) => s + (Number(p.pr) || 0) * (Number(p.c) || 0), 0); }
+
+async function guardar() {
+  const n = nueva, msg = (t, cl) => $('rmsg').innerHTML = t ? '<div class="aviso ' + (cl || 'bad') + '">' + esc(t) + '</div>' : '';
+  const servicios = n.servicios.filter(s => s.s || s.m).map(s => ({ servicio: s.s, monto: Number(s.m), notas: '' }));
+  const productos = n.productos.filter(p => p.id).map(p => ({ idProducto: p.id, cantidad: Number(p.c) || 0, precio: p.pr === '' ? '' : Number(p.pr) }));
+  if (!n.idc) return msg('Elige a la clienta.');
+  if (servicios.some(s => !s.servicio)) return msg('Falta elegir un servicio.');
+  if (n.servicios.some(s => s.s && s.m === '')) return msg('Falta el monto de un servicio.');
+  if (!servicios.length && !productos.length) return msg('Agrega al menos un servicio o un producto.');
+  if (!n.pago) return msg('Elige la forma de pago.');
+  const b = $('guardar'); b.disabled = true; b.textContent = 'Registrando…'; msg('');
+  try {
+    const r = await srv('registrarAtencion', { idClienta: n.idc, fecha: n.fecha, atendio: n.atendio, formaPago: n.pago, servicios, productos, proximaCita: n.proxima, fotos: '', notas: n.notas, forzarExistencia });
+    if (!r.ok && r.faltaExistencia) {
+      forzarExistencia = true; b.disabled = false; b.textContent = 'Registrar de todas formas';
+      return msg(r.mensaje + '\nToca el botón otra vez para venderlo de todas formas.', 'warn');
+    }
+    forzarExistencia = false; n.res = r; vRegistrar();
+    srv('appInicio').then(d => { D = d; }).catch(() => { });
+  } catch (e) { b.disabled = false; b.textContent = 'Registrar atención'; msg(errorTexto(e)); }
+}
+function vHecho() {
+  const r = nueva.res;
+  $('vista').innerHTML = '<div style="text-align:center;padding-top:26px"><span class="chip ok">Registrado</span><h1 class="ficha-nom" style="margin-top:10px">' + esc(r.ticket) + '</h1><div style="color:var(--muted)">' + esc(r.clienta) + '</div>' +
+    '<div class="total" style="margin:16px 0"><span>Total</span><span class="v">' + dinero(r.total) + '</span></div><div class="lista" style="text-align:left">' + r.detalle.map(d => '<div class="mov">' + esc(d) + '</div>').join('') + '</div>' +
+    '<div class="chips" style="justify-content:center;gap:8px;margin-top:18px">' + (r.linkGracias ? '<a class="btn btn-wa" target="_blank" rel="noopener" href="' + esc(r.linkGracias) + '">Mandar agradecimiento</a>' : '') + '<button class="btn btn-sec" type="button" id="otra">Otra atención</button></div></div>';
+  $('otra').onclick = () => { nueva = nuevaAtencion(); vRegistrar(); };
+}
+
+/* ---------- Promos con plantillas ---------- */
+const PLANT_SEG = { toca: 'Te toca tratamiento', sugerir: 'Sugerir tratamiento', recompra: 'Recompra', cumpleMes: 'Cumpleaños', cumpleSemana: 'Cumpleaños', inactivas: 'Reactivación', nunca: 'Bienvenida' };
+let P = { seg: 'toca', valor: '', plantilla: 'Te toca tratamiento', mensaje: '', lista: null, camp: null, envio: null, nombre: '' };
+function opcionesValor(seg) {
+  const s = D.segmentos.find(x => x.id === seg); if (!s || !s.valor) return null;
+  if (s.valor === 'piel') return D.listas.piel;
+  if (s.valor === 'preocupacion') return D.listas.preocupacion;
+  if (s.valor === 'servicio') return seg === 'sugerir' ? Object.keys(D.servicios).filter(k => D.servicios[k].pieles.length || D.servicios[k].preocupaciones.length) : D.listas.servicio;
+  if (s.valor === 'producto') return D.productos.map(p => ({ v: p.id, t: p.nombre }));
+  return 'numero';
+}
+function vPromos() {
+  if (P.envio) return vEnvio();
+  if (!P.mensaje) P.mensaje = D.plantillas[P.plantilla] || '';
+  const ov = opcionesValor(P.seg);
+  const opt = (l, v) => l.map(x => { const val = typeof x === 'object' ? x.v : x, t = typeof x === 'object' ? x.t : x; return '<option value="' + esc(val) + '"' + (String(val) === String(v) ? ' selected' : '') + '>' + esc(t) + '</option>'; }).join('');
+  let h = '<div class="campos" style="margin-top:6px">';
+  h += '<div><label class="l" for="pseg">¿A quién?</label><select id="pseg">' + opt(D.segmentos.map(s => ({ v: s.id, t: s.nombre })), P.seg) + '</select></div>';
+  if (ov === 'numero') h += '<div><label class="l" for="pval">' + (P.seg === 'vip' ? 'Gasto mínimo ($)' : 'Días sin venir (mínimo)') + '</label><input id="pval" type="number" inputmode="numeric" value="' + esc(P.valor || (P.seg === 'vip' ? 2000 : D.diasInactiva)) + '"></div>';
+  else if (ov) h += '<div><label class="l" for="pval">Elige</label><select id="pval">' + opt(ov, P.valor) + '</select></div>';
+  h += '<div><label class="l" for="ppl">Plantilla</label><select id="ppl">' + opt(Object.keys(D.plantillas), P.plantilla) + '</select></div>';
+  h += '<div><label class="l" for="pmsg">Mensaje</label><textarea id="pmsg" rows="6">' + esc(P.mensaje) + '</textarea><div class="ejemplo" style="margin-top:4px">{nombre} se cambia por el nombre de cada clienta.</div></div>';
+  h += '<button class="btn btn-sec" type="button" id="pver">Ver clientas</button><div id="plist"></div></div>';
+  $('vista').innerHTML = h;
+  const leer = () => { P.mensaje = $('pmsg').value; P.valor = $('pval') ? $('pval').value : ''; };
+  $('pseg').onchange = e => { leer(); P.seg = e.target.value; P.valor = ''; P.lista = null; if (PLANT_SEG[P.seg] && D.plantillas[PLANT_SEG[P.seg]]) { P.plantilla = PLANT_SEG[P.seg]; P.mensaje = D.plantillas[P.plantilla]; } vPromos(); };
+  $('ppl').onchange = e => { leer(); P.plantilla = e.target.value; P.mensaje = D.plantillas[P.plantilla]; vPromos(); };
+  $('pmsg').oninput = leer;
+  if ($('pval')) $('pval').onchange = () => { leer(); P.lista = null; };
+  $('pver').onclick = async () => {
+    leer(); const v = opcionesValor(P.seg); if (v && v !== 'numero' && !P.valor) P.valor = typeof v[0] === 'object' ? v[0].v : v[0];
+    $('plist').innerHTML = '<div class="carga"><span class="spin"></span>Buscando…</div>';
+    try { P.lista = await srv('obtenerSegmento', { segmento: P.seg, valor: P.valor }); pintarLista(); }
+    catch (e) { $('plist').innerHTML = '<div class="aviso bad">' + esc(errorTexto(e)) + '</div>'; }
+  };
+  if (P.lista) pintarLista();
+}
+function pintarLista() {
+  const l = P.lista;
+  if (!l.length) { $('plist').innerHTML = '<div class="vacio">No hay clientas en este grupo (solo cuentan las que aceptaron promociones).</div>'; return; }
+  $('plist').innerHTML = '<div class="lista">' + l.map((c, i) => '<label class="fila" style="cursor:pointer"><input type="checkbox" data-i="' + i + '" ' + (c.diasDesdeContacto !== '' && c.diasDesdeContacto < 7 ? '' : 'checked') + ' style="width:auto"><div class="txt"><div class="nom">' + esc(c.nombre) + '</div><div class="det">' +
+    esc([c.servicio ? c.servicio + (c.diasServicio ? ' · hace ' + c.diasServicio + ' días' : '') : '', c.producto, c.ultimoContacto ? 'último mensaje ' + c.ultimoContacto : ''].filter(Boolean).join(' · ') || c.whatsapp) + '</div></div></label>').join('') + '</div>' +
+    '<div class="campos" style="margin-top:12px"><input id="pnom" placeholder="Nombre de la campaña (ej. Noviembre tratamientos)" value="' + esc(P.nombre) + '"><button class="btn btn-prim" type="button" id="pprep" style="padding:12px">Preparar envío</button><div id="pmsg2"></div></div>';
+  $('pprep').onclick = async () => {
+    P.nombre = $('pnom').value.trim();
+    const ids = Array.from(document.querySelectorAll('#plist input[type=checkbox]')).filter(x => x.checked).map(x => l[+x.dataset.i].id);
+    if (!ids.length) return toast('Marca al menos una clienta');
+    if (P.nombre.length < 3) return toast('Ponle nombre a la campaña');
+    const b = $('pprep'); b.disabled = true; b.textContent = 'Preparando…';
+    const s = D.segmentos.find(x => x.id === P.seg);
+    try {
+      const r = await srv('prepararCampana', { nombre: P.nombre, tipo: '', segmento: P.seg, valor: P.valor, segmentoTexto: s.nombre + (P.valor ? ': ' + P.valor : ''), mensaje: P.mensaje, vigencia: '', ids });
+      P.camp = r.idCampana; P.envio = r.lista; vPromos();
+    } catch (e) { b.disabled = false; b.textContent = 'Preparar envío'; $('pmsg2').innerHTML = '<div class="aviso bad">' + esc(errorTexto(e)) + '</div>'; }
+  };
+}
+function vEnvio() {
+  const l = P.envio, hechos = l.filter(x => x.estado === 'Enviado').length;
+  $('vista').innerHTML = '<div class="aviso ok" style="margin-top:6px">Campaña ' + esc(P.camp) + ' · ' + hechos + ' de ' + l.length + ' enviadas</div><div class="lista" style="margin-top:12px">' +
+    l.map((c, i) => '<div class="fila' + (c.estado === 'Enviado' ? ' hecha' : '') + '"><div class="avatar">' + esc(iniciales(c.nombre)) + '</div><div class="txt"><div class="nom">' + esc(c.nombre) + '</div><div class="det">' + esc(c.whatsapp) + '</div></div>' +
+      (c.estado === 'Enviado' ? '<span class="chip ok">Enviado</span>' : c.link ? '<a class="btn btn-wa" target="_blank" rel="noopener" data-i="' + i + '" href="' + esc(c.link) + '">WhatsApp</a>' : '<span class="chip bad">Sin WhatsApp</span>') + '</div>').join('') +
+    '</div><button class="btn btn-ghost" type="button" id="pnueva" style="margin-top:14px">Nueva campaña</button>';
+  $('vista').querySelectorAll('a.btn-wa').forEach(a => a.addEventListener('click', () => {
+    const c = l[+a.dataset.i];
+    setTimeout(() => { c.estado = 'Enviado'; vEnvio(); srv('marcarEnviado', P.camp, c.id).catch(e => toast(errorTexto(e), 4000)); }, 300);
+  }));
+  $('pnueva').onclick = () => { P.envio = null; P.camp = null; P.lista = null; P.nombre = ''; vPromos(); };
+}
+
+/* ---------- Lector de código de barras ----------
+   1) Lector Bluetooth/USB: "escribe" el código en el campo y manda Enter.
+   2) Cámara: toma una foto (la cámara en vivo está bloqueada en las apps de Google)
+      y se lee con BarcodeDetector (Android/Chrome) o con ZXing (iPhone y el resto). */
+const limpiarCodigo = c => String(c || '').replace(/[\s\u0000-\u001F​]/g, '');
+function productoPorCodigo(c) {
+  c = limpiarCodigo(c); if (!c) return null;
+  return D.productos.find(p => p.codigo && p.codigo === c) || D.productos.find(p => String(p.id).toUpperCase() === c.toUpperCase()) || null;
+}
+const ICO_CAM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16"/><path d="M7.5 8v8M10 8v8M12.5 8v8M15 8v8M17 8v8" stroke-width="1.4"/></svg>';
+function barraLector(id, ph) {
+  return '<div class="scan"><input id="' + id + '" inputmode="text" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="' + esc(ph) + '"><button class="cam" type="button" id="' + id + 'Cam" aria-label="Escanear con la cámara">' + ICO_CAM + '</button></div>';
+}
+/** alLeer(codigo, deTeclado). continuo=true: la cámara sigue abierta para escanear varias piezas. */
+function activarLector(id, alLeer, continuo) {
+  const inp = $(id); if (!inp) return;
+  inp.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== 'Tab') return;
+    const c = limpiarCodigo(inp.value); if (!c) return;
+    e.preventDefault(); inp.value = ''; alLeer(c, true);
+  });
+  $(id + 'Cam').onclick = () => escanearVivo(c => alLeer(c, false), { continuo: !!continuo, btn: $(id + 'Cam') });
+}
+function pitido(ok) {
+  try {
+    const A = window.AudioContext || window.webkitAudioContext; if (!A) return;
+    const ctx = pitido._c || (pitido._c = new A()), o = ctx.createOscillator(), g = ctx.createGain();
+    o.frequency.value = ok ? 1500 : 320; g.gain.value = .08; o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + (ok ? .08 : .25));
+  } catch (e) { }
+  if (navigator.vibrate) navigator.vibrate(ok ? 40 : [60, 60, 60]);
+}
+/* ---------- Cámara en vivo ----------
+   Android/Chrome: BarcodeDetector (nativo, muy rápido). iPhone y otros: ZXing cuadro por cuadro.
+   Se acepta un código cuando sale igual en dos lecturas seguidas (evita lecturas falsas). */
+let CAM = null;
+async function crearDetector() {
+  if (!('BarcodeDetector' in window)) return null;
+  try {
+    const sop = await window.BarcodeDetector.getSupportedFormats();
+    const f = FORMATOS.filter(x => sop.indexOf(x) >= 0);
+    return f.length ? new window.BarcodeDetector({ formats: f }) : null;
+  } catch (e) { return null; }
+}
+async function escanearVivo(alLeer, opc) {
+  opc = opc || {};
+  if (CAM) cerrarCamara();
+  CAM = { alLeer, continuo: !!opc.continuo, stream: null, timer: 0, cand: '', candT: 0, ult: '', ultT: 0, n: 0 };
+  const yo = CAM;
+  $('camMsg').textContent = 'Abriendo cámara…'; $('camUlt').hidden = true; $('camLuz').hidden = true; $('marco').classList.remove('ok');
+  $('camCerrar').textContent = CAM.continuo ? 'Listo' : 'Cancelar';
+  $('camara').hidden = false;
+  fotoCb = alLeer; fotoBtn = opc.btn || null; // por si eligen "Usar foto"
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { $('camMsg').textContent = 'Este navegador no deja usar la cámara en vivo. Toca "Usar foto".'; return; }
+  try {
+    yo.stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } } });
+  } catch (e) {
+    if (CAM !== yo) return;
+    $('camMsg').textContent = e && e.name === 'NotAllowedError'
+      ? 'No diste permiso para la cámara. Actívalo en el candado de la barra de direcciones, o toca "Usar foto".'
+      : 'No se pudo abrir la cámara. Toca "Usar foto".';
+    return;
+  }
+  if (CAM !== yo) { yo.stream.getTracks().forEach(t => t.stop()); return; }
+  const v = $('video'); v.srcObject = yo.stream;
+  try { await v.play(); } catch (e) { }
+  const track = yo.stream.getVideoTracks()[0];
+  try { const cap = track.getCapabilities ? track.getCapabilities() : {}; if (cap.torch) $('camLuz').hidden = false; } catch (e) { }
+  $('camMsg').textContent = CAM.continuo ? 'Pasa las piezas una por una frente a la cámara. Toca "Listo" al terminar.' : 'Pon el código de barras dentro del recuadro';
+  const det = await crearDetector();
+  const Z = det ? null : await cargarZXing().catch(() => null);
+  if (!det && !Z) { $('camMsg').textContent = 'No se pudo cargar el lector (¿sin internet?). Toca "Usar foto".'; return; }
+  const cv = document.createElement('canvas');
+  const ciclo = async () => {
+    if (CAM !== yo) return;
+    let code = '';
+    if (v.readyState >= 2 && v.videoWidth) {
+      try {
+        if (det) { const r = await det.detect(v); if (r.length) code = r[0].rawValue; }
+        else {
+          // recorta la franja del recuadro y la reduce: más rápido y sin distracciones
+          const w = v.videoWidth, h = v.videoHeight, cw = Math.round(w * .92), ch = Math.round(Math.min(h * .5, cw * .6));
+          const k = Math.min(1, 960 / cw); cv.width = Math.round(cw * k); cv.height = Math.round(ch * k);
+          cv.getContext('2d', { willReadFrequently: true }).drawImage(v, (w - cw) / 2, (h - ch) / 2, cw, ch, 0, 0, cv.width, cv.height);
+          code = zxingLeer(Z, cv, true);
+        }
+      } catch (e) { }
+    }
+    if (CAM !== yo) return;
+    code = limpiarCodigo(code);
+    const ahora = Date.now();
+    // La misma pieza no se vuelve a contar mientras siga frente a la cámara: hay que retirarla
+    // (que el código deje de verse ~0.7 s) y acercar la siguiente.
+    if (code && code === yo.ult) yo.ultVisto = ahora;
+    else if (yo.ult && ahora - (yo.ultVisto || 0) > 700) yo.armado = true;
+    if (code && !(code === yo.ult && !yo.armado)) {
+      if (code === yo.cand && ahora - yo.candT < 1500) {
+        {
+          yo.ult = code; yo.ultVisto = ahora; yo.armado = false; yo.n++;
+          $('marco').classList.add('ok'); setTimeout(() => $('marco').classList.remove('ok'), 400);
+          if (!yo.continuo) { cerrarCamara(); alLeer(code); return; }
+          alLeer(code);
+          const pr = productoPorCodigo(code);
+          $('camUlt').textContent = (pr ? pr.nombre : code) + ' · ' + yo.n + ' escaneo' + (yo.n === 1 ? '' : 's');
+          $('camUlt').hidden = false;
+        }
+        yo.cand = '';
+      } else { yo.cand = code; yo.candT = ahora; }
+    }
+    yo.timer = setTimeout(ciclo, det ? 90 : 140);
+  };
+  ciclo();
+}
+function cerrarCamara() {
+  const c = CAM; CAM = null;
+  if (c) { clearTimeout(c.timer); if (c.stream) c.stream.getTracks().forEach(t => t.stop()); }
+  const v = $('video'); try { v.pause(); } catch (e) { } v.srcObject = null;
+  $('camara').hidden = true;
+}
+$('camCerrar').onclick = () => { fotoCb = null; cerrarCamara(); };
+$('camFoto').addEventListener('click', () => { $('foto').value = ''; const cb = CAM && CAM.alLeer; if (cb) fotoCb = cb; setTimeout(cerrarCamara, 0); });
+$('camLuz').onclick = async () => {
+  const t = CAM && CAM.stream && CAM.stream.getVideoTracks()[0]; if (!t) return;
+  CAM.luz = !CAM.luz;
+  try { await t.applyConstraints({ advanced: [{ torch: CAM.luz }] }); $('camLuz').textContent = CAM.luz ? 'Apagar luz' : 'Linterna'; } catch (e) { toast('Este celular no deja prender la linterna desde la página'); }
+};
+document.addEventListener('visibilitychange', () => { if (document.hidden && CAM) cerrarCamara(); });
+
+let fotoCb = null, fotoBtn = null;
+$('foto').addEventListener('change', async () => {
+  const f = $('foto').files[0]; if (!f || !fotoCb) return;
+  const cb = fotoCb, btn = fotoBtn; fotoCb = null;
+  if (btn) btn.classList.add('ocupado');
+  toast('Leyendo código…', 15000);
+  try {
+    const c = limpiarCodigo(await leerCodigoDeFoto(f));
+    if (!c) { pitido(false); toast('No se pudo leer. Toma la foto de cerca, con buena luz y con el código completo y derecho.', 5000); return; }
+    $('toast').hidden = true; cb(c);
+  } catch (e) { pitido(false); toast('No se pudo leer el código: ' + errorTexto(e), 5000); }
+  finally { if (btn) btn.classList.remove('ocupado'); }
+});
+const FORMATOS = ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'code_93', 'itf', 'codabar', 'qr_code'];
+function cargarImagen(file) {
+  return new Promise((ok, mal) => { const u = URL.createObjectURL(file), im = new Image(); im.onload = () => { ok(im); setTimeout(() => URL.revokeObjectURL(u), 1000); }; im.onerror = () => mal(new Error('La foto no se pudo abrir')); im.src = u; });
+}
+/** Dibuja la foto reducida (máx. `max` px), con margen blanco (por si el código quedó pegado a la orilla)
+    y opcionalmente girada 90°, para códigos que salieron de lado. */
+function lienzo(im, max, girar) {
+  const w0 = im.naturalWidth, h0 = im.naturalHeight, k = Math.min(1, max / Math.max(w0, h0));
+  const w = Math.round(w0 * k), h = Math.round(h0 * k), m = Math.round(Math.max(w, h) * .05) + 10, cv = document.createElement('canvas');
+  cv.width = (girar ? h : w) + 2 * m; cv.height = (girar ? w : h) + 2 * m;
+  const cx = cv.getContext('2d', { willReadFrequently: true });
+  cx.fillStyle = '#FFFFFF'; cx.fillRect(0, 0, cv.width, cv.height);
+  cx.translate(m, m);
+  if (girar) { cx.translate(h, 0); cx.rotate(Math.PI / 2); }
+  cx.drawImage(im, 0, 0, w, h);
+  return cv;
+}
+let zxing = null;
+function cargarZXing() {
+  if (window.ZXing) return Promise.resolve(window.ZXing);
+  if (zxing) return zxing;
+  zxing = new Promise((ok, mal) => {
+    const sc = document.createElement('script');
+    sc.src = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
+    sc.onload = () => window.ZXing ? ok(window.ZXing) : mal(new Error('no cargó el lector'));
+    sc.onerror = () => { zxing = null; mal(new Error('sin internet para cargar el lector')); };
+    document.head.appendChild(sc);
+  });
+  return zxing;
+}
+function zxingLeer(Z, cv, rapido) {
+  const cx = cv.getContext('2d', { willReadFrequently: true }), px = cx.getImageData(0, 0, cv.width, cv.height).data;
+  const lum = new Uint8ClampedArray(cv.width * cv.height);
+  for (let i = 0, j = 0; i < px.length; i += 4, j++) lum[j] = (px[i] * 299 + px[i + 1] * 587 + px[i + 2] * 114) / 1000;
+  const hints = new Map();
+  if (!rapido) hints.set(Z.DecodeHintType.TRY_HARDER, true);
+  hints.set(Z.DecodeHintType.POSSIBLE_FORMATS, ['EAN_13', 'EAN_8', 'UPC_A', 'UPC_E', 'CODE_128', 'CODE_39', 'CODE_93', 'ITF', 'CODABAR', 'QR_CODE'].map(f => Z.BarcodeFormat[f]));
+  const r = new Z.MultiFormatReader(); r.setHints(hints);
+  const src = new Z.RGBLuminanceSource(lum, cv.width, cv.height);
+  try { return r.decode(new Z.BinaryBitmap(new Z.HybridBinarizer(src))).getText(); }
+  catch (e) { return ''; }
+}
+async function leerCodigoDeFoto(file) {
+  const im = await cargarImagen(file);
+  const intentos = [[1600, false], [1600, true], [2400, false], [2400, true], [900, false]];
+  if ('BarcodeDetector' in window) {
+    try {
+      const sop = await window.BarcodeDetector.getSupportedFormats();
+      const det = new window.BarcodeDetector({ formats: FORMATOS.filter(f => sop.indexOf(f) >= 0) });
+      for (const [m, g] of intentos) { const r = await det.detect(lienzo(im, m, g)); if (r.length) return r[0].rawValue; }
+    } catch (e) { /* sigue con ZXing */ }
+  }
+  const Z = await cargarZXing();
+  for (const [m, g] of intentos) { const t = zxingLeer(Z, lienzo(im, m, g)); if (t) return t; }
+  return '';
+}
+
+/* ---------- Inventario ---------- */
+const POCAS = 3;
+let INV = { q: '', filtro: 'todos' };
+const controla = p => p.existencia !== '' && p.existencia != null;
+function vInventario() {
+  const prods = D.productos, bajos = prods.filter(p => controla(p) && p.existencia <= POCAS).length, sinCod = prods.filter(p => !p.codigo).length;
+  let h = '<div class="campos" style="margin-top:6px">' + barraLector('iscan', 'Escanea un producto') +
+    '<input id="iq" type="search" placeholder="Buscar por nombre, marca o ID" autocomplete="off" value="' + esc(INV.q) + '"></div>' +
+    '<div class="filtros">' + [['todos', 'Todos · ' + prods.length], ['bajos', 'Por agotarse · ' + bajos], ['sincodigo', 'Sin código · ' + sinCod]].map(f =>
+      '<button type="button" data-f="' + f[0] + '" aria-pressed="' + (INV.filtro === f[0]) + '">' + esc(f[1]) + '</button>').join('') + '</div>' +
+    '<div class="lista" id="il" style="margin-top:12px"></div>' +
+    '<button class="agregar" type="button" id="inuevo" style="margin-top:12px">+ Producto nuevo</button>' +
+    '<p class="ejemplo" style="margin-top:12px">Con un lector Bluetooth: toca el campo de escanear y dispara. Sin lector: toca el botón de la cámara y toma la foto del código.</p>';
+  $('vista').innerHTML = h;
+  const pintar = () => {
+    const q = norm(INV.q);
+    const l = prods.filter(p => (!q || norm(p.nombre + ' ' + p.marca + ' ' + p.id + ' ' + (p.codigo || '')).includes(q)) &&
+      (INV.filtro !== 'bajos' || (controla(p) && p.existencia <= POCAS)) && (INV.filtro !== 'sincodigo' || !p.codigo))
+      .sort((a, b) => (controla(a) ? a.existencia : 1e9) - (controla(b) ? b.existencia : 1e9) || a.nombre.localeCompare(b.nombre));
+    $('il').innerHTML = l.length ? l.map(p => '<button type="button" class="fila clic" data-id="' + esc(p.id) + '"><div class="txt"><div class="nom">' + esc(p.nombre) + '</div><div class="det">' +
+      esc([p.marca, dinero(p.precio)].filter(Boolean).join(' · ')) + ' · <span class="codigo">' + esc(p.codigo || 'sin código') + '</span></div></div>' +
+      (controla(p) ? '<div class="stock' + (p.existencia <= POCAS ? ' bajo' : '') + '"><div class="q">' + p.existencia + '</div><div class="u">piezas</div></div>' : '<span class="chip">Sin control</span>') + '</button>').join('')
+      : '<div class="vacio">No hay productos que coincidan.</div>';
+    $('il').querySelectorAll('button[data-id]').forEach(b => b.onclick = () => abrirProducto(b.dataset.id));
+  };
+  $('iq').oninput = e => { INV.q = e.target.value; pintar(); };
+  $('vista').querySelectorAll('[data-f]').forEach(b => b.onclick = () => { INV.filtro = b.dataset.f; vInventario(); });
+  $('inuevo').onclick = () => abrirNuevoProducto('');
+  activarLector('iscan', c => {
+    const p = productoPorCodigo(c); pitido(!!p);
+    if (p) abrirProducto(p.id, true); else abrirCodigoDesconocido(c);
+  });
+  pintar();
+}
+
+/** Ficha del producto: existencia y "Agregar piezas". Escanear el mismo producto suma 1. */
+function abrirProducto(id, porEscaneo) {
+  const p = D.productos.find(x => x.id === id); if (!p) return;
+  let cant = porEscaneo ? 1 : 0;
+  const pinta = () => {
+    const dato = (a, b) => '<div class="dato"><span>' + esc(a) + '</span><span>' + b + '</span></div>';
+    $('panelIn').innerHTML = '<button class="volver" type="button" id="cerrar">← Volver</button><h1 class="ficha-nom">' + esc(p.nombre) + '</h1>' +
+      '<div class="chips" style="margin:8px 0 14px"><span class="chip">' + esc(p.id) + '</span>' + (p.codigo ? '<span class="chip codigo">' + esc(p.codigo) + '</span>' : '<span class="chip warn">Sin código de barras</span>') + (p.categoria ? '<span class="chip">' + esc(p.categoria) + '</span>' : '') + '</div>' +
+      '<div class="kpis"><div class="kpi' + (controla(p) && p.existencia <= POCAS ? '' : ' principal') + '"><div class="t">Existencia</div><div class="v" style="' + (controla(p) && p.existencia <= POCAS ? 'color:var(--bad)' : '') + '">' + (controla(p) ? p.existencia : '—') + '</div><div class="s">' + (controla(p) ? 'piezas' : 'sin control de inventario') + '</div></div>' +
+      '<div class="kpi"><div class="t">Vendidas</div><div class="v">' + (p.vendidos || 0) + '</div><div class="s">piezas en total</div></div></div>' +
+      '<section class="seccion"><h2>Entrada de mercancía</h2><div class="campos">' + barraLector('pscan', 'Escanea cada pieza') +
+      '<div class="contador"><button type="button" id="menos" aria-label="Una menos">−</button><input id="pcant" type="number" inputmode="numeric" value="' + (cant || '') + '" placeholder="0"><button type="button" id="mas" aria-label="Una más">+</button></div>' +
+      '<input id="pnota" placeholder="Nota: proveedor, factura… (opcional)">' +
+      '<button class="btn btn-prim" type="button" id="pent" style="padding:13px">Agregar piezas</button><div id="pmsg"></div>' +
+      '<div class="ejemplo">Para restar (merma, producto dañado) pon un número negativo.</div></div></section>' +
+      '<section class="seccion"><h2>Datos</h2>' + dato('Marca', esc(p.marca || '—')) + dato('Precio de venta', dinero(p.precio)) + dato('Costo', p.costo ? dinero(p.costo) : '—') +
+      dato('Ganancia por pieza', p.costo ? dinero(p.precio - p.costo) : '—') + dato('Le dura a la clienta', p.dias ? p.dias + ' días' : '—') + '</section>' +
+      '<section class="seccion"><h2>Código de barras</h2><div class="campos">' + barraLector('pcod', p.codigo ? 'Escanea para cambiarlo' : 'Escanea para ligarlo') + '</div></section>';
+    $('panel').hidden = false;
+    $('cerrar').onclick = () => { $('panel').hidden = true; if (tab === 'inventario') vInventario(); };
+    const leerCant = () => Number($('pcant').value) || 0;
+    $('menos').onclick = () => { cant = leerCant() - 1; $('pcant').value = cant || ''; };
+    $('mas').onclick = () => { cant = leerCant() + 1; $('pcant').value = cant; };
+    activarLector('pscan', (c, deTeclado) => {
+      const q = productoPorCodigo(c);
+      if (!q) { pitido(false); toast('El código ' + c + ' no está registrado'); return; }
+      pitido(true);
+      if (q.id !== p.id) { cerrarCamara(); toast('Ese es ' + q.nombre + '. Cambiando de producto…'); abrirProducto(q.id, true); return; }
+      cant = leerCant() + 1; $('pcant').value = cant; toast(p.nombre + ': ' + cant + ' pieza' + (cant === 1 ? '' : 's'));
+      if (deTeclado) $('pscan').focus();
+    }, true);
+    activarLector('pcod', async c => {
+      const otro = productoPorCodigo(c);
+      if (otro && otro.id === p.id) { pitido(true); toast('Ese código ya es de este producto'); return; }
+      if (otro && otro.codigo === c) { pitido(false); toast('Ese código ya es de ' + otro.nombre, 4000); return; }
+      if (p.codigo && !confirm('¿Cambiar el código ' + p.codigo + ' por ' + c + '?')) return;
+      try { const r = await srv('asignarCodigoProducto', p.id, c); p.codigo = r.codigo; pitido(true); toast('Código ligado'); pinta(); }
+      catch (e) { pitido(false); toast(errorTexto(e), 4500); }
+    });
+    $('pent').onclick = async () => {
+      const n = leerCant(), b = $('pent');
+      if (!n) { $('pmsg').innerHTML = '<div class="aviso bad">Escribe o escanea cuántas piezas entran.</div>'; return; }
+      b.disabled = true; b.textContent = 'Guardando…';
+      try {
+        const r = await srv('registrarEntrada', { idProducto: p.id, cantidad: n, nota: $('pnota').value.trim() });
+        p.existencia = r.existencia; cant = 0; pinta();
+        $('pmsg').innerHTML = '<div class="aviso ok">' + esc(r.mensaje) + '</div>';
+      } catch (e) { b.disabled = false; b.textContent = 'Agregar piezas'; $('pmsg').innerHTML = '<div class="aviso bad">' + esc(errorTexto(e)) + '</div>'; }
+    };
+  };
+  pinta(); $('panel').scrollTop = 0;
+}
+
+/** Escanearon un código que nadie tiene: darlo de alta o ligarlo a un producto existente. */
+function abrirCodigoDesconocido(c) {
+  const sinCod = D.productos.filter(p => !p.codigo);
+  $('panelIn').innerHTML = '<button class="volver" type="button" id="cerrar">← Volver</button><h1 class="ficha-nom">Código nuevo</h1>' +
+    '<div class="chips" style="margin:8px 0 14px"><span class="chip codigo">' + esc(c) + '</span></div>' +
+    '<div class="aviso warn">Este código no está registrado. ¿Es un producto nuevo o uno que ya tienes en la lista?</div>' +
+    '<div class="campos" style="margin-top:14px"><button class="btn btn-prim" type="button" id="cnuevo" style="padding:13px">Registrar producto nuevo</button>' +
+    (sinCod.length ? '<label class="l" for="cligar" style="margin-top:8px">O ligarlo a un producto que aún no tiene código</label><select id="cligar"><option value="">Elige…</option>' + sinCod.map(p => '<option value="' + esc(p.id) + '">' + esc(p.nombre) + '</option>').join('') + '</select><button class="btn btn-sec" type="button" id="cok">Ligar código</button>' : '') +
+    '<div id="cmsg"></div></div>';
+  $('panel').hidden = false; $('panel').scrollTop = 0;
+  $('cerrar').onclick = () => { $('panel').hidden = true; };
+  $('cnuevo').onclick = () => abrirNuevoProducto(c);
+  if ($('cok')) $('cok').onclick = async () => {
+    const id = $('cligar').value; if (!id) return toast('Elige el producto');
+    try { const r = await srv('asignarCodigoProducto', id, c); const p = D.productos.find(x => x.id === id); p.codigo = r.codigo; pitido(true); abrirProducto(id, true); }
+    catch (e) { $('cmsg').innerHTML = '<div class="aviso bad">' + esc(errorTexto(e)) + '</div>'; }
+  };
+}
+
+function abrirNuevoProducto(codigo) {
+  const opt = l => '<option value="">—</option>' + (l || []).map(x => '<option>' + esc(x) + '</option>').join('');
+  $('panelIn').innerHTML = '<button class="volver" type="button" id="cerrar">← Volver</button><h1 class="ficha-nom">Producto nuevo</h1>' +
+    '<div class="campos" style="margin-top:14px">' +
+    '<div><label class="l" for="nc">Código de barras</label>' + barraLector('nc', 'Escanéalo o déjalo vacío') + '</div>' +
+    '<div><label class="l" for="nn">Nombre *</label><input id="nn" maxlength="80" placeholder="Ej. Sérum Vitamina C 30 ml"></div>' +
+    '<div class="dos"><div><label class="l" for="nm">Marca</label><input id="nm" maxlength="40"></div><div><label class="l" for="ncat">Categoría</label><select id="ncat">' + opt(D.listas.categoria) + '</select></div></div>' +
+    '<div><label class="l" for="npiel">Ideal para piel</label><select id="npiel">' + opt((D.listas.piel || []).concat(['Todo tipo'])) + '</select></div>' +
+    '<div class="dos"><div><label class="l" for="np">Precio de venta *</label><input id="np" type="number" inputmode="numeric" min="0"></div><div><label class="l" for="nco">Costo</label><input id="nco" type="number" inputmode="numeric" min="0"></div></div>' +
+    '<div class="dos"><div><label class="l" for="nex">Piezas que tienes</label><input id="nex" type="number" inputmode="numeric" min="0" placeholder="Vacío = sin control"></div><div><label class="l" for="nd">Días que le dura</label><input id="nd" type="number" inputmode="numeric" min="1" placeholder="Para recompra"></div></div>' +
+    '<button class="btn btn-prim" type="button" id="ng" style="padding:13px">Guardar producto</button><div id="nmsg"></div></div>';
+  $('panel').hidden = false; $('panel').scrollTop = 0;
+  $('nc').value = codigo || '';
+  $('cerrar').onclick = () => { $('panel').hidden = true; };
+  activarLector('nc', c => {
+    const otro = productoPorCodigo(c);
+    if (otro && otro.codigo === c) { pitido(false); toast('Ese código ya es de ' + otro.nombre, 4000); return; }
+    pitido(true); $('nc').value = c; $('nn').focus();
+  });
+  $('ng').onclick = async () => {
+    const d = { codigo: limpiarCodigo($('nc').value), nombre: $('nn').value.trim(), marca: $('nm').value.trim(), categoria: $('ncat').value, piel: $('npiel').value,
+      precio: $('np').value, costo: $('nco').value, existenciaInicial: $('nex').value, dias: $('nd').value };
+    const msg = t => $('nmsg').innerHTML = '<div class="aviso bad">' + esc(t) + '</div>';
+    if (d.nombre.length < 2) return msg('Escribe el nombre del producto.');
+    if (!(Number(d.precio) > 0)) return msg('Escribe el precio de venta.');
+    if (d.costo !== '' && Number(d.costo) > Number(d.precio)) return msg('El costo es mayor que el precio de venta.');
+    const b = $('ng'); b.disabled = true; b.textContent = 'Guardando…';
+    try {
+      const r = await srv('guardarProducto', d);
+      D.productos.push({ id: r.id, codigo: r.codigo, nombre: d.nombre, marca: d.marca, categoria: d.categoria, precio: Number(d.precio), costo: Number(d.costo) || 0,
+        dias: d.dias === '' ? '' : Number(d.dias), vendidos: 0, existencia: d.existenciaInicial === '' ? '' : Number(d.existenciaInicial) });
+      pitido(true); toast(r.mensaje); abrirProducto(r.id);
+    } catch (e) { b.disabled = false; b.textContent = 'Guardar producto'; msg(errorTexto(e)); }
+  };
+  if (codigo) $('nn').focus();
+}
+
+/* ---------- Arranque ---------- */
+$('fecha').textContent = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+document.querySelectorAll('nav.tabs button').forEach(b => b.onclick = () => { tab = b.dataset.tab; render(); });
+$('btnRecargar').onclick = () => cargar();
+pintarQuien();
+cargar();
+// Deja listo el lector de fotos para celulares sin lector integrado (iPhone)
+if (!('BarcodeDetector' in window)) setTimeout(() => cargarZXing().catch(() => { }), 2500);
+</script>
+</body>
+</html>
