@@ -363,7 +363,8 @@ function vHoy() {
 /* ---------- Clientas y ficha ---------- */
 let filtro = '';
 function vClientas() {
-  $('vista').innerHTML = '<input id="q" type="search" placeholder="Buscar por nombre, WhatsApp o ID" value="' + esc(filtro) + '" autocomplete="off" style="margin-top:6px"><div class="lista" id="lc" style="margin-top:12px"></div>';
+  $('vista').innerHTML = '<div style="display:flex;gap:8px;margin-top:6px"><input id="q" type="search" placeholder="Buscar por nombre, WhatsApp o ID" value="' + esc(filtro) + '" autocomplete="off"><button class="btn btn-prim" type="button" id="cnueva" style="flex:none">+ Nueva</button></div><div class="lista" id="lc" style="margin-top:12px"></div>';
+  $('cnueva').onclick = () => abrirFormClienta(null, { nombre: /\d/.test(filtro) ? '' : filtro, whatsapp: filtro.replace(/\D/g, '') });
   const pintar = () => {
     const q = norm(filtro), qt = filtro.replace(/\D/g, '');
     const l = D.clientas.filter(c => !q || norm(c.nombre).includes(q) || norm(c.id).includes(q) || (qt.length >= 3 && c.whatsapp.includes(qt)))
@@ -386,7 +387,7 @@ async function abrirFicha(id) {
       '<span class="chip">' + esc(c.id) + '</span><span class="chip ' + (c.estado === 'Activa' ? 'ok' : c.estado === 'Inactiva' ? 'bad' : '') + '">' + esc(c.estado || '—') + '</span>' +
       (c.aviso === 'Sí' ? '<span class="chip ok">Aviso firmado</span>' : '<span class="chip bad">Sin aviso</span>') + (c.cumpleMes ? '<span class="chip warn">Cumple este mes</span>' : '') + '</div>';
     if (c.alergias && c.alergias !== 'Ninguna') h += '<div class="aviso bad" style="margin-bottom:10px"><b>Alergias:</b> ' + esc(c.alergias) + '</div>';
-    h += '<div class="chips" style="gap:8px">' + (F.linkWhatsApp ? '<a class="btn btn-wa" href="' + esc(F.linkWhatsApp) + '" target="_blank" rel="noopener">WhatsApp</a>' : '') + '<button class="btn btn-prim" type="button" id="fAt">Registrar atención</button></div>';
+    h += '<div class="chips" style="gap:8px">' + (F.linkWhatsApp ? '<a class="btn btn-wa" href="' + esc(F.linkWhatsApp) + '" target="_blank" rel="noopener">WhatsApp</a>' : '') + '<button class="btn btn-prim" type="button" id="fAt">Registrar atención</button><button class="btn btn-sec" type="button" id="fEd">Editar datos</button></div>';
     h += '<div class="kpis" style="margin-top:14px"><div class="kpi"><div class="t">Ha gastado</div><div class="v">' + dinero(c.total) + '</div></div><div class="kpi"><div class="t">Visitas</div><div class="v">' + F.totalVisitas + '</div></div></div>';
     if (F.proximaCita || F.leToca || F.sugeridos.length || F.recompras.length) {
       h += '<section class="seccion"><h2>Siguiente paso</h2><div class="lista">';
@@ -404,9 +405,77 @@ async function abrirFicha(id) {
     $('panelIn').innerHTML = h; $('panel').scrollTop = 0;
     $('cerrar').onclick = () => $('panel').hidden = true;
     $('fAt').onclick = () => { $('panel').hidden = true; nueva = nuevaAtencion(id); tab = 'registrar'; render(); };
+    $('fEd').onclick = () => abrirFormClienta(c);
   } catch (e) {
     $('panelIn').innerHTML = '<button class="volver" type="button" onclick="document.getElementById(\'panel\').hidden=true">← Volver</button><div class="aviso bad" style="margin-top:10px">' + esc(errorTexto(e)) + '</div>';
   }
+}
+
+/* ---------- Nueva clienta / editar ---------- */
+/** c = clienta a editar (de la ficha) o null para nueva. pre = {nombre, whatsapp}. alGuardar(r) opcional (ej. desde Registrar). */
+function abrirFormClienta(c, pre, alGuardar) {
+  const ed = !!c; c = c || {}; pre = pre || {};
+  const L = D.listas || {};
+  const opt = (l, v) => '<option value="">—</option>' + (l || []).map(x => '<option' + (x === v ? ' selected' : '') + '>' + esc(x) + '</option>').join('');
+  const hoyISO = D.hoy;
+  $('panelIn').innerHTML = '<button class="volver" type="button" id="cerrar">← ' + (ed ? 'Volver a la ficha' : 'Volver') + '</button>' +
+    '<h1 class="ficha-nom">' + (ed ? 'Editar clienta' : 'Nueva clienta') + '</h1>' + (ed ? '<div class="chips" style="margin:8px 0 0"><span class="chip">' + esc(c.id) + '</span></div>' : '') +
+    '<div class="campos" style="margin-top:14px">' +
+    '<div><label class="l" for="kn">Nombre completo *</label><input id="kn" maxlength="80" autocomplete="off" autocapitalize="words" value="' + esc(c.nombre || pre.nombre || '') + '"></div>' +
+    '<div class="dos"><div><label class="l" for="kw">WhatsApp *</label><input id="kw" type="tel" inputmode="numeric" placeholder="10 dígitos" value="' + esc(c.whatsapp || (pre.whatsapp || '').slice(-10)) + '"></div>' +
+    '<div><label class="l" for="kb">Cumpleaños</label><input id="kb" type="date" max="' + hoyISO + '" value="' + esc(c.nacimiento || '') + '"></div></div>' +
+    '<div><label class="l" for="kc">¿Cómo nos conoció?</label><select id="kc">' + opt(L.comoLlego, c.comoLlego) + '</select></div>' +
+    '<div class="dos"><div><label class="l" for="kp">Tipo de piel</label><select id="kp">' + opt(L.piel, c.piel) + '</select></div>' +
+    '<div><label class="l" for="kq">Qué quiere mejorar</label><select id="kq">' + opt(L.preocupacion, c.preocupacion) + '</select></div></div>' +
+    '<div><label class="l" for="ka">Alergias o condiciones</label><input id="ka" maxlength="150" placeholder="Ninguna" value="' + esc(c.alergias && c.alergias !== 'Ninguna' ? c.alergias : '') + '"></div>' +
+    '<div><label class="l" for="kt">Notas</label><textarea id="kt" maxlength="500" placeholder="Preferencias, horarios…">' + esc(c.notas || '') + '</textarea></div>' +
+    '<label class="fila" style="cursor:pointer;align-items:flex-start"><input type="checkbox" id="kav" style="width:auto;margin-top:3px"' + (c.aviso === 'Sí' ? ' checked' : '') + '><div class="txt"><div class="nom" style="white-space:normal">Aceptó el aviso de privacidad</div><div class="det">Necesario para guardar su piel y alergias y para mandarle promociones.</div></div></label>' +
+    '<label class="fila" style="cursor:pointer"><input type="checkbox" id="kpr" style="width:auto"' + (c.aceptaPromos === 'Sí' ? ' checked' : '') + '><div class="txt"><div class="nom" style="white-space:normal">Acepta promociones por WhatsApp</div></div></label>' +
+    '<div id="kmsg"></div><button class="btn btn-prim" type="button" id="kg" style="padding:13px">' + (ed ? 'Guardar cambios' : 'Registrar clienta') + '</button></div>';
+  $('panel').hidden = false; $('panel').scrollTop = 0;
+  $('cerrar').onclick = () => { if (ed) abrirFicha(c.id); else $('panel').hidden = true; };
+  $('kw').oninput = function () { let t = this.value.replace(/\D/g, ''); if (t.length === 12 && t.indexOf('52') === 0) t = t.slice(2); this.value = t.slice(0, 10); };
+  $('kav').onchange = function () { if (!this.checked) $('kpr').checked = false; };
+  $('kpr').onchange = function () { if (this.checked && !$('kav').checked) { $('kav').checked = true; toast('Se marcó también el aviso de privacidad'); } };
+  if (!ed && !$('kn').value) setTimeout(() => $('kn').focus(), 50);
+  const msg = (h, cl) => $('kmsg').innerHTML = h ? '<div class="aviso ' + (cl || 'bad') + '">' + h + '</div>' : '';
+  const guardarK = async forzar => {
+    const d = {
+      id: c.id || '', nombre: $('kn').value.trim(), whatsapp: $('kw').value, nacimiento: $('kb').value, registro: c.registro || '',
+      comoLlego: $('kc').value, piel: $('kp').value, preocupacion: $('kq').value, alergias: $('ka').value.trim(), notas: $('kt').value.trim(),
+      aviso: $('kav').checked ? 'Sí' : 'No', aceptaPromos: $('kpr').checked ? 'Sí' : 'No', forzarDuplicado: !!forzar, origen: 'App · ' + (SES ? SES.nombre : '')
+    };
+    if (d.nombre.split(/\s+/).length < 2) return msg('Escribe nombre y apellido.');
+    if (d.whatsapp.length !== 10) return msg('El WhatsApp debe tener 10 dígitos.');
+    if (d.aviso !== 'Sí' && (d.piel || d.preocupacion || d.alergias) && !confirm('Vas a guardar datos de piel/alergias sin aviso de privacidad. ¿Continuar?')) return;
+    const b = $('kg'); b.disabled = true; b.textContent = 'Guardando…'; msg('');
+    try {
+      const r = await srv('guardarClienta', d);
+      if (r && r.duplicado) {
+        b.disabled = false; b.textContent = ed ? 'Guardar cambios' : 'Registrar clienta';
+        msg(esc(r.mensaje) + '<div class="chips" style="margin-top:8px;gap:8px"><button class="btn btn-sec btn-mini" type="button" id="kver">Ver a esa clienta</button><button class="btn btn-ghost btn-mini" type="button" id="kforzar">Es otra persona, guardar</button></div>', 'warn');
+        $('kver').onclick = () => alGuardar ? alGuardar({ id: r.idExistente }) : abrirFicha(r.idExistente);
+        $('kforzar').onclick = () => guardarK(true);
+        return;
+      }
+      // Actualiza la lista local para no tener que recargar todo
+      const loc = { id: r.id, nombre: r.nombre, whatsapp: d.whatsapp, piel: d.piel, alergias: d.alergias || 'Ninguna' };
+      const i = D.clientas.findIndex(x => x.id === r.id);
+      if (i >= 0) Object.assign(D.clientas[i], loc); else D.clientas.unshift(Object.assign({ estado: '', ultima: '' }, loc));
+      pitido(true);
+      if (alGuardar) { toast(r.mensaje, 3500); alGuardar(r); return; }
+      if (ed) { toast('Cambios guardados'); abrirFicha(r.id); return; }
+      $('panelIn').innerHTML = '<button class="volver" type="button" id="cerrar">← Volver</button><div style="text-align:center;padding-top:20px"><span class="chip ok">Registrada</span>' +
+        '<h1 class="ficha-nom" style="margin-top:10px">' + esc(r.nombre) + '</h1><div style="color:var(--muted)">' + esc(r.id) + '</div>' +
+        '<div class="campos" style="margin-top:18px">' + (r.bienvenida && d.aviso === 'Sí' ? '<a class="btn btn-wa" style="padding:12px" target="_blank" rel="noopener" href="' + esc(r.bienvenida) + '">Mandar bienvenida por WhatsApp</a>' : '') +
+        '<button class="btn btn-prim" type="button" id="kat" style="padding:12px">Registrar su atención</button><button class="btn btn-sec" type="button" id="kfi">Ver su ficha</button><button class="btn btn-ghost" type="button" id="kot">Registrar otra clienta</button></div></div>';
+      $('cerrar').onclick = () => { $('panel').hidden = true; if (tab === 'clientas') vClientas(); };
+      $('kat').onclick = () => { $('panel').hidden = true; nueva = nuevaAtencion(r.id); tab = 'registrar'; render(); };
+      $('kfi').onclick = () => abrirFicha(r.id);
+      $('kot').onclick = () => abrirFormClienta(null);
+    } catch (e) { b.disabled = false; b.textContent = ed ? 'Guardar cambios' : 'Registrar clienta'; msg(esc(errorTexto(e))); }
+  };
+  $('kg').onclick = () => guardarK(false);
 }
 
 /* ---------- Registrar atención ---------- */
@@ -477,8 +546,10 @@ function vRegistrar() {
       const q = norm(inp.value), qt = inp.value.replace(/\D/g, '');
       if (!q) { box.hidden = true; return; }
       const l = D.clientas.filter(c => norm(c.nombre).includes(q) || norm(c.id).includes(q) || (qt.length >= 3 && c.whatsapp.includes(qt))).slice(0, 8);
-      box.innerHTML = l.length ? l.map(c => '<button type="button" data-id="' + esc(c.id) + '"><b>' + esc(c.nombre) + '</b><br><small>' + esc(c.id + ' · ' + c.whatsapp) + '</small></button>').join('') : '<button type="button" disabled><small>Sin resultados. Regístrala en la hoja o con el formulario.</small></button>';
+      box.innerHTML = l.length ? l.map(c => '<button type="button" data-id="' + esc(c.id) + '"><b>' + esc(c.nombre) + '</b><br><small>' + esc(c.id + ' · ' + c.whatsapp) + '</small></button>').join('') : '<button type="button" data-nueva="1"><b>+ Registrar nueva clienta</b><br><small>No hay nadie con «' + esc(inp.value) + '»</small></button>';
       box.hidden = false;
+      const bn = box.querySelector('[data-nueva]');
+      if (bn) bn.onclick = () => { sync(); const t = inp.value.trim(); abrirFormClienta(null, { nombre: /\d/.test(t) ? '' : t, whatsapp: t.replace(/\D/g, '') }, r => { n.idc = r.id; $('panel').hidden = true; tab = 'registrar'; render(); }); };
       box.querySelectorAll('button[data-id]').forEach(b => b.onclick = () => { sync(); n.idc = b.dataset.id; vRegistrar(); });
     };
   }
