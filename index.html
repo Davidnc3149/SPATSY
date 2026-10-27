@@ -53,10 +53,10 @@ button { cursor: pointer; }
 
 /* Barra inferior */
 nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--line);
-  display: grid; grid-template-columns: repeat(5, 1fr);
+  display: grid; grid-template-columns: repeat(6, 1fr);
   padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)); }
-nav.tabs button { border: 0; background: none; padding: 6px 2px; border-radius: 10px; display: grid; justify-items: center; gap: 2px; font-size: 11px; font-weight: 600; color: var(--muted); }
-nav.tabs button svg { width: 22px; height: 22px; }
+nav.tabs button { border: 0; background: none; padding: 6px 0; border-radius: 10px; display: grid; justify-items: center; gap: 2px; font-size: 10.5px; font-weight: 600; color: var(--muted); min-width: 0; letter-spacing: -.1px; }
+nav.tabs button svg { width: 21px; height: 21px; }
 nav.tabs button[aria-selected="true"] { color: var(--rosa); background: var(--rosa-soft); }
 
 /* Bloques */
@@ -71,7 +71,7 @@ nav.tabs button[aria-selected="true"] { color: var(--rosa); background: var(--ro
 .kpi.principal { background: var(--rosa); border-color: var(--rosa); }
 .kpi.principal .t, .kpi.principal .s, .kpi.principal .v { color: var(--on-accent); }
 
-.lista { display: grid; gap: 8px; }
+.lista { display: grid; gap: 8px; grid-template-columns: minmax(0, 1fr); }
 .fila { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 11px 12px; display: flex; align-items: center; gap: 10px; }
 .fila .txt { flex: 1; min-width: 0; }
 .fila .nom { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -171,6 +171,43 @@ textarea { resize: vertical; min-height: 70px; }
 .camara .cam-bot { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 .camara .cam-bot .btn { min-width: 110px; padding: 12px 16px; }
 .camara .cam-bot .btn-ghost { color: #fff; border-color: rgba(255,255,255,.5); background: rgba(0,0,0,.25); }
+/* Agenda */
+.semana { display: grid; grid-template-columns: 34px repeat(7, 1fr) 34px; gap: 4px; align-items: stretch; margin-top: 6px; }
+.semana .flecha { border: 0; background: none; color: var(--rosa); font-size: 22px; font-weight: 700; padding: 0; }
+.dia { border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 6px 0 5px; display: grid; justify-items: center; gap: 1px; min-width: 0; }
+.dia .dn { font-size: 10.5px; color: var(--muted); text-transform: uppercase; font-weight: 600; }
+.dia .dd { font-family: var(--f-display); font-size: 18px; line-height: 1.1; }
+.dia .dc { font-size: 10.5px; font-weight: 700; color: var(--rosa); min-height: 14px; }
+.dia.hoy { border-color: var(--rosa); }
+.dia[aria-pressed="true"] { background: var(--rosa); border-color: var(--rosa); color: var(--on-accent); }
+.dia[aria-pressed="true"] .dn, .dia[aria-pressed="true"] .dc { color: var(--on-accent); }
+.cita { display: grid; grid-template-columns: 62px 1fr auto; gap: 10px; align-items: center; text-align: left; width: 100%; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--rosa); border-radius: var(--r); padding: 10px 12px; }
+.cita .h { font-family: var(--f-display); font-size: 17px; line-height: 1.1; }
+.cita .h small { display: block; font-family: var(--f-body); font-size: 11.5px; color: var(--muted); }
+.cita.e-Confirmada { border-left-color: var(--ok); } .cita.e-Pendiente { border-left-color: var(--warn); }
+.cita.e-Atendida, .cita.e-Cancelada, .cita.e-No { opacity: .6; } .cita.e-Cancelada .nom { text-decoration: line-through; }
+.chip.e-Pendiente { background: var(--warn-soft); color: var(--warn); } .chip.e-Confirmada { background: var(--ok-soft); color: var(--ok); }
+.chip.e-No { background: var(--bad-soft); color: var(--bad); } .chip.e-Cancelada { background: var(--line); color: var(--muted); }
+.acciones { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.acciones .btn { padding: 11px 10px; }
+.acciones .ancho { grid-column: 1 / -1; }
+/* Cobro */
+.cobro { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; display: grid; gap: 10px; }
+.cobro .renglon { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 14.5px; }
+.cobro .renglon.gran { font-size: 16px; font-weight: 700; }
+.cobro .renglon.gran .num { font-family: var(--f-display); font-size: 26px; color: var(--rosa); font-weight: 400; }
+.pago { display: grid; grid-template-columns: 1fr 110px 36px; gap: 8px; align-items: center; }
+.pago input[readonly] { background: var(--bg); color: var(--muted); }
+.desc { display: grid; grid-template-columns: 74px 1fr; gap: 8px; }
+.rapidos { display: flex; gap: 6px; flex-wrap: wrap; }
+.rapidos button { border: 1px solid var(--line); background: var(--surface); color: var(--ciruela); border-radius: 99px; padding: 5px 11px; font-size: 12.5px; font-weight: 600; }
+.cambio { background: var(--ok-soft); color: var(--ok); border-radius: 10px; padding: 8px 12px; font-weight: 700; display: flex; justify-content: space-between; }
+.linkbtn { border: 0; background: none; color: var(--rosa); font-weight: 600; padding: 2px 0; text-align: left; }
+/* Corte */
+.ticket { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.ticket .acc { grid-column: 1 / -1; display: flex; gap: 8px; }
+.ticket.cancelado { opacity: .5; }
+.kpi.clic { cursor: pointer; }
 .foto-oculta { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; left: -10px; top: 0; }
 .quien { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
 .quien button { border: 0; background: none; color: var(--rosa); font-weight: 600; padding: 0 0 0 4px; font-size: 12.5px; }
@@ -200,8 +237,9 @@ textarea { resize: vertical; min-height: 70px; }
 
 <nav class="tabs" role="tablist">
   <button type="button" role="tab" data-tab="hoy" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>Hoy</button>
+  <button type="button" role="tab" data-tab="agenda" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h2.5M13.5 14H16M8 17.5h2.5"/></svg>Agenda</button>
   <button type="button" role="tab" data-tab="clientas" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c1.9.7 3 2.4 3.5 5.2"/></svg>Clientas</button>
-  <button type="button" role="tab" data-tab="registrar" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Registrar</button>
+  <button type="button" role="tab" data-tab="registrar" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Cobrar</button>
   <button type="button" role="tab" data-tab="promos" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10v4a1 1 0 0 0 1 1h2l5 4V5L7 9H5a1 1 0 0 0-1 1z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>Promos</button>
   <button type="button" role="tab" data-tab="inventario" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/></svg>Inventario</button>
 </nav>
@@ -288,7 +326,7 @@ $('loginForm').onsubmit = async e => {
   b.disabled = true; b.textContent = 'Entrando…';
   try {
     const r = await run('entrar', [pin]);
-    guardarSesion({ token: r.token, nombre: r.nombre });
+    guardarSesion({ token: r.token, nombre: r.nombre, rol: r.rol });
     $('login').hidden = true; $('pin').value = '';
     pintarQuien(); cargar();
   } catch (err) { $('loginMsg').innerHTML = '<div class="aviso bad">' + esc(errorTexto(err)) + '</div>'; $('pin').value = ''; $('pin').focus(); }
@@ -296,12 +334,18 @@ $('loginForm').onsubmit = async e => {
 };
 function pintarQuien() {
   const q = $('quien'); if (!SES) { q.hidden = true; return; }
-  q.hidden = false; q.innerHTML = esc(SES.nombre) + ' ·<button type="button" id="btnSalir">Salir</button>';
+  const rol = (D && D.rol) || SES.rol;
+  q.hidden = false; q.innerHTML = esc(SES.nombre) + (rol === 'empleada' ? ' · empleada' : '') + ' ·<button type="button" id="btnSalir">Salir</button>';
   $('btnSalir').onclick = () => {
     if (!confirm('¿Salir de la App? Para volver a entrar se necesita el PIN.')) return;
     run('salir', [SES.token]).catch(() => { });
     guardarSesion(null); D = null; q.hidden = true;
-    $('vista').innerHTML = ''; pedirPin();
+    // Que la siguiente persona no vea nada de la sesión anterior
+    nueva = null; filtro = ''; tab = 'hoy';
+    try { P = { seg: 'toca', valor: '', plantilla: 'Te toca tratamiento', mensaje: '', lista: null, camp: null, envio: null, nombre: '' }; } catch (e) { }
+    try { AG = { fecha: '', cache: {} }; } catch (e) { }
+    try { INV = { q: '', filtro: 'todos' }; } catch (e) { }
+    $('panel').hidden = true; $('vista').innerHTML = ''; pedirPin();
   };
 }
 function wa(tel, txt) { const t = String(tel || '').replace(/\D/g, '').slice(-10); return t.length === 10 ? 'https://wa.me/52' + t + (txt ? '?text=' + encodeURIComponent(txt) : '') : ''; }
@@ -320,6 +364,8 @@ async function cargar() {
   try {
     D = await srv('appInicio');
     $('marca').textContent = D.negocio;
+    if (SES && D.rol && SES.rol !== D.rol) guardarSesion(Object.assign({}, SES, { rol: D.rol }));
+    AG.cache = {}; pintarQuien();
     render();
   } catch (e) {
     $('estado').innerHTML = '<div class="aviso bad">' + esc(errorTexto(e)) + '</div>';
@@ -329,19 +375,47 @@ async function cargar() {
 function render() {
   document.querySelectorAll('nav.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
   if (!D) return;
-  ({ hoy: vHoy, clientas: vClientas, registrar: vRegistrar, promos: vPromos, inventario: vInventario })[tab]();
+  ({ hoy: vHoy, agenda: vAgenda, clientas: vClientas, registrar: vRegistrar, promos: vPromos, inventario: vInventario })[tab]();
   window.scrollTo(0, 0);
 }
 
 /* ---------- Hoy ---------- */
+const esDuena = () => !!D && D.rol !== 'empleada';
+const VIVAS = c => c.estado !== 'Cancelada' && c.estado !== 'No llegó';
+function filaCita(c, conFecha) {
+  const e = c.estado.split(' ')[0];
+  return '<button type="button" class="cita e-' + esc(e) + '" data-cita="' + esc(c.id) + '"><div class="h">' + esc(c.horaTexto.replace(/ ?([ap])\.m\./, '$1')) + '<small>' + c.duracion + ' min</small></div>' +
+    '<div class="txt" style="min-width:0"><div class="nom">' + esc(c.nombre) + '</div><div class="det">' + esc([conFecha ? isoMx(c.fecha).slice(0, 5) : '', c.servicio, c.atiende].filter(Boolean).join(' · ') || '—') + '</div></div>' +
+    '<span class="chip e-' + esc(e) + '">' + esc(c.estado) + '</span></button>';
+}
+function ligarCitas(cont) { cont.querySelectorAll('[data-cita]').forEach(b => b.onclick = () => abrirCita(b.dataset.cita)); }
+function citaPorId(id) {
+  const todas = (D.citas || []).concat(...Object.keys(AG.cache).map(k => AG.cache[k]));
+  return todas.find(c => c.id === id);
+}
+
 function vHoy() {
   const k = D.kpis;
   const total = D.pendientes.reduce((s, x) => s + x.items.length, 0);
-  let h = '<div class="kpis">' +
-    '<div class="kpi principal"><div class="t">Vendido hoy</div><div class="v">' + dinero(k.ventasHoy) + '</div><div class="s">' + k.ticketsHoy + ' ticket' + (k.ticketsHoy === 1 ? '' : 's') + '</div></div>' +
-    '<div class="kpi"><div class="t">Pendientes</div><div class="v">' + total + '</div><div class="s">mensajes por mandar</div></div>' +
-    '<div class="kpi"><div class="t">Este mes</div><div class="v">' + dinero(k.ventasMes) + '</div><div class="s">' + k.ticketsMes + ' tickets</div></div>' +
+  const manana = sumaDias(D.hoy, 1);
+  const citasHoy = (D.citas || []).filter(c => c.fecha === D.hoy && VIVAS(c));
+  const porConfirmar = (D.citas || []).filter(c => c.fecha === manana && c.estado === 'Pendiente');
+  let h = '<div class="kpis">' + (esDuena()
+    ? '<div class="kpi principal clic" id="kCorte" role="button"><div class="t">Vendido hoy ›</div><div class="v">' + dinero(k.ventasHoy) + '</div><div class="s">' + k.ticketsHoy + ' ticket' + (k.ticketsHoy === 1 ? '' : 's') + ' · ver corte</div></div>' +
+      '<div class="kpi"><div class="t">Citas hoy</div><div class="v">' + citasHoy.length + '</div><div class="s">' + citasHoy.filter(c => c.estado === 'Atendida').length + ' atendidas</div></div>' +
+      '<div class="kpi"><div class="t">Este mes</div><div class="v">' + dinero(k.ventasMes) + '</div><div class="s">' + k.ticketsMes + ' tickets</div></div>'
+    : '<div class="kpi principal"><div class="t">Citas hoy</div><div class="v">' + citasHoy.length + '</div><div class="s">' + citasHoy.filter(c => c.estado === 'Atendida').length + ' atendidas</div></div>' +
+      '<div class="kpi"><div class="t">Por confirmar</div><div class="v">' + porConfirmar.length + '</div><div class="s">citas de mañana</div></div>' +
+      '<div class="kpi"><div class="t">Mensajes</div><div class="v">' + total + '</div><div class="s">pendientes</div></div>') +
     '<div class="kpi"><div class="t">Activas</div><div class="v">' + k.activas + '</div><div class="s">de ' + k.clientas + ' clientas</div></div></div>';
+  h += '<section class="seccion"><h2>Citas de hoy<span class="n">' + citasHoy.length + '</span></h2><div class="lista" id="hc">' +
+    (citasHoy.length ? citasHoy.map(c => filaCita(c)).join('') : '<div class="vacio">No hay citas para hoy.</div>') +
+    '</div><div class="chips" style="margin-top:10px;gap:8px"><button class="btn btn-sec btn-mini" type="button" id="hAg">Ver agenda</button><button class="btn btn-prim btn-mini" type="button" id="hNc">+ Agendar cita</button></div></section>';
+  if (porConfirmar.length) {
+    h += '<section class="seccion"><h2>Confirmar citas de mañana<span class="n">' + porConfirmar.length + '</span></h2><div class="lista">' +
+      porConfirmar.map(c => '<div class="fila" id="pc_' + esc(c.id) + '"><div class="avatar">' + esc(c.horaTexto.split(' ')[0]) + '</div><div class="txt"><div class="nom">' + esc(c.nombre) + '</div><div class="det">' + esc((c.servicio || 'Cita') + (c.recordada ? ' · ya se le escribió' : '')) + '</div></div>' +
+        (c.linkConfirmar ? '<a class="btn btn-wa" href="' + esc(c.linkConfirmar) + '" target="_blank" rel="noopener" data-conf="' + esc(c.id) + '">' + (c.recordada ? 'Otra vez' : 'Confirmar') + '</a>' : '<span class="chip bad">Sin WhatsApp</span>') + '</div>').join('') + '</div></section>';
+  }
   const VACIO = { CUMPLE: 'Nadie cumple años en los próximos 7 días.', CITA: 'No hay citas sugeridas para hoy ni mañana.', RECOMPRA: 'Nadie está por terminarse su producto.', TOCA: 'Nadie está pendiente de su siguiente sesión.', REACTIVAR: 'No hay clientas por reactivar esta semana.' };
   D.pendientes.forEach((s, si) => {
     h += '<section class="seccion"><h2>' + esc(s.titulo.replace(/^\S+\s/, '')) + '<span class="n">' + s.items.length + '</span></h2><div class="lista">' +
@@ -351,13 +425,235 @@ function vHoy() {
   });
   h += '<p class="ejemplo" style="margin-top:18px">Al tocar WhatsApp se abre el mensaje listo y la clienta sale de la lista unos días.</p>';
   $('vista').innerHTML = h;
-  $('vista').querySelectorAll('a.btn-wa').forEach(a => a.addEventListener('click', () => {
+  ligarCitas($('vista'));
+  if ($('kCorte')) $('kCorte').onclick = () => abrirCorte(D.hoy);
+  $('hAg').onclick = () => { AG.fecha = D.hoy; tab = 'agenda'; render(); };
+  $('hNc').onclick = () => abrirFormCita(null, { fecha: D.hoy });
+  $('vista').querySelectorAll('a[data-conf]').forEach(a => a.addEventListener('click', () => {
+    const c = citaPorId(a.dataset.conf); if (c) c.recordada = 'hoy';
+    srv('marcarRecordatorioCita', a.dataset.conf).catch(() => { });
+    setTimeout(() => { a.textContent = 'Otra vez'; a.closest('.fila').querySelector('.det').textContent = (c && c.servicio || 'Cita') + ' · ya se le escribió'; }, 300);
+  }));
+  $('vista').querySelectorAll('a.btn-wa[data-s]').forEach(a => a.addEventListener('click', () => {
     const s = D.pendientes[+a.dataset.s], x = s.items[+a.dataset.i], fila = $('p' + a.dataset.s + '_' + a.dataset.i);
     setTimeout(() => {
       fila.classList.add('hecha'); a.outerHTML = '<span class="chip ok">Enviado</span>';
       srv('registrarRecordatorioEnviado', s.tipo, x.id, x.detalle).catch(e => toast(errorTexto(e), 4000));
     }, 300);
   }));
+}
+
+/* ---------- Agenda ---------- */
+let AG = { fecha: '', cache: {} };
+const DIAS_C = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+const MESES_C = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const fechaD = iso => new Date(iso + 'T12:00:00');
+function lunesDe(iso) { const d = fechaD(iso), w = (d.getDay() + 6) % 7; return sumaDias(iso, -w); }
+function fechaLargaC(iso) {
+  const d = fechaD(iso), dif = Math.round((d - fechaD(D.hoy)) / 864e5);
+  const base = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'][d.getDay()] + ' ' + d.getDate() + ' de ' + MESES_C[d.getMonth()];
+  return dif === 0 ? 'Hoy, ' + base : dif === 1 ? 'Mañana, ' + base : dif === -1 ? 'Ayer, ' + base : base.charAt(0).toUpperCase() + base.slice(1);
+}
+async function citasSemana(lunes, forzar) {
+  if (!forzar && AG.cache[lunes]) return AG.cache[lunes];
+  AG.cache[lunes] = await srv('listarCitas', lunes, sumaDias(lunes, 6));
+  return AG.cache[lunes];
+}
+function refrescarCitas() {
+  AG.cache = {};
+  srv('listarCitas', D.hoy, sumaDias(D.hoy, 1)).then(l => { D.citas = l; if (tab === 'hoy') vHoy(); }).catch(() => { });
+  if (tab === 'agenda') vAgenda();
+}
+async function vAgenda() {
+  if (!AG.fecha) AG.fecha = D.hoy;
+  const lunes = lunesDe(AG.fecha);
+  const pinta = lista => {
+    if (tab !== 'agenda') return;
+    const dias = Array.from({ length: 7 }, (_, i) => sumaDias(lunes, i));
+    const cuenta = f => lista ? lista.filter(c => c.fecha === f && VIVAS(c)).length : 0;
+    const delDia = lista ? lista.filter(c => c.fecha === AG.fecha) : null;
+    const d0 = fechaD(lunes), d6 = fechaD(dias[6]);
+    let h = '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:6px"><h2 style="font-family:var(--f-display);font-weight:400;font-size:19px;color:var(--ciruela)">' +
+      esc(MESES_C[d0.getMonth()].charAt(0).toUpperCase() + MESES_C[d0.getMonth()].slice(1) + (d0.getMonth() !== d6.getMonth() ? ' – ' + MESES_C[d6.getMonth()] : '') + ' ' + d6.getFullYear()) +
+      '</h2>' + (AG.fecha !== D.hoy ? '<button class="linkbtn" type="button" id="aHoy">Ir a hoy</button>' : '') + '</div>';
+    h += '<div class="semana"><button class="flecha" type="button" id="aPrev" aria-label="Semana anterior">‹</button>' + dias.map(f => {
+      const d = fechaD(f), n = cuenta(f);
+      return '<button type="button" class="dia' + (f === D.hoy ? ' hoy' : '') + '" data-f="' + f + '" aria-pressed="' + (f === AG.fecha) + '"><span class="dn">' + DIAS_C[d.getDay()] + '</span><span class="dd">' + d.getDate() + '</span><span class="dc">' + (n ? n : '') + '</span></button>';
+    }).join('') + '<button class="flecha" type="button" id="aNext" aria-label="Semana siguiente">›</button></div>';
+    h += '<section class="seccion"><h2>' + esc(fechaLargaC(AG.fecha)) + (delDia ? '<span class="n">' + delDia.filter(VIVAS).length + '</span>' : '') + '</h2><div class="lista" id="al">' +
+      (!delDia ? '<div class="carga"><span class="spin"></span>Cargando citas…</div>' : delDia.length ? delDia.map(c => filaCita(c)).join('') : '<div class="vacio">No hay citas este día.</div>') + '</div></section>';
+    h += '<button class="btn btn-prim" type="button" id="aNueva" style="width:100%;padding:13px;margin-top:14px">+ Agendar cita' + (AG.fecha !== D.hoy ? ' el ' + isoMx(AG.fecha).slice(0, 5) : '') + '</button>';
+    $('vista').innerHTML = h;
+    ligarCitas($('vista'));
+    $('vista').querySelectorAll('.dia').forEach(b => b.onclick = () => { AG.fecha = b.dataset.f; pinta(lista); });
+    $('aPrev').onclick = () => { AG.fecha = sumaDias(AG.fecha, -7); vAgenda(); };
+    $('aNext').onclick = () => { AG.fecha = sumaDias(AG.fecha, 7); vAgenda(); };
+    if ($('aHoy')) $('aHoy').onclick = () => { AG.fecha = D.hoy; vAgenda(); };
+    $('aNueva').onclick = () => abrirFormCita(null, { fecha: AG.fecha < D.hoy ? D.hoy : AG.fecha });
+  };
+  pinta(AG.cache[lunes] || null);
+  if (!AG.cache[lunes]) {
+    try { pinta(await citasSemana(lunes)); }
+    catch (e) { if (tab === 'agenda' && $('al')) $('al').innerHTML = '<div class="aviso bad">' + esc(errorTexto(e)) + '</div>'; }
+  }
+}
+
+/** Panel de una cita con todo lo que se puede hacer con ella. */
+function abrirCita(id) {
+  const c = citaPorId(id); if (!c) return;
+  const cl = clientaPorId(c.idClienta) || {};
+  const e = c.estado.split(' ')[0];
+  const activa = c.estado === 'Pendiente' || c.estado === 'Confirmada';
+  $('panelIn').innerHTML = '<button class="volver" type="button" id="cerrar">← Volver</button><h1 class="ficha-nom">' + esc(c.nombre) + '</h1>' +
+    '<div class="chips" style="margin:8px 0 14px"><span class="chip e-' + esc(e) + '">' + esc(c.estado) + '</span><span class="chip">' + esc(c.id) + '</span>' + (c.ticket ? '<span class="chip ok">' + esc(c.ticket) + '</span>' : '') + '</div>' +
+    (cl.alergias && cl.alergias !== 'Ninguna' ? '<div class="aviso bad" style="margin-bottom:10px"><b>Alergias:</b> ' + esc(cl.alergias) + '</div>' : '') +
+    '<div class="kpis"><div class="kpi principal"><div class="t">' + esc(fechaLargaC(c.fecha)) + '</div><div class="v">' + esc(c.horaTexto) + '</div><div class="s">' + c.duracion + ' minutos</div></div>' +
+    '<div class="kpi"><div class="t">Servicio</div><div class="v" style="font-size:17px">' + esc(c.servicio || '—') + '</div><div class="s">' + esc(c.atiende ? 'Atiende ' + c.atiende : 'Sin asignar') + '</div></div></div>' +
+    (c.notas ? '<div class="aviso warn" style="margin-top:10px">' + esc(c.notas) + '</div>' : '') +
+    '<div class="acciones" style="margin-top:14px">' +
+    (activa && c.fecha <= D.hoy ? '<button class="btn btn-prim ancho" type="button" id="ciCobrar" style="padding:13px">Llegó · cobrar</button>' : '') +
+    (activa && c.linkConfirmar ? '<a class="btn btn-wa ancho" style="padding:12px" target="_blank" rel="noopener" href="' + esc(c.linkConfirmar) + '" id="ciWa">' + (c.recordada ? 'Escribirle otra vez' : 'Pedir confirmación por WhatsApp') + '</a>' : '') +
+    (c.estado === 'Pendiente' ? '<button class="btn btn-sec" type="button" data-est="Confirmada">Ya confirmó</button>' : '') +
+    (activa ? '<button class="btn btn-sec" type="button" id="ciMover">Cambiar fecha u hora</button>' : '') +
+    (activa && c.fecha <= D.hoy ? '<button class="btn btn-ghost" type="button" data-est="No llegó">No llegó</button>' : '') +
+    (activa ? '<button class="btn btn-ghost" type="button" data-est="Cancelada">Cancelar cita</button>' : '') +
+    (!activa && c.estado !== 'Atendida' ? '<button class="btn btn-sec" type="button" data-est="Pendiente">Reactivar cita</button>' : '') +
+    '<button class="btn btn-ghost" type="button" id="ciFicha">Ver ficha</button></div>' +
+    '<div id="cimsg" style="margin-top:10px"></div>' +
+    (c.creadaPor ? '<p class="ejemplo" style="margin-top:12px">Agendó: ' + esc(c.creadaPor) + (c.recordada ? ' · se le escribió: ' + esc(c.recordada) : '') + '</p>' : '');
+  $('panel').hidden = false; $('panel').scrollTop = 0;
+  $('cerrar').onclick = () => { $('panel').hidden = true; render(); };
+  $('ciFicha').onclick = () => abrirFicha(c.idClienta);
+  if ($('ciMover')) $('ciMover').onclick = () => abrirFormCita(c);
+  if ($('ciWa')) $('ciWa').addEventListener('click', () => { c.recordada = 'hoy'; srv('marcarRecordatorioCita', c.id).catch(() => { }); });
+  if ($('ciCobrar')) $('ciCobrar').onclick = () => {
+    nueva = nuevaAtencion(c.idClienta);
+    nueva.idCita = c.id; nueva.horaCita = c.horaTexto; nueva.atendio = c.atiende || '';
+    if (c.servicio) { const sv = D.servicios[c.servicio]; nueva.servicios = [{ s: c.servicio, m: sv && sv.precio ? sv.precio : '' }]; }
+    $('panel').hidden = true; tab = 'registrar'; render();
+  };
+  $('panelIn').querySelectorAll('[data-est]').forEach(b => b.onclick = async () => {
+    const est = b.dataset.est;
+    let nota = '';
+    if (est === 'Cancelada') { nota = prompt('¿Por qué se cancela? (opcional)', ''); if (nota === null) return; nota = nota.trim() ? 'Cancelada: ' + nota.trim() : ''; }
+    b.disabled = true;
+    try {
+      await srv('cambiarEstadoCita', c.id, est, nota);
+      c.estado = est; if (nota) c.notas = [c.notas, nota].filter(Boolean).join(' · ');
+      toast(c.nombre + ': ' + est); refrescarCitas(); abrirCita(c.id);
+    } catch (err) { b.disabled = false; $('cimsg').innerHTML = '<div class="aviso bad">' + esc(errorTexto(err)) + '</div>'; }
+  });
+}
+
+/** Nueva cita (c = null) o cambiar una existente. pre = {fecha, idClienta, servicio}. */
+function abrirFormCita(c, pre) {
+  const ed = !!c; pre = pre || {};
+  const F = { idc: ed ? c.idClienta : (pre.idClienta || ''), fecha: ed ? c.fecha : (pre.fecha || D.hoy), hora: ed ? c.hora : (pre.hora || ''),
+    dur: ed ? c.duracion : 60, serv: ed ? c.servicio : (pre.servicio || ''), atiende: ed ? c.atiende : (pre.atiende || ''), notas: ed ? c.notas : '' };
+  const opt = (l, v, vacio) => (vacio !== undefined ? '<option value="">' + vacio + '</option>' : '') + (l || []).map(x => '<option' + (String(x) === String(v) ? ' selected' : '') + '>' + esc(x) + '</option>').join('');
+  const pintar = () => {
+    const cl = clientaPorId(F.idc);
+    $('panelIn').innerHTML = '<button class="volver" type="button" id="cerrar">← Volver</button><h1 class="ficha-nom">' + (ed ? 'Cambiar cita' : 'Agendar cita') + '</h1>' +
+      '<div class="campos" style="margin-top:14px">' +
+      '<div><label class="l">Clienta</label>' + (cl
+        ? '<div class="elegida"><div><b>' + esc(cl.nombre) + '</b><div style="font-size:12.5px;color:var(--muted)">' + esc(cl.id + ' · ' + cl.whatsapp) + '</div></div>' + (ed ? '' : '<button class="btn btn-ghost btn-mini" type="button" id="gcCambiar">Cambiar</button>') + '</div>'
+        : '<div class="buscar"><input id="gcB" placeholder="Busca a la clienta" autocomplete="off"><div class="sug" id="gcS" hidden></div></div>') + '</div>' +
+      '<div class="dos"><div><label class="l" for="gcF">Fecha</label><input type="date" id="gcF" min="' + (ed ? '' : D.hoy) + '" value="' + esc(F.fecha) + '"></div>' +
+      '<div><label class="l" for="gcH">Hora</label><input type="time" id="gcH" step="900" value="' + esc(F.hora) + '"></div></div>' +
+      '<div class="rapidos" id="gcHoras">' + ['10:00', '11:00', '12:00', '13:00', '16:00', '17:00', '18:00'].map(h => '<button type="button" data-h="' + h + '">' + (Number(h.slice(0, 2)) % 12 || 12) + (h.slice(3) !== '00' ? ':' + h.slice(3) : '') + (Number(h.slice(0, 2)) < 12 ? ' am' : ' pm') + '</button>').join('') + '</div>' +
+      '<div class="dos"><div><label class="l" for="gcSv">Servicio</label><select id="gcSv">' + opt(D.listas.servicio, F.serv, '—') + '</select></div>' +
+      '<div><label class="l" for="gcD">Duración</label><select id="gcD">' + ((D.agenda && D.agenda.duraciones) || [30, 45, 60, 90, 120]).map(m => '<option value="' + m + '"' + (m === Number(F.dur) ? ' selected' : '') + '>' + (m < 60 ? m + ' min' : (m / 60) + ' h' + (m % 60 ? '' : '')).replace('1.5 h', '1 h 30').replace('1.25 h', '1 h 15') + '</option>').join('') + '</select></div></div>' +
+      '<div><label class="l" for="gcA">Atiende</label><select id="gcA">' + opt(D.listas.atendio, F.atiende, 'Cualquiera') + '</select></div>' +
+      '<div><label class="l" for="gcN">Notas</label><input id="gcN" maxlength="200" placeholder="Ej. viene con su hermana" value="' + esc(F.notas) + '"></div>' +
+      '<div id="gcMsg"></div><button class="btn btn-prim" type="button" id="gcG" style="padding:13px">' + (ed ? 'Guardar cambios' : 'Agendar') + '</button></div>';
+    const leer = () => { F.fecha = $('gcF').value; F.hora = $('gcH').value; F.serv = $('gcSv').value; F.dur = $('gcD').value; F.atiende = $('gcA').value; F.notas = $('gcN').value; };
+    $('cerrar').onclick = () => { if (ed) abrirCita(c.id); else $('panel').hidden = true; };
+    if ($('gcCambiar')) $('gcCambiar').onclick = () => { leer(); F.idc = ''; pintar(); };
+    $('gcHoras').querySelectorAll('[data-h]').forEach(b => b.onclick = () => { $('gcH').value = b.dataset.h; });
+    if ($('gcB')) {
+      const inp = $('gcB'), box = $('gcS');
+      inp.oninput = () => {
+        const q = norm(inp.value), qt = inp.value.replace(/\D/g, '');
+        if (!q) { box.hidden = true; return; }
+        const l = D.clientas.filter(x => norm(x.nombre).includes(q) || norm(x.id).includes(q) || (qt.length >= 3 && x.whatsapp.includes(qt))).slice(0, 8);
+        box.innerHTML = l.length ? l.map(x => '<button type="button" data-id="' + esc(x.id) + '"><b>' + esc(x.nombre) + '</b><br><small>' + esc(x.id + ' · ' + x.whatsapp) + '</small></button>').join('')
+          : '<button type="button" data-nueva="1"><b>+ Registrar nueva clienta</b><br><small>No hay nadie con «' + esc(inp.value) + '»</small></button>';
+        box.hidden = false;
+        box.querySelectorAll('[data-id]').forEach(b => b.onclick = () => { leer(); F.idc = b.dataset.id; pintar(); });
+        const bn = box.querySelector('[data-nueva]');
+        if (bn) bn.onclick = () => { leer(); const t = inp.value.trim(); abrirFormClienta(null, { nombre: /\d/.test(t) ? '' : t, whatsapp: t.replace(/\D/g, '') }, r => { F.idc = r.id; pintar(); }); };
+      };
+      setTimeout(() => inp.focus(), 50);
+    }
+    const guardarC = async forzar => {
+      leer();
+      const msg = (h, cl2) => $('gcMsg').innerHTML = h ? '<div class="aviso ' + (cl2 || 'bad') + '">' + h + '</div>' : '';
+      if (!F.idc) return msg('Elige a la clienta.');
+      if (!F.fecha) return msg('Elige la fecha.');
+      if (!F.hora) return msg('Elige la hora.');
+      const b = $('gcG'); b.disabled = true; b.textContent = 'Guardando…'; msg('');
+      try {
+        const r = await srv('guardarCita', { id: ed ? c.id : '', idClienta: F.idc, fecha: F.fecha, hora: F.hora, duracion: Number(F.dur), servicio: F.serv, atiende: F.atiende, notas: F.notas, forzar: !!forzar });
+        if (r.empalme) {
+          b.disabled = false; b.textContent = ed ? 'Guardar cambios' : 'Agendar';
+          msg(esc(r.mensaje) + '<div class="chips" style="margin-top:8px"><button class="btn btn-ghost btn-mini" type="button" id="gcF2">Agendar de todos modos</button></div>', 'warn');
+          $('gcF2').onclick = () => guardarC(true); return;
+        }
+        pitido(true); AG.fecha = F.fecha; refrescarCitas();
+        $('panelIn').innerHTML = '<button class="volver" type="button" id="cerrar">← Volver</button><div style="text-align:center;padding-top:20px"><span class="chip ok">' + (ed ? 'Cita cambiada' : 'Cita agendada') + '</span>' +
+          '<h1 class="ficha-nom" style="margin-top:10px">' + esc((clientaPorId(F.idc) || {}).nombre || '') + '</h1><div style="color:var(--muted)">' + esc(fechaLargaC(F.fecha)) + ' · ' + esc(F.hora) + '</div>' +
+          '<div class="campos" style="margin-top:18px">' + (r.linkAviso ? '<a class="btn btn-wa" style="padding:12px" target="_blank" rel="noopener" href="' + esc(r.linkAviso) + '">Avisarle por WhatsApp</a>' : '') +
+          '<button class="btn btn-sec" type="button" id="gcVer">Ver agenda</button></div></div>';
+        $('cerrar').onclick = () => { $('panel').hidden = true; render(); };
+        $('gcVer').onclick = () => { $('panel').hidden = true; tab = 'agenda'; render(); };
+      } catch (e) { b.disabled = false; b.textContent = ed ? 'Guardar cambios' : 'Agendar'; msg(esc(errorTexto(e))); }
+    };
+    $('gcG').onclick = () => guardarC(false);
+  };
+  $('panel').hidden = false; $('panel').scrollTop = 0;
+  pintar();
+}
+
+/* ---------- Corte de caja (dueña) ---------- */
+async function abrirCorte(fecha) {
+  $('panelIn').innerHTML = '<button class="volver" type="button" id="cerrar">← Volver</button><h1 class="ficha-nom">Corte de caja</h1><div class="carga"><span class="spin"></span>Calculando…</div>';
+  $('panel').hidden = false; $('panel').scrollTop = 0;
+  $('cerrar').onclick = () => { $('panel').hidden = true; };
+  let C;
+  try { C = await srv('obtenerCorte', fecha); }
+  catch (e) { $('panelIn').insertAdjacentHTML('beforeend', '<div class="aviso bad">' + esc(errorTexto(e)) + '</div>'); return; }
+  const efe = C.porPago.filter(x => norm(x.nombre) === 'efectivo').reduce((a, x) => a + x.monto, 0);
+  const tickets = C.tickets.slice().reverse();
+  let h = '<button class="volver" type="button" id="cerrar">← Volver</button><h1 class="ficha-nom">Corte de caja</h1>' +
+    '<div class="dos" style="margin:10px 0 14px"><input type="date" id="coF" max="' + D.hoy + '" value="' + esc(fecha) + '"><div class="rapidos" style="align-items:center"><button type="button" id="coHoy">Hoy</button><button type="button" id="coAyer">Ayer</button></div></div>' +
+    '<div class="kpis"><div class="kpi principal"><div class="t">Total vendido</div><div class="v">' + dinero(C.total) + '</div><div class="s">' + C.numTickets + ' tickets · promedio ' + dinero(C.ticketPromedio) + '</div></div>' +
+    '<div class="kpi"><div class="t">Efectivo en caja</div><div class="v">' + dinero(efe) + '</div><div class="s">debe haber</div></div>' +
+    '<div class="kpi"><div class="t">Servicios</div><div class="v">' + dinero(C.totalServicios) + '</div></div>' +
+    '<div class="kpi"><div class="t">Productos</div><div class="v">' + dinero(C.totalProductos) + '</div><div class="s">ganancia ' + dinero(C.gananciaProductos) + '</div></div></div>';
+  h += '<section class="seccion"><h2>Cómo pagaron</h2>' + (C.porPago.length ? C.porPago.map(x => '<div class="dato"><span>' + esc(x.nombre) + '</span><span>' + dinero(x.monto) + '</span></div>').join('') : '<div class="vacio">Sin ventas.</div>') +
+    (C.descuentos ? '<div class="dato"><span>Descuentos dados</span><span style="color:var(--bad)">−' + dinero(C.descuentos) + '</span></div>' : '') + '</section>';
+  if (C.porPersona.length) h += '<section class="seccion"><h2>Por quién atendió</h2>' + C.porPersona.map(x => '<div class="dato"><span>' + esc(x.nombre) + ' · ' + x.servicios + ' servicio' + (x.servicios === 1 ? '' : 's') + '</span><span>' + dinero(x.monto) + '</span></div>').join('') + '</section>';
+  h += '<section class="seccion"><h2>Tickets<span class="n">' + tickets.length + '</span></h2>' + (tickets.length ? tickets.map(t =>
+    '<div class="ticket"><div><b>' + esc(t.ticket) + '</b> · ' + esc(t.clienta) + '<div class="det" style="font-size:13px;color:var(--muted)">' + esc([t.pago, t.atendio].filter(Boolean).join(' · ')) + '</div></div><div class="num" style="font-weight:700">' + dinero(t.total) + '</div>' +
+    '<div class="acc"><button class="btn btn-sec btn-mini" type="button" data-rec="' + esc(t.ticket) + '">Recibo</button><button class="btn btn-ghost btn-mini" type="button" data-can="' + esc(t.ticket) + '">Cancelar ticket</button></div></div>').join('') : '<div class="vacio">No hay tickets este día.</div>') + '</section>';
+  $('panelIn').innerHTML = h;
+  $('cerrar').onclick = () => { $('panel').hidden = true; };
+  $('coF').onchange = e => e.target.value && abrirCorte(e.target.value);
+  $('coHoy').onclick = () => abrirCorte(D.hoy);
+  $('coAyer').onclick = () => abrirCorte(sumaDias(D.hoy, -1));
+  $('panelIn').querySelectorAll('[data-rec]').forEach(b => b.onclick = async () => {
+    const w = window.open('', '_blank'); // se abre ya para que el navegador no lo bloquee
+    try { const r = await srv('obtenerRecibo', b.dataset.rec); if (!r.link) throw new Error('La clienta no tiene WhatsApp registrado.'); if (w) w.location = r.link; else location.href = r.link; }
+    catch (e) { if (w) w.close(); toast(errorTexto(e), 4000); }
+  });
+  $('panelIn').querySelectorAll('[data-can]').forEach(b => b.onclick = async () => {
+    const m = prompt('Cancelar ' + b.dataset.can + '. Se quita de las ventas y los productos regresan al inventario.\n\n¿Motivo?', '');
+    if (m === null) return;
+    if (m.trim().length < 3) { toast('Escribe el motivo para poder cancelar'); return; }
+    b.disabled = true;
+    try { const r = await srv('cancelarTicket', b.dataset.can, m.trim()); toast(r.mensaje, 4000); abrirCorte(fecha); srv('appInicio').then(d => { D = d; }).catch(() => { }); }
+    catch (e) { b.disabled = false; toast(errorTexto(e), 4000); }
+  });
 }
 
 /* ---------- Clientas y ficha ---------- */
@@ -387,7 +683,7 @@ async function abrirFicha(id) {
       '<span class="chip">' + esc(c.id) + '</span><span class="chip ' + (c.estado === 'Activa' ? 'ok' : c.estado === 'Inactiva' ? 'bad' : '') + '">' + esc(c.estado || '—') + '</span>' +
       (c.aviso === 'Sí' ? '<span class="chip ok">Aviso firmado</span>' : '<span class="chip bad">Sin aviso</span>') + (c.cumpleMes ? '<span class="chip warn">Cumple este mes</span>' : '') + '</div>';
     if (c.alergias && c.alergias !== 'Ninguna') h += '<div class="aviso bad" style="margin-bottom:10px"><b>Alergias:</b> ' + esc(c.alergias) + '</div>';
-    h += '<div class="chips" style="gap:8px">' + (F.linkWhatsApp ? '<a class="btn btn-wa" href="' + esc(F.linkWhatsApp) + '" target="_blank" rel="noopener">WhatsApp</a>' : '') + '<button class="btn btn-prim" type="button" id="fAt">Registrar atención</button><button class="btn btn-sec" type="button" id="fEd">Editar datos</button></div>';
+    h += '<div class="chips" style="gap:8px">' + (F.linkWhatsApp ? '<a class="btn btn-wa" href="' + esc(F.linkWhatsApp) + '" target="_blank" rel="noopener">WhatsApp</a>' : '') + '<button class="btn btn-prim" type="button" id="fAt">Cobrar</button><button class="btn btn-sec" type="button" id="fCi">Agendar cita</button><button class="btn btn-sec" type="button" id="fEd">Editar datos</button></div>';
     h += '<div class="kpis" style="margin-top:14px"><div class="kpi"><div class="t">Ha gastado</div><div class="v">' + dinero(c.total) + '</div></div><div class="kpi"><div class="t">Visitas</div><div class="v">' + F.totalVisitas + '</div></div></div>';
     if (F.proximaCita || F.leToca || F.sugeridos.length || F.recompras.length) {
       h += '<section class="seccion"><h2>Siguiente paso</h2><div class="lista">';
@@ -406,6 +702,7 @@ async function abrirFicha(id) {
     $('cerrar').onclick = () => $('panel').hidden = true;
     $('fAt').onclick = () => { $('panel').hidden = true; nueva = nuevaAtencion(id); tab = 'registrar'; render(); };
     $('fEd').onclick = () => abrirFormClienta(c);
+    $('fCi').onclick = () => abrirFormCita(null, { idClienta: c.id, servicio: F.leToca ? F.leToca.servicio : (F.favorito || '') });
   } catch (e) {
     $('panelIn').innerHTML = '<button class="volver" type="button" onclick="document.getElementById(\'panel\').hidden=true">← Volver</button><div class="aviso bad" style="margin-top:10px">' + esc(errorTexto(e)) + '</div>';
   }
@@ -480,7 +777,10 @@ function abrirFormClienta(c, pre, alGuardar) {
 
 /* ---------- Registrar atención ---------- */
 let nueva = null, forzarExistencia = false;
-function nuevaAtencion(idc) { return { idc: idc || '', fecha: D.hoy, atendio: '', pago: '', servicios: [{ s: '', m: '' }], productos: [], proxima: '', notas: '', res: null }; }
+function nuevaAtencion(idc) {
+  return { idc: idc || '', fecha: D.hoy, atendio: '', servicios: [{ s: '', m: '' }], productos: [], proxima: '', notas: '', res: null,
+    pagos: [{ f: '', m: '' }], desc: { on: false, tipo: 'pct', valor: '', motivo: '' }, pagaCon: '', idCita: '', horaCita: '' };
+}
 const clientaPorId = id => D.clientas.find(c => c.id === id);
 
 function vRegistrar() {
@@ -490,11 +790,11 @@ function vRegistrar() {
   const c = clientaPorId(n.idc);
   const opt = (l, v, vacio) => (vacio ? '<option value="">' + vacio + '</option>' : '') + l.map(x => { const val = typeof x === 'object' ? x.v : x, t = typeof x === 'object' ? x.t : x; return '<option value="' + esc(val) + '"' + (val === v ? ' selected' : '') + '>' + esc(t) + '</option>'; }).join('');
   let h = '<div class="campos" style="margin-top:6px">';
+  if (n.idCita) h += '<div class="aviso ok">Cobro de la cita de las <b>' + esc(n.horaCita) + '</b> · <button class="linkbtn" type="button" id="sinCita">quitar</button></div>';
   h += '<div><label class="l">Clienta</label>' + (c
     ? '<div class="elegida"><div><b>' + esc(c.nombre) + '</b><div style="font-size:12.5px;color:var(--muted)">' + esc(c.id + ' · ' + c.whatsapp) + '</div>' + (c.alergias && c.alergias !== 'Ninguna' ? '<span class="chip bad">Alergias: ' + esc(c.alergias) + '</span>' : '') + '</div><button class="btn btn-ghost btn-mini" type="button" id="cambiar">Cambiar</button></div>'
     : '<div class="buscar"><input id="bc" placeholder="Busca a la clienta" autocomplete="off"><div class="sug" id="bcs" hidden></div></div>') + '</div>';
-  h += '<div class="dos"><div><label class="l" for="rf">Fecha</label><input type="date" id="rf" value="' + n.fecha + '" max="' + D.hoy + '"></div><div><label class="l" for="rp">Forma de pago</label><select id="rp">' + opt(D.listas.pago, n.pago, 'Elige…') + '</select></div></div>';
-  h += '<div><label class="l" for="ra">Atendió</label><select id="ra">' + opt(D.listas.atendio, n.atendio, '—') + '</select></div>';
+  h += '<div class="dos"><div><label class="l" for="ra">Atendió</label><select id="ra">' + opt(D.listas.atendio, n.atendio, '—') + '</select></div><div><label class="l" for="rf">Fecha</label><input type="date" id="rf" value="' + n.fecha + '" max="' + D.hoy + '"></div></div>';
   h += '<div><label class="l">Servicios</label><div class="campos" style="gap:8px">' + n.servicios.map((s, i) =>
     '<div class="linea"><select data-s="' + i + '">' + opt(D.listas.servicio, s.s, 'Servicio…') + '</select><input data-m="' + i + '" type="number" inputmode="numeric" min="0" placeholder="$" value="' + esc(s.m) + '"><button class="quitar" type="button" data-qs="' + i + '" aria-label="Quitar servicio">×</button></div>').join('') +
     '<button class="agregar" type="button" id="addS">+ Servicio</button></div></div>';
@@ -503,17 +803,63 @@ function vRegistrar() {
     '<button class="agregar" type="button" id="addP">+ Producto</button></div></div>';
   h += '<div><label class="l" for="rx">Próxima cita sugerida</label><input type="date" id="rx" value="' + n.proxima + '"></div>';
   h += '<div><label class="l" for="rn">Notas</label><textarea id="rn" placeholder="Reacción de la piel, recomendaciones…">' + esc(n.notas) + '</textarea></div>';
-  h += '<div class="total"><span>Total</span><span class="v" id="tot">' + dinero(total()) + '</span></div><div id="rmsg"></div>';
-  h += '<button class="btn btn-prim" type="button" id="guardar" style="padding:13px">Registrar atención</button></div>';
+  // ---- Cobro: descuento y pagos ----
+  const T = cuentas();
+  h += '<div><label class="l">Cobro</label><div class="cobro">';
+  h += '<div class="renglon"><span>Subtotal</span><span class="num" id="cSub">' + dinero2(T.sub) + '</span></div>';
+  if (!n.desc.on) h += '<button class="linkbtn" type="button" id="dOn">+ Aplicar descuento</button>';
+  else {
+    h += '<div class="desc"><select id="dTipo"><option value="pct"' + (n.desc.tipo === 'pct' ? ' selected' : '') + '>%</option><option value="monto"' + (n.desc.tipo === 'monto' ? ' selected' : '') + '>$</option></select>' +
+      '<input id="dVal" type="number" inputmode="decimal" min="0" placeholder="' + (n.desc.tipo === 'pct' ? 'Ej. 10' : 'Ej. 100') + '" value="' + esc(n.desc.valor) + '"></div>' +
+      '<input id="dMot" maxlength="60" placeholder="Motivo del descuento" value="' + esc(n.desc.motivo) + '">' +
+      '<div class="rapidos">' + ['Cumpleaños', 'Promoción del mes', 'Primera visita', 'Clienta frecuente', 'Cortesía'].map(m => '<button type="button" data-mot="' + esc(m) + '">' + esc(m) + '</button>').join('') + '</div>' +
+      (!esDuena() ? '<div class="ejemplo">Tu PIN permite hasta ' + (D.descuentoMaxEmpleada || 15) + '%.</div>' : '') +
+      '<div class="renglon"><span>Descuento <button class="linkbtn" type="button" id="dOff">quitar</button></span><span class="num" id="cDesc" style="color:var(--bad)">−' + dinero2(T.desc) + '</span></div>';
+  }
+  h += '<div class="renglon gran"><span>Total</span><span class="num" id="tot">' + dinero2(T.total) + '</span></div>';
+  h += '<div class="campos" style="gap:8px">' + n.pagos.map((p, i) => {
+    const ultimo = i === n.pagos.length - 1 && n.pagos.length > 1;
+    return '<div class="pago"' + (n.pagos.length === 1 ? ' style="grid-template-columns:1fr"' : '') + '><select data-pf="' + i + '">' + opt(D.listas.pago, p.f, n.pagos.length > 1 ? 'Forma…' : 'Forma de pago…') + '</select>' +
+      (n.pagos.length > 1 ? '<input data-pm="' + i + '" type="number" inputmode="decimal" min="0" placeholder="$"' + (ultimo ? ' readonly title="Se calcula solo"' : '') + ' value="' + esc(ultimo ? T.resto : p.m) + '"><button class="quitar" type="button" data-pq="' + i + '" aria-label="Quitar pago">×</button>' : '') + '</div>';
+  }).join('') + '</div>';
+  h += '<button class="linkbtn" type="button" id="pMas">+ Pagó con dos formas (ej. efectivo y transferencia)</button>';
+  if (n.pagos.length === 1 && norm(n.pagos[0].f) === 'efectivo' && T.total > 0) {
+    const cambio = (Number(n.pagaCon) || 0) - T.total;
+    h += '<div class="dos" style="align-items:center"><input id="pCon" type="number" inputmode="decimal" min="0" placeholder="¿Con cuánto paga?" value="' + esc(n.pagaCon) + '"><div class="cambio" id="pCambio"' + (n.pagaCon && cambio >= 0 ? '' : ' hidden') + '><span>Cambio</span><span>' + dinero2(Math.max(cambio, 0)) + '</span></div></div>';
+  }
+  h += '</div></div><div id="rmsg"></div>';
+  h += '<button class="btn btn-prim" type="button" id="guardar" style="padding:13px">Cobrar ' + dinero2(T.total) + '</button></div>';
   $('vista').innerHTML = h;
 
   const sync = () => {
-    n.fecha = $('rf').value; n.pago = $('rp').value; n.atendio = $('ra').value; n.proxima = $('rx').value; n.notas = $('rn').value;
+    n.fecha = $('rf').value; n.atendio = $('ra').value; n.proxima = $('rx').value; n.notas = $('rn').value;
     document.querySelectorAll('[data-m]').forEach(el => n.servicios[+el.dataset.m].m = el.value);
     document.querySelectorAll('[data-c]').forEach(el => n.productos[+el.dataset.c].c = el.value);
     document.querySelectorAll('[data-pr]').forEach(el => n.productos[+el.dataset.pr].pr = el.value);
+    document.querySelectorAll('[data-pf]').forEach(el => n.pagos[+el.dataset.pf].f = el.value);
+    document.querySelectorAll('[data-pm]').forEach(el => n.pagos[+el.dataset.pm].m = el.value);
+    if ($('dTipo')) { n.desc.tipo = $('dTipo').value; n.desc.valor = $('dVal').value; n.desc.motivo = $('dMot').value; }
+    if ($('pCon')) n.pagaCon = $('pCon').value;
   };
-  document.querySelectorAll('#vista input, #vista textarea, #vista select').forEach(el => el.addEventListener('input', () => { sync(); $('tot').textContent = dinero(total()); }));
+  const recalc = () => {
+    const T = cuentas();
+    $('cSub').textContent = dinero2(T.sub);
+    if ($('cDesc')) $('cDesc').textContent = '−' + dinero2(T.desc);
+    $('tot').textContent = dinero2(T.total);
+    $('guardar').textContent = 'Cobrar ' + dinero2(T.total);
+    const ult = n.pagos.length > 1 ? document.querySelector('[data-pm="' + (n.pagos.length - 1) + '"]') : null;
+    if (ult) { ult.value = T.resto; n.pagos[n.pagos.length - 1].m = T.resto; }
+    if ($('pCambio')) { const cb = (Number(n.pagaCon) || 0) - T.total; $('pCambio').hidden = !(n.pagaCon && cb >= 0); $('pCambio').lastChild.textContent = dinero2(Math.max(cb, 0)); }
+  };
+  document.querySelectorAll('#vista input, #vista textarea, #vista select').forEach(el => el.addEventListener('input', () => { sync(); recalc(); }));
+  document.querySelectorAll('[data-pf]').forEach(el => el.addEventListener('change', () => { sync(); if (n.pagos.length === 1) vRegistrar(); }));
+  if ($('dOn')) $('dOn').onclick = () => { sync(); n.desc.on = true; vRegistrar(); setTimeout(() => $('dVal') && $('dVal').focus(), 30); };
+  if ($('dOff')) $('dOff').onclick = () => { sync(); n.desc = { on: false, tipo: 'pct', valor: '', motivo: '' }; vRegistrar(); };
+  if ($('dTipo')) $('dTipo').onchange = () => { sync(); n.desc.valor = ''; vRegistrar(); };
+  document.querySelectorAll('[data-mot]').forEach(b => b.onclick = () => { $('dMot').value = b.dataset.mot; sync(); });
+  $('pMas').onclick = () => { sync(); if (n.pagos.length === 1) n.pagos[0].m = ''; n.pagos.push({ f: '', m: '' }); vRegistrar(); };
+  document.querySelectorAll('[data-pq]').forEach(b => b.onclick = () => { sync(); n.pagos.splice(+b.dataset.pq, 1); if (!n.pagos.length) n.pagos.push({ f: '', m: '' }); vRegistrar(); });
+  if ($('sinCita')) $('sinCita').onclick = () => { sync(); n.idCita = ''; n.horaCita = ''; vRegistrar(); };
   document.querySelectorAll('[data-s]').forEach(el => el.onchange = () => {
     sync(); const s = n.servicios[+el.dataset.s]; s.s = el.value;
     const cfg = D.servicios[el.value];
@@ -555,7 +901,19 @@ function vRegistrar() {
   }
   $('guardar').onclick = () => { sync(); guardar(); };
 }
+const r2 = x => Math.round(x * 100) / 100;
+const dinero2 = n => { const x = r2(Number(n) || 0); return x % 1 ? '$' + x.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : dinero(x); };
 function total() { const n = nueva; return n.servicios.reduce((s, x) => s + (Number(x.m) || 0), 0) + n.productos.reduce((s, p) => s + (Number(p.pr) || 0) * (Number(p.c) || 0), 0); }
+/** Subtotal, descuento, total y lo que falta por cubrir en el último pago (pago mixto). */
+function cuentas() {
+  const n = nueva, sub = r2(total());
+  let desc = 0;
+  if (n.desc.on && Number(n.desc.valor) > 0) desc = r2(n.desc.tipo === 'pct' ? sub * Number(n.desc.valor) / 100 : Number(n.desc.valor));
+  desc = Math.min(desc, sub);
+  const tot = r2(sub - desc);
+  const otros = n.pagos.slice(0, -1).reduce((a, p) => a + (Number(p.m) || 0), 0);
+  return { sub, desc, total: tot, resto: r2(tot - otros) };
+}
 
 async function guardar() {
   const n = nueva, msg = (t, cl) => $('rmsg').innerHTML = t ? '<div class="aviso ' + (cl || 'bad') + '">' + esc(t) + '</div>' : '';
@@ -565,24 +923,43 @@ async function guardar() {
   if (servicios.some(s => !s.servicio)) return msg('Falta elegir un servicio.');
   if (n.servicios.some(s => s.s && s.m === '')) return msg('Falta el monto de un servicio.');
   if (!servicios.length && !productos.length) return msg('Agrega al menos un servicio o un producto.');
-  if (!n.pago) return msg('Elige la forma de pago.');
+  const T = cuentas();
+  let descuento = null;
+  if (n.desc.on && Number(n.desc.valor) > 0) {
+    if ((n.desc.motivo || '').trim().length < 3) return msg('Escribe el motivo del descuento.');
+    if (T.desc >= T.sub && n.desc.motivo !== 'Cortesía' && !confirm('El descuento es del 100%. ¿Es correcto?')) return;
+    if (!esDuena() && T.sub && T.desc / T.sub * 100 > (D.descuentoMaxEmpleada || 15) + 0.01) return msg('Tu PIN permite descuentos de hasta ' + (D.descuentoMaxEmpleada || 15) + '%. Pide a la dueña que lo autorice.');
+    descuento = { tipo: n.desc.tipo, valor: Number(n.desc.valor), motivo: n.desc.motivo.trim() };
+  }
+  const pagos = n.pagos.map((p, i) => ({ forma: p.f, monto: n.pagos.length === 1 ? T.total : (i === n.pagos.length - 1 ? T.resto : Number(p.m) || 0) }));
+  if (T.total > 0) {
+    if (pagos.some(p => !p.forma)) return msg('Elige la forma de pago.');
+    if (pagos.length > 1 && pagos.some(p => !(p.monto > 0))) return msg('Cada forma de pago debe llevar un monto. Revisa que la primera no cubra todo el total.');
+  }
   const b = $('guardar'); b.disabled = true; b.textContent = 'Registrando…'; msg('');
   try {
-    const r = await srv('registrarAtencion', { idClienta: n.idc, fecha: n.fecha, atendio: n.atendio, formaPago: n.pago, servicios, productos, proximaCita: n.proxima, fotos: '', notas: n.notas, forzarExistencia });
+    const r = await srv('registrarAtencion', { idClienta: n.idc, fecha: n.fecha, atendio: n.atendio, formaPago: pagos[0].forma, pagos: T.total > 0 ? pagos : [], descuento, idCita: n.idCita, servicios, productos, proximaCita: n.proxima, fotos: '', notas: n.notas, forzarExistencia });
     if (!r.ok && r.faltaExistencia) {
       forzarExistencia = true; b.disabled = false; b.textContent = 'Registrar de todas formas';
       return msg(r.mensaje + '\nToca el botón otra vez para venderlo de todas formas.', 'warn');
     }
     forzarExistencia = false; n.res = r; vRegistrar();
+    if (n.idCita) AG.cache = {};
     srv('appInicio').then(d => { D = d; }).catch(() => { });
-  } catch (e) { b.disabled = false; b.textContent = 'Registrar atención'; msg(errorTexto(e)); }
+  } catch (e) { b.disabled = false; b.textContent = 'Cobrar ' + dinero2(cuentas().total); msg(errorTexto(e)); }
 }
 function vHecho() {
   const r = nueva.res;
-  $('vista').innerHTML = '<div style="text-align:center;padding-top:26px"><span class="chip ok">Registrado</span><h1 class="ficha-nom" style="margin-top:10px">' + esc(r.ticket) + '</h1><div style="color:var(--muted)">' + esc(r.clienta) + '</div>' +
-    '<div class="total" style="margin:16px 0"><span>Total</span><span class="v">' + dinero(r.total) + '</span></div><div class="lista" style="text-align:left">' + r.detalle.map(d => '<div class="mov">' + esc(d) + '</div>').join('') + '</div>' +
-    '<div class="chips" style="justify-content:center;gap:8px;margin-top:18px">' + (r.linkGracias ? '<a class="btn btn-wa" target="_blank" rel="noopener" href="' + esc(r.linkGracias) + '">Mandar agradecimiento</a>' : '') + '<button class="btn btn-sec" type="button" id="otra">Otra atención</button></div></div>';
+  const pag = (r.pagos || []).map(p => p.forma + ((r.pagos || []).length > 1 ? ' ' + dinero2(p.monto) : '')).join(' + ');
+  $('vista').innerHTML = '<div style="text-align:center;padding-top:22px"><span class="chip ok">Cobrado</span><h1 class="ficha-nom" style="margin-top:10px">' + esc(r.ticket) + '</h1><div style="color:var(--muted)">' + esc(r.clienta) + '</div>' +
+    '<div class="total" style="margin:16px 0"><span>Total' + (pag ? ' · ' + esc(pag) : '') + '</span><span class="v">' + dinero2(r.total) + '</span></div><div class="lista" style="text-align:left">' + r.detalle.map(d => '<div class="mov">' + esc(d) + '</div>').join('') + '</div>' +
+    '<div class="campos" style="margin-top:18px">' +
+    (r.linkRecibo ? '<a class="btn btn-wa" style="padding:12px" target="_blank" rel="noopener" href="' + esc(r.linkRecibo) + '">Mandar recibo por WhatsApp</a>' : '') +
+    (r.linkGracias ? '<a class="btn btn-sec" style="padding:12px" target="_blank" rel="noopener" href="' + esc(r.linkGracias) + '">Mandar agradecimiento y reseña</a>' : '') +
+    '<button class="btn btn-sec" type="button" id="hAgP">Agendar su próxima cita' + (r.proximaCita ? ' (' + isoMx(r.proximaCita).slice(0, 5) + ')' : '') + '</button>' +
+    '<button class="btn btn-prim" type="button" id="otra">Nuevo cobro</button></div></div>';
   $('otra').onclick = () => { nueva = nuevaAtencion(); vRegistrar(); };
+  $('hAgP').onclick = () => abrirFormCita(null, { idClienta: r.idClienta, fecha: r.proximaCita || sumaDias(D.hoy, 21), servicio: (r.servicios || [])[0] || '' });
 }
 
 /* ---------- Promos con plantillas ---------- */
@@ -862,7 +1239,7 @@ function vInventario() {
     '<div class="filtros">' + [['todos', 'Todos · ' + prods.length], ['bajos', 'Por agotarse · ' + bajos], ['sincodigo', 'Sin código · ' + sinCod]].map(f =>
       '<button type="button" data-f="' + f[0] + '" aria-pressed="' + (INV.filtro === f[0]) + '">' + esc(f[1]) + '</button>').join('') + '</div>' +
     '<div class="lista" id="il" style="margin-top:12px"></div>' +
-    '<button class="agregar" type="button" id="inuevo" style="margin-top:12px">+ Producto nuevo</button>' +
+    (esDuena() ? '<button class="agregar" type="button" id="inuevo" style="margin-top:12px">+ Producto nuevo</button>' : '') +
     '<p class="ejemplo" style="margin-top:12px">Con un lector Bluetooth: toca el campo de escanear y dispara. Sin lector: toca el botón de la cámara y toma la foto del código.</p>';
   $('vista').innerHTML = h;
   const pintar = () => {
@@ -878,7 +1255,7 @@ function vInventario() {
   };
   $('iq').oninput = e => { INV.q = e.target.value; pintar(); };
   $('vista').querySelectorAll('[data-f]').forEach(b => b.onclick = () => { INV.filtro = b.dataset.f; vInventario(); });
-  $('inuevo').onclick = () => abrirNuevoProducto('');
+  if ($('inuevo')) $('inuevo').onclick = () => abrirNuevoProducto('');
   activarLector('iscan', c => {
     const p = productoPorCodigo(c); pitido(!!p);
     if (p) abrirProducto(p.id, true); else abrirCodigoDesconocido(c);
@@ -901,8 +1278,8 @@ function abrirProducto(id, porEscaneo) {
       '<input id="pnota" placeholder="Nota: proveedor, factura… (opcional)">' +
       '<button class="btn btn-prim" type="button" id="pent" style="padding:13px">Agregar piezas</button><div id="pmsg"></div>' +
       '<div class="ejemplo">Para restar (merma, producto dañado) pon un número negativo.</div></div></section>' +
-      '<section class="seccion"><h2>Datos</h2>' + dato('Marca', esc(p.marca || '—')) + dato('Precio de venta', dinero(p.precio)) + dato('Costo', p.costo ? dinero(p.costo) : '—') +
-      dato('Ganancia por pieza', p.costo ? dinero(p.precio - p.costo) : '—') + dato('Le dura a la clienta', p.dias ? p.dias + ' días' : '—') + '</section>' +
+      '<section class="seccion"><h2>Datos</h2>' + dato('Marca', esc(p.marca || '—')) + dato('Precio de venta', dinero(p.precio)) + (esDuena() ? dato('Costo', p.costo ? dinero(p.costo) : '—') +
+      dato('Ganancia por pieza', p.costo ? dinero(p.precio - p.costo) : '—') : '') + dato('Le dura a la clienta', p.dias ? p.dias + ' días' : '—') + '</section>' +
       '<section class="seccion"><h2>Código de barras</h2><div class="campos">' + barraLector('pcod', p.codigo ? 'Escanea para cambiarlo' : 'Escanea para ligarlo') + '</div></section>';
     $('panel').hidden = false;
     $('cerrar').onclick = () => { $('panel').hidden = true; if (tab === 'inventario') vInventario(); };
@@ -945,12 +1322,12 @@ function abrirCodigoDesconocido(c) {
   $('panelIn').innerHTML = '<button class="volver" type="button" id="cerrar">← Volver</button><h1 class="ficha-nom">Código nuevo</h1>' +
     '<div class="chips" style="margin:8px 0 14px"><span class="chip codigo">' + esc(c) + '</span></div>' +
     '<div class="aviso warn">Este código no está registrado. ¿Es un producto nuevo o uno que ya tienes en la lista?</div>' +
-    '<div class="campos" style="margin-top:14px"><button class="btn btn-prim" type="button" id="cnuevo" style="padding:13px">Registrar producto nuevo</button>' +
+    '<div class="campos" style="margin-top:14px">' + (esDuena() ? '<button class="btn btn-prim" type="button" id="cnuevo" style="padding:13px">Registrar producto nuevo</button>' : '<div class="ejemplo">Para dar de alta un producto nuevo pídeselo a la dueña.</div>') +
     (sinCod.length ? '<label class="l" for="cligar" style="margin-top:8px">O ligarlo a un producto que aún no tiene código</label><select id="cligar"><option value="">Elige…</option>' + sinCod.map(p => '<option value="' + esc(p.id) + '">' + esc(p.nombre) + '</option>').join('') + '</select><button class="btn btn-sec" type="button" id="cok">Ligar código</button>' : '') +
     '<div id="cmsg"></div></div>';
   $('panel').hidden = false; $('panel').scrollTop = 0;
   $('cerrar').onclick = () => { $('panel').hidden = true; };
-  $('cnuevo').onclick = () => abrirNuevoProducto(c);
+  if ($('cnuevo')) $('cnuevo').onclick = () => abrirNuevoProducto(c);
   if ($('cok')) $('cok').onclick = async () => {
     const id = $('cligar').value; if (!id) return toast('Elige el producto');
     try { const r = await srv('asignarCodigoProducto', id, c); const p = D.productos.find(x => x.id === id); p.codigo = r.codigo; pitido(true); abrirProducto(id, true); }
