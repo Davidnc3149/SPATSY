@@ -207,6 +207,41 @@ textarea { resize: vertical; min-height: 70px; }
 .ticket { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
 .ticket .acc { grid-column: 1 / -1; display: flex; gap: 8px; }
 .ticket.cancelado { opacity: .5; }
+/* Red / sin señal */
+.top-der { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.red { border: 0; border-radius: 99px; padding: 4px 10px; font-size: 12px; font-weight: 700; background: var(--warn-soft); color: var(--warn); }
+.red.off { background: var(--warn-soft); color: var(--warn); }
+.red.mal { background: var(--bad-soft); color: var(--bad); }
+/* Beneficios de la clienta al cobrar */
+.benef { display: grid; gap: 6px; }
+.benef .b { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; font-size: 13.5px; }
+.benef .b.ok { border-color: var(--ok); background: var(--ok-soft); }
+.benef .b .t { min-width: 0; }
+.usa-paq { margin: -2px 0 2px; display: flex; gap: 8px; align-items: center; font-size: 13px; }
+.usa-paq button { white-space: nowrap; flex: none; border: 1px solid var(--rosa); background: none; color: var(--rosa); border-radius: 99px; padding: 4px 10px; font-weight: 600; font-size: 12.5px; }
+.usa-paq button.on { background: var(--rosa); color: var(--on-accent); }
+.linea.k { grid-template-columns: 1fr 96px 36px; }
+.linea .paqmonto { text-align: right; font-weight: 700; color: var(--rosa); font-variant-numeric: tabular-nums; padding-right: 6px; }
+/* Sellos de lealtad */
+.sellos { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
+.sellos i { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--rosa); display: grid; place-items: center; font-style: normal; font-size: 12px; color: var(--rosa); }
+.sellos i.l { background: var(--rosa); color: var(--on-accent); }
+.sellos i.p { border-style: dashed; }
+.barra-p { height: 8px; border-radius: 99px; background: var(--rosa-soft); overflow: hidden; margin-top: 6px; }
+.barra-p span { display: block; height: 100%; background: var(--rosa); border-radius: 99px; }
+/* Reportes */
+.graf { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; align-items: end; height: 150px; padding-top: 18px; border-bottom: 1px solid var(--line); }
+.graf button { border: 0; background: none; padding: 0; height: 100%; display: flex; align-items: flex-end; justify-content: center; cursor: pointer; }
+.graf button span { display: block; width: 70%; max-width: 34px; background: var(--rosa); opacity: .55; border-radius: 4px 4px 0 0; min-height: 2px; }
+.graf button[aria-pressed="true"] span { opacity: 1; }
+.graf-x { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; font-size: 11.5px; color: var(--muted); text-align: center; margin-top: 4px; }
+.graf-sel { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; color: var(--muted); }
+.graf-sel b { font-family: var(--f-display); font-weight: 400; font-size: 22px; color: var(--ink); }
+.rank { display: grid; gap: 8px; }
+.rank .r { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; font-size: 14px; }
+.rank .r .bar { grid-column: 1 / -1; height: 6px; background: var(--rosa-soft); border-radius: 99px; overflow: hidden; }
+.rank .r .bar span { display: block; height: 100%; background: var(--rosa); border-radius: 99px; }
+.rank .r small { color: var(--muted); }
 .kpi.clic { cursor: pointer; }
 .foto-oculta { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; left: -10px; top: 0; }
 .quien { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
@@ -230,7 +265,7 @@ textarea { resize: vertical; min-height: 70px; }
 <body>
 <header class="top">
   <div><div class="marca" id="marca">SPATSY</div><div class="fecha" id="fecha"></div><div class="quien" id="quien" hidden></div></div>
-  <button class="refresh" id="btnRecargar" type="button">Actualizar</button>
+  <div class="top-der"><button class="red" id="red" type="button" hidden></button><button class="refresh" id="btnRecargar" type="button">Actualizar</button></div>
 </header>
 <div id="estado"></div>
 <main id="vista"><div class="carga"><span class="spin"></span>Cargando SPATSY…</div></main>
@@ -290,30 +325,120 @@ let SES = (() => { try { return JSON.parse(localStorage.getItem(LLAVE) || 'null'
 function guardarSesion(s) { SES = s; try { if (s) localStorage.setItem(LLAVE, JSON.stringify(s)); else localStorage.removeItem(LLAVE); } catch (e) { } }
 /* La hoja de SPATSY responde en esta dirección (proyecto "SPATSY App", doPost). */
 const API_URL = 'https://script.google.com/macros/s/AKfycbxTJeybqS0iDV_DsJud9K7xnoy0PDyA3RhSlJ3tqK9VmqD57XZumcVGyYy8rkNOV429/exec';
+const errorRed = () => { const e = new Error('Sin conexión a internet. Revisa tu señal y vuelve a intentar.'); e.red = true; return e; };
+let EN_LINEA = true;
 async function llamarApi(cuerpo) {
   let r;
+  const ctl = window.AbortController ? new AbortController() : null;
+  const tm = setTimeout(() => ctl && ctl.abort(), 45000);
   try {
     // text/plain: Google lo acepta sin "preflight" de CORS
-    r = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(cuerpo), redirect: 'follow', credentials: 'omit' });
-  } catch (e) { throw new Error('Sin conexión a internet. Revisa tu señal y vuelve a intentar.'); }
+    r = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(cuerpo), redirect: 'follow', credentials: 'omit', signal: ctl ? ctl.signal : undefined });
+  } catch (e) { clearTimeout(tm); EN_LINEA = false; pintarRed(); throw errorRed(); }
+  clearTimeout(tm);
   let j;
   try { j = await r.json(); } catch (e) { throw new Error('La hoja no respondió bien (código ' + r.status + '). Intenta de nuevo en un momento.'); }
+  if (!EN_LINEA) { EN_LINEA = true; pintarRed(); setTimeout(sincronizarCola, 500); }
   if (!j || !j.ok) throw new Error((j && j.error) || 'Error desconocido');
   return j.data;
 }
 function run(fn, args) {
   if (fn === 'entrar') return llamarApi({ accion: 'entrar', pin: args[0] });
   if (fn === 'salir') return llamarApi({ accion: 'salir', token: args[0] });
-  return llamarApi({ accion: 'api', token: args[0], fn: args[1], args: args[2] });
+  return llamarApi({ accion: 'api', token: args[0], fn: args[1], args: args[2], op: args[3] });
+}
+/* Acciones que escriben: llevan un "op" para que un reintento nunca duplique (el servidor lo recuerda). */
+const ESCRIBEN = { guardarClienta: 1, registrarAtencion: 1, registrarRecordatorioEnviado: 1, prepararCampana: 1, marcarEnviado: 1, registrarEntrada: 1, asignarCodigoProducto: 1, guardarCita: 1, cambiarEstadoCita: 1, marcarRecordatorioCita: 1, guardarProducto: 1, cancelarTicket: 1 };
+function nuevoOp() {
+  const r = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+  return (Date.now().toString(36) + '-' + r).replace(/[^\w-]/g, '').slice(0, 60);
+}
+const espera = ms => new Promise(ok => setTimeout(ok, ms));
+async function srvOp(op, fn, args) {
+  if (!SES) { pedirPin(); throw new Error('Entra con tu PIN.'); }
+  let intento = 0;
+  for (;;) {
+    try { return await run('api', [SES.token, fn, args, op]); }
+    catch (e) {
+      if (/SESION:/.test(e.message)) { guardarSesion(null); pedirPin(errorTexto(e)); throw e; }
+      // Wifi que va y viene: reintenta con el mismo op (no duplica)
+      if (e.red && op && intento < 2) { intento++; await espera(intento * 2000); continue; }
+      throw e;
+    }
+  }
 }
 function srv(fn) {
   const args = Array.prototype.slice.call(arguments, 1);
-  if (!SES) { pedirPin(); return Promise.reject(new Error('Entra con tu PIN.')); }
-  return run('api', [SES.token, fn, args]).catch(e => {
-    if (/SESION:/.test(e.message)) { guardarSesion(null); pedirPin(errorTexto(e)); }
-    throw e;
+  return srvOp(ESCRIBEN[fn] ? nuevoOp() : '', fn, args);
+}
+/** Escritura que, si no hay señal, se guarda en el celular y se manda sola después. */
+async function srvCola(desc, op, fn, args, argsCola) {
+  try { return await srvOp(op, fn, args); }
+  catch (e) {
+    if (!e.red) throw e;
+    COLA.push({ op: op, fn: fn, args: argsCola || args, desc: desc, t: Date.now() });
+    guardarCola();
+    return { encolado: true };
+  }
+}
+
+/* ---------- Cola sin señal ---------- */
+const COLA_K = 'spatsy_cola', DATOS_K = 'spatsy_datos';
+let COLA = (() => { try { return JSON.parse(localStorage.getItem(COLA_K) || '[]') || []; } catch (e) { return []; } })();
+function guardarCola() { try { localStorage.setItem(COLA_K, JSON.stringify(COLA)); } catch (e) { } pintarRed(); }
+let SINC = false;
+async function sincronizarCola() {
+  if (SINC || !SES || !COLA.some(x => !x.error)) return;
+  SINC = true; pintarRed();
+  let enviados = 0;
+  try {
+    for (const it of COLA.slice()) {
+      if (it.error) continue;
+      try {
+        const r = await srvOp(it.op, it.fn, it.args);
+        COLA = COLA.filter(x => x.op !== it.op); guardarCola(); enviados++;
+        if (it.fn === 'registrarAtencion') toast('Se envió el cobro de ' + it.desc + (r && r.ticket ? ' · ' + r.ticket : ''), 4000);
+      } catch (e) {
+        if (e.red || /SESION:/.test(e.message)) break;
+        it.error = errorTexto(e); guardarCola();
+      }
+    }
+  } finally { SINC = false; pintarRed(); }
+  if (enviados) refrescarDatos();
+}
+function pintarRed() {
+  const b = $('red'); if (!b) return;
+  const pend = COLA.filter(x => !x.error).length, mal = COLA.filter(x => x.error).length;
+  const off = !EN_LINEA || (navigator.onLine === false);
+  if (!off && !pend && !mal) { b.hidden = true; return; }
+  b.hidden = false;
+  b.className = 'red' + (mal ? ' mal' : off ? ' off' : '');
+  b.textContent = mal ? '⚠ ' + mal + ' sin enviar' : SINC ? 'Enviando…' : off ? (pend ? 'Sin señal · ' + pend + ' por enviar' : 'Sin señal') : pend + ' por enviar';
+}
+function abrirCola() {
+  const fmt = t => new Date(t).toLocaleString('es-MX', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+  const nom = { registrarAtencion: 'Cobro', registrarEntrada: 'Entrada de mercancía', cambiarEstadoCita: 'Cambio de cita', marcarRecordatorioCita: 'Confirmación de cita', registrarRecordatorioEnviado: 'Mensaje enviado', marcarEnviado: 'Promoción enviada' };
+  $('panelIn').innerHTML = '<button class="volver" type="button" id="cerrar">← Volver</button><h1 class="ficha-nom">Por enviar</h1>' +
+    '<p class="ejemplo" style="margin:6px 0 12px">Lo que se guardó sin señal. Se manda solo cuando regresa el internet; no se duplica aunque se intente varias veces.</p>' +
+    (COLA.length ? '<div class="lista">' + COLA.map((x, i) => '<div class="fila" style="align-items:flex-start"><div class="txt"><div class="nom">' + esc((nom[x.fn] || x.fn) + (x.desc ? ' · ' + x.desc : '')) + '</div><div class="det">' + esc(fmt(x.t)) + '</div>' +
+      (x.error ? '<div class="aviso bad" style="margin-top:6px">' + esc(x.error) + '</div>' : '') + '</div>' +
+      (x.error ? '<button class="btn btn-ghost btn-mini" type="button" data-qi="' + i + '">Quitar</button>' : '<span class="chip warn">Pendiente</span>') + '</div>').join('') + '</div>' : '<div class="vacio">No hay nada pendiente.</div>') +
+    '<div class="campos" style="margin-top:14px"><button class="btn btn-prim" type="button" id="colaYa">Enviar ahora</button></div>';
+  $('panel').hidden = false;
+  $('cerrar').onclick = () => { $('panel').hidden = true; };
+  $('colaYa').onclick = async () => { COLA.forEach(x => delete x.error); guardarCola(); await sincronizarCola(); abrirCola(); };
+  $('panelIn').querySelectorAll('[data-qi]').forEach(b => b.onclick = () => {
+    const x = COLA[+b.dataset.qi];
+    if (!confirm('¿Quitar "' + (nom[x.fn] || x.fn) + (x.desc ? ' · ' + x.desc : '') + '"? No se va a registrar.')) return;
+    COLA.splice(+b.dataset.qi, 1); guardarCola(); abrirCola();
   });
 }
+
+/* ---------- Datos guardados en el celular (abre al instante) ---------- */
+let DATOS_T = 0;
+function guardarCache() { try { if (D && SES) localStorage.setItem(DATOS_K, JSON.stringify({ u: SES.token.slice(0, 16), t: Date.now(), D: D })); } catch (e) { } }
+function leerCache() { try { const c = JSON.parse(localStorage.getItem(DATOS_K) || 'null'); if (c && SES && c.u === SES.token.slice(0, 16)) return c; } catch (e) { } return null; }
+function refrescarDatos() { return srv('appInicio').then(d => { D = d; DATOS_T = Date.now(); guardarCache(); return d; }).catch(() => null); }
 function pedirPin(msg) {
   $('login').hidden = false; $('pin').value = '';
   $('loginMsg').innerHTML = msg ? '<div class="aviso warn">' + esc(msg) + '</div>' : '';
@@ -339,7 +464,9 @@ function pintarQuien() {
   $('btnSalir').onclick = () => {
     if (!confirm('¿Salir de la App? Para volver a entrar se necesita el PIN.')) return;
     run('salir', [SES.token]).catch(() => { });
+    if (COLA.some(x => !x.error) && !confirm('Hay ' + COLA.filter(x => !x.error).length + ' movimiento(s) sin enviar. Se mandarán cuando la siguiente persona entre con su PIN. ¿Salir?')) return;
     guardarSesion(null); D = null; q.hidden = true;
+    try { localStorage.removeItem(DATOS_K); } catch (e) { }
     // Que la siguiente persona no vea nada de la sesión anterior
     nueva = null; filtro = ''; tab = 'hoy';
     try { P = { seg: 'toca', valor: '', plantilla: 'Te toca tratamiento', mensaje: '', lista: null, camp: null, envio: null, nombre: '' }; } catch (e) { }
@@ -358,19 +485,38 @@ function errorTexto(e) {
 }
 
 /* ---------- Carga ---------- */
+/** Se puede repintar sin estorbar: nadie está escribiendo ni en un cobro a medias. */
+function puedeRepintar() {
+  const a = document.activeElement;
+  if (!$('panel').hidden) return false;
+  if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName) && $('vista').contains(a)) return false;
+  if (tab === 'registrar' && nueva && !nueva.res) return false;
+  return true;
+}
 async function cargar() {
   $('estado').innerHTML = '';
   if (!SES) { pedirPin(); return; }
+  let deCache = false;
+  if (!D) {
+    const c = leerCache();
+    if (c && c.D) { D = c.D; DATOS_T = c.t; deCache = true; $('marca').textContent = D.negocio; pintarQuien(); render(); }
+  }
+  $('btnRecargar').textContent = 'Actualizando…';
   try {
-    D = await srv('appInicio');
+    const d = await srv('appInicio');
+    D = d; DATOS_T = Date.now(); guardarCache();
     $('marca').textContent = D.negocio;
     if (SES && D.rol && SES.rol !== D.rol) guardarSesion(Object.assign({}, SES, { rol: D.rol }));
     AG.cache = {}; pintarQuien();
-    render();
+    if (!deCache || puedeRepintar()) render();
+    sincronizarCola();
   } catch (e) {
-    $('estado').innerHTML = '<div class="aviso bad">' + esc(errorTexto(e)) + '</div>';
+    if (D && e.red) {
+      const h = new Date(DATOS_T).toLocaleTimeString('es-MX', { hour: 'numeric', minute: '2-digit' });
+      $('estado').innerHTML = '<div class="aviso warn">Sin señal: estás viendo los datos de las ' + esc(h) + '. Los cobros se guardan y se mandan solos cuando regrese el internet.</div>';
+    } else $('estado').innerHTML = '<div class="aviso bad">' + esc(errorTexto(e)) + '</div>';
     if (!D) $('vista').innerHTML = '<div class="seccion"><h2>Tus pendientes de hoy</h2><div class="vacio">Aquí aparecerán cumpleaños, citas, tratamientos que tocan y recompras en cuanto la app pueda leer la hoja. Toca Actualizar para reintentar.</div></div>';
-  }
+  } finally { $('btnRecargar').textContent = 'Actualizar'; }
 }
 function render() {
   document.querySelectorAll('nav.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
@@ -407,7 +553,8 @@ function vHoy() {
     : '<div class="kpi principal"><div class="t">Citas hoy</div><div class="v">' + citasHoy.length + '</div><div class="s">' + citasHoy.filter(c => c.estado === 'Atendida').length + ' atendidas</div></div>' +
       '<div class="kpi"><div class="t">Por confirmar</div><div class="v">' + porConfirmar.length + '</div><div class="s">citas de mañana</div></div>' +
       '<div class="kpi"><div class="t">Mensajes</div><div class="v">' + total + '</div><div class="s">pendientes</div></div>') +
-    '<div class="kpi"><div class="t">Activas</div><div class="v">' + k.activas + '</div><div class="s">de ' + k.clientas + ' clientas</div></div></div>';
+    '<div class="kpi"><div class="t">Activas</div><div class="v">' + k.activas + '</div><div class="s">de ' + k.clientas + ' clientas</div></div></div>' +
+    (esDuena() ? '<div class="chips" style="margin-top:10px;gap:8px"><button class="btn btn-sec btn-mini" type="button" id="hRep">📊 Reportes del negocio</button></div>' : '');
   h += '<section class="seccion"><h2>Citas de hoy<span class="n">' + citasHoy.length + '</span></h2><div class="lista" id="hc">' +
     (citasHoy.length ? citasHoy.map(c => filaCita(c)).join('') : '<div class="vacio">No hay citas para hoy.</div>') +
     '</div><div class="chips" style="margin-top:10px;gap:8px"><button class="btn btn-sec btn-mini" type="button" id="hAg">Ver agenda</button><button class="btn btn-prim btn-mini" type="button" id="hNc">+ Agendar cita</button></div></section>';
@@ -416,7 +563,7 @@ function vHoy() {
       porConfirmar.map(c => '<div class="fila" id="pc_' + esc(c.id) + '"><div class="avatar">' + esc(c.horaTexto.split(' ')[0]) + '</div><div class="txt"><div class="nom">' + esc(c.nombre) + '</div><div class="det">' + esc((c.servicio || 'Cita') + (c.recordada ? ' · ya se le escribió' : '')) + '</div></div>' +
         (c.linkConfirmar ? '<a class="btn btn-wa" href="' + esc(c.linkConfirmar) + '" target="_blank" rel="noopener" data-conf="' + esc(c.id) + '">' + (c.recordada ? 'Otra vez' : 'Confirmar') + '</a>' : '<span class="chip bad">Sin WhatsApp</span>') + '</div>').join('') + '</div></section>';
   }
-  const VACIO = { CUMPLE: 'Nadie cumple años en los próximos 7 días.', CITA: 'No hay citas sugeridas para hoy ni mañana.', RECOMPRA: 'Nadie está por terminarse su producto.', TOCA: 'Nadie está pendiente de su siguiente sesión.', REACTIVAR: 'No hay clientas por reactivar esta semana.' };
+  const VACIO = { CUMPLE: 'Nadie cumple años en los próximos 7 días.', CITA: 'No hay citas sugeridas para hoy ni mañana.', RECOMPRA: 'Nadie está por terminarse su producto.', TOCA: 'Nadie está pendiente de su siguiente sesión.', REACTIVAR: 'No hay clientas por reactivar esta semana.', PAQUETE: 'Ningún paquete está por terminarse o vencer.' };
   D.pendientes.forEach((s, si) => {
     h += '<section class="seccion"><h2>' + esc(s.titulo.replace(/^\S+\s/, '')) + '<span class="n">' + s.items.length + '</span></h2><div class="lista">' +
       (s.items.length ? s.items.map((x, i) => '<div class="fila" id="p' + si + '_' + i + '"><div class="avatar">' + esc(iniciales(x.nombre)) + '</div><div class="txt"><div class="nom">' + esc(x.nombre) + '</div><div class="det">' + esc(x.detalle) + '</div></div>' +
@@ -427,18 +574,19 @@ function vHoy() {
   $('vista').innerHTML = h;
   ligarCitas($('vista'));
   if ($('kCorte')) $('kCorte').onclick = () => abrirCorte(D.hoy);
+  if ($('hRep')) $('hRep').onclick = () => abrirReportes();
   $('hAg').onclick = () => { AG.fecha = D.hoy; tab = 'agenda'; render(); };
   $('hNc').onclick = () => abrirFormCita(null, { fecha: D.hoy });
   $('vista').querySelectorAll('a[data-conf]').forEach(a => a.addEventListener('click', () => {
     const c = citaPorId(a.dataset.conf); if (c) c.recordada = 'hoy';
-    srv('marcarRecordatorioCita', a.dataset.conf).catch(() => { });
+    srvCola('', nuevoOp(), 'marcarRecordatorioCita', [a.dataset.conf]).catch(() => { });
     setTimeout(() => { a.textContent = 'Otra vez'; a.closest('.fila').querySelector('.det').textContent = (c && c.servicio || 'Cita') + ' · ya se le escribió'; }, 300);
   }));
   $('vista').querySelectorAll('a.btn-wa[data-s]').forEach(a => a.addEventListener('click', () => {
     const s = D.pendientes[+a.dataset.s], x = s.items[+a.dataset.i], fila = $('p' + a.dataset.s + '_' + a.dataset.i);
     setTimeout(() => {
       fila.classList.add('hecha'); a.outerHTML = '<span class="chip ok">Enviado</span>';
-      srv('registrarRecordatorioEnviado', s.tipo, x.id, x.detalle).catch(e => toast(errorTexto(e), 4000));
+      srvCola(x.nombre, nuevoOp(), 'registrarRecordatorioEnviado', [s.tipo, x.id, x.detalle]).catch(e => toast(errorTexto(e), 4000));
     }, 300);
   }));
 }
@@ -525,7 +673,7 @@ function abrirCita(id) {
   $('cerrar').onclick = () => { $('panel').hidden = true; render(); };
   $('ciFicha').onclick = () => abrirFicha(c.idClienta);
   if ($('ciMover')) $('ciMover').onclick = () => abrirFormCita(c);
-  if ($('ciWa')) $('ciWa').addEventListener('click', () => { c.recordada = 'hoy'; srv('marcarRecordatorioCita', c.id).catch(() => { }); });
+  if ($('ciWa')) $('ciWa').addEventListener('click', () => { c.recordada = 'hoy'; srvCola('', nuevoOp(), 'marcarRecordatorioCita', [c.id]).catch(() => { }); });
   if ($('ciCobrar')) $('ciCobrar').onclick = () => {
     nueva = nuevaAtencion(c.idClienta);
     nueva.idCita = c.id; nueva.horaCita = c.horaTexto; nueva.atendio = c.atiende || '';
@@ -651,7 +799,7 @@ async function abrirCorte(fecha) {
     if (m === null) return;
     if (m.trim().length < 3) { toast('Escribe el motivo para poder cancelar'); return; }
     b.disabled = true;
-    try { const r = await srv('cancelarTicket', b.dataset.can, m.trim()); toast(r.mensaje, 4000); abrirCorte(fecha); srv('appInicio').then(d => { D = d; }).catch(() => { }); }
+    try { const r = await srv('cancelarTicket', b.dataset.can, m.trim()); toast(r.mensaje, 4000); abrirCorte(fecha); refrescarDatos(); }
     catch (e) { b.disabled = false; toast(errorTexto(e), 4000); }
   });
 }
@@ -693,6 +841,7 @@ async function abrirFicha(id) {
       if (F.sugeridos.length) h += '<div style="font-size:13px;color:var(--muted)">Ideal para su piel y aún no lo prueba:</div><div class="chips">' + F.sugeridos.map(s => '<span class="chip warn">' + esc(s.servicio) + (s.precio ? ' · ' + dinero(s.precio) : '') + '</span>').join('') + '</div>';
       h += '</div></section>';
     }
+    h += seccionFidelidad(F, c);
     h += '<section class="seccion"><h2>Perfil</h2>' + dato('WhatsApp', c.whatsapp) + dato('Cumpleaños', c.nacimiento ? isoMx(c.nacimiento).slice(0, 5) + (F.edad !== '' ? ' · ' + F.edad + ' años' : '') : '') +
       dato('Tipo de piel', c.piel) + dato('Preocupación', c.preocupacion) + dato('Servicio favorito', F.favorito) + dato('Ticket promedio', dinero(F.ticketPromedio)) + dato('Clienta desde', isoMx(c.registro)) +
       (c.notas ? '<div class="aviso warn" style="margin-top:10px">' + esc(c.notas) + '</div>' : '') + '</section>';
@@ -702,10 +851,84 @@ async function abrirFicha(id) {
     $('cerrar').onclick = () => $('panel').hidden = true;
     $('fAt').onclick = () => { $('panel').hidden = true; nueva = nuevaAtencion(id); tab = 'registrar'; render(); };
     $('fEd').onclick = () => abrirFormClienta(c);
+    if ($('fVp')) $('fVp').onclick = () => { $('panel').hidden = true; nueva = nuevaAtencion(id); nueva.paquetes = [{ nombre: D.paquetes.length === 1 ? D.paquetes[0].nombre : '' }]; tab = 'registrar'; render(); };
+    $('panelIn').querySelectorAll('[data-fic]').forEach(b => b.onclick = () => abrirFicha(b.dataset.fic));
     $('fCi').onclick = () => abrirFormCita(null, { idClienta: c.id, servicio: F.leToca ? F.leToca.servicio : (F.favorito || '') });
   } catch (e) {
     $('panelIn').innerHTML = '<button class="volver" type="button" onclick="document.getElementById(\'panel\').hidden=true">← Volver</button><div class="aviso bad" style="margin-top:10px">' + esc(errorTexto(e)) + '</div>';
   }
+}
+
+function seccionFidelidad(F, c) {
+  const Fi = F.fidelidad; if (!Fi) return '';
+  let h = '<section class="seccion"><h2>Fidelidad</h2>';
+  if (Fi.lealtad) {
+    const L = Fi.lealtad, sellos = Array.from({ length: L.cada }, (_, i) => '<i class="' + (i < L.enCiclo ? 'l' : '') + (i === L.cada - 1 ? ' p' : '') + '">' + (i === L.cada - 1 ? '🎁' : i < L.enCiclo ? '✓' : i + 1) + '</i>').join('');
+    h += '<div style="font-size:14px">' + Fi.visitas + ' visita' + (Fi.visitas === 1 ? '' : 's') + ' · ' + (L.siguienteEsPremio ? '<b style="color:var(--ok)">¡Su próxima visita lleva ' + L.pct + '%!</b>' : (L.faltan === 1 ? 'le falta 1 visita' : 'le faltan ' + L.faltan + ' visitas') + ' para su ' + L.pct + '%') + '</div><div class="sellos">' + sellos + '</div>';
+  }
+  if (Fi.paquetes.length) {
+    h += '<div class="lista" style="margin-top:8px">' + Fi.paquetes.map(p => '<div class="fila" style="display:block"><div style="display:flex;justify-content:space-between;gap:8px"><b>🎟️ ' + esc(p.paquete) + '</b><span class="chip ' + (p.estado === 'Activo' ? 'ok' : p.estado === 'Vencido' ? 'bad' : '') + '">' + esc(p.estado) + '</span></div>' +
+      '<div class="det" style="font-size:13px;color:var(--muted)">' + p.usadas + ' de ' + p.sesiones + ' sesiones usadas' + (p.vence ? ' · vence ' + esc(p.vence) : '') + ' · comprado ' + esc(p.fecha) + '</div>' +
+      '<div class="barra-p"><span style="width:' + Math.round(p.usadas / Math.max(p.sesiones, 1) * 100) + '%"></span></div></div>').join('') + '</div>';
+  }
+  if (Fi.referidaPor) h += '<div class="dato"><span>La recomendó</span><span><button class="linkbtn" type="button" data-fic="' + esc(Fi.referidaPor.id) + '">' + esc(Fi.referidaPor.nombre) + '</button></span></div>';
+  if (Fi.referidas.length) h += '<div class="dato"><span>Ha recomendado a</span><span>' + Fi.referidas.map(x => '<button class="linkbtn" type="button" data-fic="' + esc(x.id) + '">' + esc(primer(x.nombre)) + '</button>' + (x.vino ? ' ✓' : ' <small style="color:var(--muted)">(no ha venido)</small>')).join(', ') + '</span></div>';
+  if (Fi.premiosPendientes) h += '<div class="aviso ok" style="margin-top:8px">💝 Tiene ' + (Fi.premiosPendientes === 1 ? 'un premio' : Fi.premiosPendientes + ' premios') + ' de ' + Fi.referidoPct + '% por recomendar. Se aplica al cobrarle.</div>';
+  const botones = [];
+  if ((D.paquetes || []).length) botones.push('<button class="btn btn-sec btn-mini" type="button" id="fVp">Venderle un paquete</button>');
+  if (Fi.referidoPct && c.whatsapp && c.aceptaPromos === 'Sí') {
+    const txt = 'Hola ' + primer(c.nombre) + ' 💕 ¿Tienes una amiga a la que le encantaría ' + D.negocio + '? Si viene de tu parte, ella tiene ' + Fi.referidoPct + '% en su primera visita y tú ' + Fi.referidoPct + '% en tu siguiente servicio 🎁 Solo dile que nos diga tu nombre.';
+    botones.push('<a class="btn btn-wa btn-mini" target="_blank" rel="noopener" href="' + esc(wa(c.whatsapp, txt)) + '">Invitarla a recomendar</a>');
+  }
+  if (botones.length) h += '<div class="chips" style="gap:8px;margin-top:10px">' + botones.join('') + '</div>';
+  return h + '</section>';
+}
+
+/* ---------- Reportes (dueña) ---------- */
+async function abrirReportes() {
+  $('panelIn').innerHTML = '<button class="volver" type="button" id="cerrar">← Volver</button><h1 class="ficha-nom">Reportes</h1><div class="carga"><span class="spin"></span>Calculando…</div>';
+  $('panel').hidden = false; $('panel').scrollTop = 0;
+  $('cerrar').onclick = () => { $('panel').hidden = true; };
+  let R;
+  try { R = await srv('obtenerReportes'); }
+  catch (e) { $('panelIn').insertAdjacentHTML('beforeend', '<div class="aviso bad">' + esc(errorTexto(e)) + '</div>'); return; }
+  const M = R.meses, act = M[5], ant = M[4];
+  const cambio = ant.ventas ? Math.round((act.ventas - ant.ventas) / ant.ventas * 100) : null;
+  let h = '<button class="volver" type="button" id="cerrar">← Volver</button><h1 class="ficha-nom">Reportes</h1>' +
+    '<div class="kpis" style="margin-top:12px"><div class="kpi principal"><div class="t">Ventas del mes</div><div class="v">' + dinero(act.ventas) + '</div><div class="s">' + (cambio === null ? act.tickets + ' tickets' : (cambio >= 0 ? '▲ ' : '▼ ') + Math.abs(cambio) + '% vs ' + esc(ant.nombre)) + '</div></div>' +
+    '<div class="kpi"><div class="t">Clientas nuevas</div><div class="v">' + act.nuevas + '</div><div class="s">este mes</div></div>' +
+    '<div class="kpi"><div class="t">Regresan</div><div class="v">' + (R.retencion.pct === null ? '—' : R.retencion.pct + '%') + '</div><div class="s">' + (R.retencion.base ? R.retencion.volvieron + ' de ' + R.retencion.base + ' volvieron' : 'faltan datos') + '</div></div>' +
+    '<div class="kpi"><div class="t">Ticket promedio</div><div class="v">' + dinero(act.promedio) + '</div><div class="s">' + act.visitas + ' visitas</div></div></div>';
+  h += '<section class="seccion"><h2>Ventas por mes</h2><div id="gV"></div></section>';
+  h += '<section class="seccion"><h2>Clientas nuevas por mes</h2><div id="gN"></div></section>';
+  const rank = (l, val, sub) => { const mx = Math.max(1, ...l.map(val)); return '<div class="rank">' + l.map(x => '<div class="r"><span>' + esc(x.nombre) + '</span><b class="num">' + dinero(x.monto) + '</b><small>' + sub(x) + '</small><span></span><div class="bar"><span style="width:' + Math.max(2, Math.round(val(x) / mx * 100)) + '%"></span></div></div>').join('') + '</div>'; };
+  h += '<section class="seccion"><h2>Servicios que más venden <small style="font-size:12px;color:var(--muted)">90 días</small></h2>' + (R.topServicios.length ? rank(R.topServicios, x => x.monto, x => x.veces + ' vez' + (x.veces === 1 ? '' : 'es')) : '<div class="vacio">Sin datos.</div>') + '</section>';
+  h += '<section class="seccion"><h2>Productos que más venden <small style="font-size:12px;color:var(--muted)">90 días</small></h2>' + (R.topProductos.length ? rank(R.topProductos, x => x.monto, x => x.piezas + ' pza' + (x.piezas === 1 ? '' : 's')) : '<div class="vacio">Sin ventas de productos.</div>') + '</section>';
+  h += '<section class="seccion"><h2>Mejores clientas <small style="font-size:12px;color:var(--muted)">12 meses</small></h2>' + (R.mejores.length ? '<div class="lista">' + R.mejores.map((c, i) => '<button type="button" class="fila clic" data-fic="' + esc(c.id) + '"><div class="avatar">' + (i + 1) + '</div><div class="txt"><div class="nom">' + esc(c.nombre) + '</div><div class="det">' + c.visitas + ' visitas' + (c.ultima ? ' · última ' + esc(c.ultima) : '') + '</div></div><b class="num">' + dinero(c.monto) + '</b></button>').join('') + '</div>' : '<div class="vacio">Sin datos.</div>') + '</section>';
+  if (R.porEmpleada.length) h += '<section class="seccion"><h2>Por quién atendió <small style="font-size:12px;color:var(--muted)">este mes</small></h2>' + rank(R.porEmpleada, x => x.monto, x => x.servicios + ' servicio' + (x.servicios === 1 ? '' : 's')) + '</section>';
+  h += '<section class="seccion"><h2>Paquetes y recomendaciones</h2>' +
+    '<div class="dato"><span>Paquetes activos</span><span>' + R.paquetes.activos + '</span></div>' +
+    '<div class="dato"><span>Vendidos este mes</span><span>' + R.paquetes.vendidosMes + '</span></div>' +
+    '<div class="dato"><span>Sesiones ya pagadas por dar</span><span>' + R.paquetes.sesionesPorDar + ' (' + dinero(R.paquetes.dineroPorDar) + ')</span></div>' +
+    '<div class="dato"><span>Clientas que llegaron recomendadas</span><span>' + R.referidas + '</span></div>' +
+    '<p class="ejemplo" style="margin-top:8px">"Regresan" = de las clientas que vinieron por primera vez hace 2 a 12 meses, cuántas volvieron al menos una vez' + (R.retencion.pct60 !== null ? ' (' + R.retencion.pct60 + '% dentro de los primeros 60 días)' : '') + '.</p></section>';
+  $('panelIn').innerHTML = h;
+  $('cerrar').onclick = () => { $('panel').hidden = true; };
+  $('panelIn').querySelectorAll('[data-fic]').forEach(b => b.onclick = () => abrirFicha(b.dataset.fic));
+  grafica($('gV'), M, m => m.ventas, m => dinero(m.ventas), m => m.tickets + ' tickets · servicios ' + dinero(m.servicios) + ' · productos ' + dinero(m.productos) + (m.paquetes ? ' · paquetes ' + dinero(m.paquetes) : ''));
+  grafica($('gN'), M, m => m.nuevas, m => m.nuevas + ' nueva' + (m.nuevas === 1 ? '' : 's'), m => m.visitas + ' visitas en el mes');
+}
+/** Barras de 6 meses: un solo color, toca una barra para ver su valor (empieza en el mes actual). */
+function grafica(cont, M, val, etiqueta, detalle) {
+  const mx = Math.max(1, ...M.map(val));
+  let sel = M.length - 1;
+  const pinta = () => {
+    cont.innerHTML = '<div class="graf-sel"><span>' + esc(M[sel].nombre) + '</span><b>' + esc(etiqueta(M[sel])) + '</b></div><div class="graf" role="group" aria-label="Por mes">' +
+      M.map((m, i) => '<button type="button" data-g="' + i + '" aria-pressed="' + (i === sel) + '" aria-label="' + esc(m.nombre + ': ' + etiqueta(m)) + '"><span style="height:' + Math.max(1, Math.round(val(m) / mx * 100)) + '%"></span></button>').join('') +
+      '</div><div class="graf-x">' + M.map(m => '<span>' + esc(m.nombre) + '</span>').join('') + '</div><div class="ejemplo" style="margin-top:6px">' + esc(detalle(M[sel])) + '</div>';
+    cont.querySelectorAll('[data-g]').forEach(b => b.onclick = () => { sel = +b.dataset.g; pinta(); });
+  };
+  pinta();
 }
 
 /* ---------- Nueva clienta / editar ---------- */
@@ -715,6 +938,9 @@ function abrirFormClienta(c, pre, alGuardar) {
   const L = D.listas || {};
   const opt = (l, v) => '<option value="">—</option>' + (l || []).map(x => '<option' + (x === v ? ' selected' : '') + '>' + esc(x) + '</option>').join('');
   const hoyISO = D.hoy;
+  let refId = c.referidaPor || '';
+  const refC = refId ? D.clientas.find(x => x.id === refId) : null;
+  const refNom = refC ? refC.nombre : refId;
   $('panelIn').innerHTML = '<button class="volver" type="button" id="cerrar">← ' + (ed ? 'Volver a la ficha' : 'Volver') + '</button>' +
     '<h1 class="ficha-nom">' + (ed ? 'Editar clienta' : 'Nueva clienta') + '</h1>' + (ed ? '<div class="chips" style="margin:8px 0 0"><span class="chip">' + esc(c.id) + '</span></div>' : '') +
     '<div class="campos" style="margin-top:14px">' +
@@ -722,6 +948,8 @@ function abrirFormClienta(c, pre, alGuardar) {
     '<div class="dos"><div><label class="l" for="kw">WhatsApp *</label><input id="kw" type="tel" inputmode="numeric" placeholder="10 dígitos" value="' + esc(c.whatsapp || (pre.whatsapp || '').slice(-10)) + '"></div>' +
     '<div><label class="l" for="kb">Cumpleaños</label><input id="kb" type="date" max="' + hoyISO + '" value="' + esc(c.nacimiento || '') + '"></div></div>' +
     '<div><label class="l" for="kc">¿Cómo nos conoció?</label><select id="kc">' + opt(L.comoLlego, c.comoLlego) + '</select></div>' +
+    '<div><label class="l" for="kr">¿Quién la recomendó? <small style="font-weight:400">(opcional)</small></label><div class="buscar"><input id="kr" autocomplete="off" placeholder="Busca a la clienta que la recomendó" value="' + esc(refNom) + '"><div class="sug" id="krs" hidden></div></div>' +
+    (D.programa && D.programa.referidoPct ? '<div class="ejemplo" style="margin-top:4px">Ella tendrá ' + D.programa.referidoPct + '% en su primera visita y quien la recomendó, ' + D.programa.referidoPct + '% en su siguiente servicio.</div>' : '') + '</div>' +
     '<div class="dos"><div><label class="l" for="kp">Tipo de piel</label><select id="kp">' + opt(L.piel, c.piel) + '</select></div>' +
     '<div><label class="l" for="kq">Qué quiere mejorar</label><select id="kq">' + opt(L.preocupacion, c.preocupacion) + '</select></div></div>' +
     '<div><label class="l" for="ka">Alergias o condiciones</label><input id="ka" maxlength="150" placeholder="Ninguna" value="' + esc(c.alergias && c.alergias !== 'Ninguna' ? c.alergias : '') + '"></div>' +
@@ -735,13 +963,23 @@ function abrirFormClienta(c, pre, alGuardar) {
   $('kav').onchange = function () { if (!this.checked) $('kpr').checked = false; };
   $('kpr').onchange = function () { if (this.checked && !$('kav').checked) { $('kav').checked = true; toast('Se marcó también el aviso de privacidad'); } };
   if (!ed && !$('kn').value) setTimeout(() => $('kn').focus(), 50);
+  $('kr').oninput = () => {
+    const q = norm($('kr').value), box = $('krs'); refId = '';
+    if (!q) { box.hidden = true; return; }
+    const l = D.clientas.filter(x => x.id !== c.id && (norm(x.nombre).includes(q) || norm(x.id).includes(q) || x.whatsapp.includes($('kr').value.replace(/\D/g, '') || '¬'))).slice(0, 6);
+    box.innerHTML = l.length ? l.map(x => '<button type="button" data-id="' + esc(x.id) + '"><b>' + esc(x.nombre) + '</b><br><small>' + esc(x.id + ' · ' + x.whatsapp) + '</small></button>').join('') : '<button type="button" disabled><small>No está registrada</small></button>';
+    box.hidden = false;
+    box.querySelectorAll('[data-id]').forEach(b => b.onclick = () => { refId = b.dataset.id; $('kr').value = D.clientas.find(x => x.id === refId).nombre; box.hidden = true; if ($('kc').value === '' && (L.comoLlego || []).indexOf('Recomendación') >= 0) $('kc').value = 'Recomendación'; });
+  };
   const msg = (h, cl) => $('kmsg').innerHTML = h ? '<div class="aviso ' + (cl || 'bad') + '">' + h + '</div>' : '';
   const guardarK = async forzar => {
     const d = {
       id: c.id || '', nombre: $('kn').value.trim(), whatsapp: $('kw').value, nacimiento: $('kb').value, registro: c.registro || '',
       comoLlego: $('kc').value, piel: $('kp').value, preocupacion: $('kq').value, alergias: $('ka').value.trim(), notas: $('kt').value.trim(),
-      aviso: $('kav').checked ? 'Sí' : 'No', aceptaPromos: $('kpr').checked ? 'Sí' : 'No', forzarDuplicado: !!forzar, origen: 'App · ' + (SES ? SES.nombre : '')
+      aviso: $('kav').checked ? 'Sí' : 'No', aceptaPromos: $('kpr').checked ? 'Sí' : 'No', forzarDuplicado: !!forzar, origen: 'App · ' + (SES ? SES.nombre : ''),
+      referidaPor: refId
     };
+    if ($('kr').value.trim() && !refId) return msg('Elige de la lista a la clienta que la recomendó (o borra ese campo).');
     if (d.nombre.split(/\s+/).length < 2) return msg('Escribe nombre y apellido.');
     if (d.whatsapp.length !== 10) return msg('El WhatsApp debe tener 10 dígitos.');
     if (d.aviso !== 'Sí' && (d.piel || d.preocupacion || d.alergias) && !confirm('Vas a guardar datos de piel/alergias sin aviso de privacidad. ¿Continuar?')) return;
@@ -756,7 +994,7 @@ function abrirFormClienta(c, pre, alGuardar) {
         return;
       }
       // Actualiza la lista local para no tener que recargar todo
-      const loc = { id: r.id, nombre: r.nombre, whatsapp: d.whatsapp, piel: d.piel, alergias: d.alergias || 'Ninguna' };
+      const loc = { id: r.id, nombre: r.nombre, whatsapp: d.whatsapp, piel: d.piel, alergias: d.alergias || 'Ninguna', referidaPor: refId };
       const i = D.clientas.findIndex(x => x.id === r.id);
       if (i >= 0) Object.assign(D.clientas[i], loc); else D.clientas.unshift(Object.assign({ estado: '', ultima: '' }, loc));
       pitido(true);
@@ -779,7 +1017,8 @@ function abrirFormClienta(c, pre, alGuardar) {
 let nueva = null, forzarExistencia = false;
 function nuevaAtencion(idc) {
   return { idc: idc || '', fecha: D.hoy, atendio: '', servicios: [{ s: '', m: '' }], productos: [], proxima: '', notas: '', res: null,
-    pagos: [{ f: '', m: '' }], desc: { on: false, tipo: 'pct', valor: '', motivo: '' }, pagaCon: '', idCita: '', horaCita: '' };
+    pagos: [{ f: '', m: '' }], desc: { on: false, tipo: 'pct', valor: '', motivo: '' }, pagaCon: '', idCita: '', horaCita: '',
+    paquetes: [], op: '', info: null };
 }
 const clientaPorId = id => D.clientas.find(c => c.id === id);
 
@@ -794,10 +1033,21 @@ function vRegistrar() {
   h += '<div><label class="l">Clienta</label>' + (c
     ? '<div class="elegida"><div><b>' + esc(c.nombre) + '</b><div style="font-size:12.5px;color:var(--muted)">' + esc(c.id + ' · ' + c.whatsapp) + '</div>' + (c.alergias && c.alergias !== 'Ninguna' ? '<span class="chip bad">Alergias: ' + esc(c.alergias) + '</span>' : '') + '</div><button class="btn btn-ghost btn-mini" type="button" id="cambiar">Cambiar</button></div>'
     : '<div class="buscar"><input id="bc" placeholder="Busca a la clienta" autocomplete="off"><div class="sug" id="bcs" hidden></div></div>') + '</div>';
+  if (c) h += bloqueBeneficios(n);
   h += '<div class="dos"><div><label class="l" for="ra">Atendió</label><select id="ra">' + opt(D.listas.atendio, n.atendio, '—') + '</select></div><div><label class="l" for="rf">Fecha</label><input type="date" id="rf" value="' + n.fecha + '" max="' + D.hoy + '"></div></div>';
-  h += '<div><label class="l">Servicios</label><div class="campos" style="gap:8px">' + n.servicios.map((s, i) =>
-    '<div class="linea"><select data-s="' + i + '">' + opt(D.listas.servicio, s.s, 'Servicio…') + '</select><input data-m="' + i + '" type="number" inputmode="numeric" min="0" placeholder="$" value="' + esc(s.m) + '"><button class="quitar" type="button" data-qs="' + i + '" aria-label="Quitar servicio">×</button></div>').join('') +
+  h += '<div><label class="l">Servicios</label><div class="campos" style="gap:8px">' + n.servicios.map((s, i) => {
+    const pq = paqueteDisponible(n, s, i);
+    return '<div class="linea"><select data-s="' + i + '">' + opt(D.listas.servicio, s.s, 'Servicio…') + '</select>' +
+      (s.paq ? '<div class="paqmonto">Paquete</div>' : '<input data-m="' + i + '" type="number" inputmode="numeric" min="0" placeholder="$" value="' + esc(s.m) + '">') +
+      '<button class="quitar" type="button" data-qs="' + i + '" aria-label="Quitar servicio">×</button></div>' +
+      (pq ? '<div class="usa-paq"><button type="button" data-up="' + i + '" class="' + (s.paq ? 'on' : '') + '">' + (s.paq ? '✓ De su paquete' : 'Usar su paquete') + '</button><span>' + esc(pq.paquete) + ' · quedan ' + (pq.restantes - (s.paq ? 1 : 0)) + ' de ' + pq.sesiones + '</span></div>' : '');
+  }).join('') +
     '<button class="agregar" type="button" id="addS">+ Servicio</button></div></div>';
+  if ((D.paquetes || []).length) {
+    h += '<div><label class="l">Paquetes que compra</label><div class="campos" style="gap:8px">' + n.paquetes.map((k, i) =>
+      '<div class="linea k"><select data-k="' + i + '">' + opt(D.paquetes.map(x => ({ v: x.nombre, t: x.nombre + ' (' + x.sesiones + ' ses.)' })), k.nombre, 'Paquete…') + '</select><div class="paqmonto">' + (k.nombre ? dinero(paqCat(k.nombre).precio) : '') + '</div><button class="quitar" type="button" data-qk="' + i + '" aria-label="Quitar paquete">×</button></div>').join('') +
+      '<button class="agregar" type="button" id="addK">+ Vender paquete</button></div></div>';
+  }
   h += '<div><label class="l">Productos</label><div class="campos" style="gap:8px">' + barraLector('rscan', 'Escanea el producto') + n.productos.map((p, i) =>
     '<div class="linea p"><select data-p="' + i + '">' + opt(D.productos.map(x => ({ v: x.id, t: x.nombre + (x.existencia !== '' && x.existencia != null ? ' (' + x.existencia + ')' : '') })), p.id, 'Producto…') + '</select><input data-c="' + i + '" type="number" inputmode="numeric" min="1" value="' + esc(p.c) + '"><input data-pr="' + i + '" type="number" inputmode="numeric" min="0" placeholder="$" value="' + esc(p.pr) + '"><button class="quitar" type="button" data-qp="' + i + '" aria-label="Quitar producto">×</button></div>').join('') +
     '<button class="agregar" type="button" id="addP">+ Producto</button></div></div>';
@@ -807,7 +1057,9 @@ function vRegistrar() {
   const T = cuentas();
   h += '<div><label class="l">Cobro</label><div class="cobro">';
   h += '<div class="renglon"><span>Subtotal</span><span class="num" id="cSub">' + dinero2(T.sub) + '</span></div>';
-  if (!n.desc.on) h += '<button class="linkbtn" type="button" id="dOn">+ Aplicar descuento</button>';
+  if (esPrograma(n.desc)) {
+    h += '<div class="renglon"><span>' + esc(n.desc.motivo) + ' ' + n.desc.pct + '% <small style="color:var(--muted)">(servicios)</small> <button class="linkbtn" type="button" id="dOff">quitar</button></span><span class="num" id="cDesc" style="color:var(--bad)">−' + dinero2(T.desc) + '</span></div>';
+  } else if (!n.desc.on) h += '<button class="linkbtn" type="button" id="dOn">+ Aplicar descuento</button>';
   else {
     h += '<div class="desc"><select id="dTipo"><option value="pct"' + (n.desc.tipo === 'pct' ? ' selected' : '') + '>%</option><option value="monto"' + (n.desc.tipo === 'monto' ? ' selected' : '') + '>$</option></select>' +
       '<input id="dVal" type="number" inputmode="decimal" min="0" placeholder="' + (n.desc.tipo === 'pct' ? 'Ej. 10' : 'Ej. 100') + '" value="' + esc(n.desc.valor) + '"></div>' +
@@ -834,11 +1086,12 @@ function vRegistrar() {
   const sync = () => {
     n.fecha = $('rf').value; n.atendio = $('ra').value; n.proxima = $('rx').value; n.notas = $('rn').value;
     document.querySelectorAll('[data-m]').forEach(el => n.servicios[+el.dataset.m].m = el.value);
+    SYNC_R = sync;
     document.querySelectorAll('[data-c]').forEach(el => n.productos[+el.dataset.c].c = el.value);
     document.querySelectorAll('[data-pr]').forEach(el => n.productos[+el.dataset.pr].pr = el.value);
     document.querySelectorAll('[data-pf]').forEach(el => n.pagos[+el.dataset.pf].f = el.value);
     document.querySelectorAll('[data-pm]').forEach(el => n.pagos[+el.dataset.pm].m = el.value);
-    if ($('dTipo')) { n.desc.tipo = $('dTipo').value; n.desc.valor = $('dVal').value; n.desc.motivo = $('dMot').value; }
+    if ($('dTipo') && !esPrograma(n.desc)) { n.desc.tipo = $('dTipo').value; n.desc.valor = $('dVal').value; n.desc.motivo = $('dMot').value; }
     if ($('pCon')) n.pagaCon = $('pCon').value;
   };
   const recalc = () => {
@@ -853,7 +1106,13 @@ function vRegistrar() {
   };
   document.querySelectorAll('#vista input, #vista textarea, #vista select').forEach(el => el.addEventListener('input', () => { sync(); recalc(); }));
   document.querySelectorAll('[data-pf]').forEach(el => el.addEventListener('change', () => { sync(); if (n.pagos.length === 1) vRegistrar(); }));
-  if ($('dOn')) $('dOn').onclick = () => { sync(); n.desc.on = true; vRegistrar(); setTimeout(() => $('dVal') && $('dVal').focus(), 30); };
+  if ($('dOn')) $('dOn').onclick = () => { sync(); n.desc = { on: true, tipo: 'pct', valor: '', motivo: '' }; vRegistrar(); setTimeout(() => $('dVal') && $('dVal').focus(), 30); };
+  document.querySelectorAll('[data-prog]').forEach(b => b.onclick = () => { sync(); const x = PROG_DESC(n.info)[b.dataset.prog]; if (x) { n.desc = { on: true, tipo: b.dataset.prog, pct: x.pct, motivo: x.motivo }; vRegistrar(); toast(x.motivo + ': ' + x.pct + '% en servicios'); } });
+  document.querySelectorAll('[data-up]').forEach(b => b.onclick = () => { sync(); const s = n.servicios[+b.dataset.up]; if (s.paq) s.paq = ''; else { const pq = paqueteDisponible(n, s, +b.dataset.up); if (pq) s.paq = pq.id; } vRegistrar(); });
+  if ($('addK')) $('addK').onclick = () => { sync(); n.paquetes.push({ nombre: '' }); vRegistrar(); };
+  document.querySelectorAll('[data-k]').forEach(el => el.onchange = () => { sync(); n.paquetes[+el.dataset.k].nombre = el.value; vRegistrar(); });
+  document.querySelectorAll('[data-qk]').forEach(el => el.onclick = () => { sync(); n.paquetes.splice(+el.dataset.qk, 1); vRegistrar(); });
+  if (c && (!n.info || n.info.idClienta !== c.id) && !n.cargandoInfo) cargarInfoCobro(n);
   if ($('dOff')) $('dOff').onclick = () => { sync(); n.desc = { on: false, tipo: 'pct', valor: '', motivo: '' }; vRegistrar(); };
   if ($('dTipo')) $('dTipo').onchange = () => { sync(); n.desc.valor = ''; vRegistrar(); };
   document.querySelectorAll('[data-mot]').forEach(b => b.onclick = () => { $('dMot').value = b.dataset.mot; sync(); });
@@ -861,7 +1120,9 @@ function vRegistrar() {
   document.querySelectorAll('[data-pq]').forEach(b => b.onclick = () => { sync(); n.pagos.splice(+b.dataset.pq, 1); if (!n.pagos.length) n.pagos.push({ f: '', m: '' }); vRegistrar(); });
   if ($('sinCita')) $('sinCita').onclick = () => { sync(); n.idCita = ''; n.horaCita = ''; vRegistrar(); };
   document.querySelectorAll('[data-s]').forEach(el => el.onchange = () => {
-    sync(); const s = n.servicios[+el.dataset.s]; s.s = el.value;
+    sync(); const s = n.servicios[+el.dataset.s]; s.s = el.value; s.paq = '';
+    const pqa = paqueteDisponible(n, s, +el.dataset.s);
+    if (pqa) { s.paq = pqa.id; toast('Se toma de su paquete (' + pqa.paquete + ')'); }
     const cfg = D.servicios[el.value];
     if (cfg && cfg.precio && !s.m) s.m = cfg.precio;
     if (cfg && cfg.dias && !n.proxima) { n.proxima = sumaDias(n.fecha || D.hoy, cfg.dias); toast('Próxima cita sugerida en ' + cfg.dias + ' días'); }
@@ -872,7 +1133,7 @@ function vRegistrar() {
   document.querySelectorAll('[data-qp]').forEach(el => el.onclick = () => { sync(); n.productos.splice(+el.dataset.qp, 1); vRegistrar(); });
   $('addS').onclick = () => { sync(); n.servicios.push({ s: '', m: '' }); vRegistrar(); };
   $('addP').onclick = () => { sync(); n.productos.push({ id: '', c: 1, pr: '' }); vRegistrar(); };
-  if ($('cambiar')) $('cambiar').onclick = () => { sync(); n.idc = ''; vRegistrar(); };
+  if ($('cambiar')) $('cambiar').onclick = () => { sync(); n.idc = ''; n.info = null; n.servicios.forEach(x => x.paq = ''); if (esPrograma(n.desc)) n.desc = { on: false, tipo: 'pct', valor: '', motivo: '' }; vRegistrar(); };
   activarLector('rscan', (c, deTeclado) => {
     sync();
     const pr = productoPorCodigo(c);
@@ -903,12 +1164,57 @@ function vRegistrar() {
 }
 const r2 = x => Math.round(x * 100) / 100;
 const dinero2 = n => { const x = r2(Number(n) || 0); return x % 1 ? '$' + x.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : dinero(x); };
-function total() { const n = nueva; return n.servicios.reduce((s, x) => s + (Number(x.m) || 0), 0) + n.productos.reduce((s, p) => s + (Number(p.pr) || 0) * (Number(p.c) || 0), 0); }
+function totalServicios() { return nueva.servicios.reduce((s, x) => s + (x.paq ? 0 : Number(x.m) || 0), 0); }
+function total() {
+  const n = nueva;
+  return totalServicios() + n.productos.reduce((s, p) => s + (Number(p.pr) || 0) * (Number(p.c) || 0), 0) + n.paquetes.reduce((s, k) => s + (k.nombre ? paqCat(k.nombre).precio : 0), 0);
+}
+const paqCat = nombre => (D.paquetes || []).find(x => x.nombre === nombre) || { precio: 0, sesiones: 0 };
+const esPrograma = d => d && d.on && ['lealtad', 'referida', 'premioReferido'].indexOf(d.tipo) >= 0;
+let SYNC_R = null;
+/** Descuentos del programa que le tocan a esta clienta (según el servidor). */
+function PROG_DESC(info) {
+  const o = {};
+  if (!info || info.error) return o;
+  if (info.lealtad && info.lealtad.toca) o.lealtad = { pct: info.lealtad.pct, motivo: 'Lealtad (' + info.lealtad.numero + 'ª visita)' };
+  if (info.referida) o.referida = { pct: info.referida.pct, motivo: 'Referida por ' + primer(info.referida.nombre) };
+  if (info.premioReferido) o.premioReferido = { pct: info.premioReferido.pct, motivo: 'Premio por recomendar' };
+  return o;
+}
+/** Paquete activo de la clienta para ese servicio, si le quedan sesiones (contando otras líneas del mismo cobro). */
+function paqueteDisponible(n, s, i) {
+  if (!s.s || !n.info || n.info.error || n.info.idClienta !== n.idc) return null;
+  return (n.info.paquetes || []).find(p => {
+    if (norm(p.servicio) !== norm(s.s)) return false;
+    const otras = n.servicios.filter((x, j) => j !== i && x.paq === p.id).length;
+    return s.paq === p.id ? p.restantes - otras >= 1 : p.restantes - otras >= 1;
+  }) || null;
+}
+async function cargarInfoCobro(n) {
+  n.cargandoInfo = true;
+  try { n.info = await srv('infoCobro', n.idc); }
+  catch (e) { n.info = { idClienta: n.idc, error: e.red ? 'Sin señal: no se pudieron revisar paquetes ni premios.' : errorTexto(e) }; }
+  n.cargandoInfo = false;
+  if (nueva === n && tab === 'registrar' && !n.res && $('panel').hidden) { if (SYNC_R) SYNC_R(); vRegistrar(); }
+}
+function bloqueBeneficios(n) {
+  if (!n.info || n.info.idClienta !== n.idc) return '<div class="benef"><div class="b"><span class="t" style="color:var(--muted)">Revisando paquetes y premios…</span></div></div>';
+  if (n.info.error) return '<div class="benef"><div class="b"><span class="t" style="color:var(--muted)">' + esc(n.info.error) + '</span></div></div>';
+  const I = n.info, P = PROG_DESC(I), act = n.desc && n.desc.tipo;
+  let h = '';
+  I.paquetes.forEach(p => h += '<div class="b"><span class="t">🎟️ <b>' + esc(p.paquete) + '</b> · quedan ' + p.restantes + ' de ' + p.sesiones + (p.vence ? ' · vence ' + esc(p.vence) : '') + '</span></div>');
+  if (P.lealtad) h += '<div class="b ok"><span class="t">🎁 ¡Es su visita ' + I.lealtad.numero + '! Le toca <b>' + P.lealtad.pct + '%</b> de lealtad</span>' + (act === 'lealtad' ? '<span class="chip ok">Aplicado</span>' : '<button class="btn btn-prim btn-mini" type="button" data-prog="lealtad">Aplicar</button>') + '</div>';
+  else if (I.lealtad) h += '<div class="b"><span class="t">Visita ' + I.lealtad.numero + ' · su premio de ' + I.lealtad.pct + '% es en ' + (I.lealtad.faltan === 1 ? 'la siguiente' : I.lealtad.faltan + ' visitas más') + '</span></div>';
+  if (P.referida) h += '<div class="b ok"><span class="t">💌 Viene recomendada por <b>' + esc(I.referida.nombre) + '</b>: ' + P.referida.pct + '% en su primera visita</span>' + (act === 'referida' ? '<span class="chip ok">Aplicado</span>' : '<button class="btn btn-prim btn-mini" type="button" data-prog="referida">Aplicar</button>') + '</div>';
+  if (P.premioReferido) h += '<div class="b ok"><span class="t">💝 Tiene ' + (I.premioReferido.pendientes === 1 ? 'un premio' : I.premioReferido.pendientes + ' premios') + ' por recomendar: ' + P.premioReferido.pct + '%</span>' + (act === 'premioReferido' ? '<span class="chip ok">Aplicado</span>' : '<button class="btn btn-prim btn-mini" type="button" data-prog="premioReferido">Aplicar</button>') + '</div>';
+  return h ? '<div class="benef">' + h + '</div>' : '';
+}
 /** Subtotal, descuento, total y lo que falta por cubrir en el último pago (pago mixto). */
 function cuentas() {
   const n = nueva, sub = r2(total());
   let desc = 0;
-  if (n.desc.on && Number(n.desc.valor) > 0) desc = r2(n.desc.tipo === 'pct' ? sub * Number(n.desc.valor) / 100 : Number(n.desc.valor));
+  if (esPrograma(n.desc)) desc = r2(totalServicios() * n.desc.pct / 100);
+  else if (n.desc.on && Number(n.desc.valor) > 0) desc = r2(n.desc.tipo === 'pct' ? sub * Number(n.desc.valor) / 100 : Number(n.desc.valor));
   desc = Math.min(desc, sub);
   const tot = r2(sub - desc);
   const otros = n.pagos.slice(0, -1).reduce((a, p) => a + (Number(p.m) || 0), 0);
@@ -917,15 +1223,18 @@ function cuentas() {
 
 async function guardar() {
   const n = nueva, msg = (t, cl) => $('rmsg').innerHTML = t ? '<div class="aviso ' + (cl || 'bad') + '">' + esc(t) + '</div>' : '';
-  const servicios = n.servicios.filter(s => s.s || s.m).map(s => ({ servicio: s.s, monto: Number(s.m), notas: '' }));
+  const servicios = n.servicios.filter(s => s.s || s.m || s.paq).map(s => s.paq ? { servicio: s.s, monto: 0, notas: '', usarPaquete: s.paq } : { servicio: s.s, monto: Number(s.m), notas: '' });
   const productos = n.productos.filter(p => p.id).map(p => ({ idProducto: p.id, cantidad: Number(p.c) || 0, precio: p.pr === '' ? '' : Number(p.pr) }));
+  const paquetes = n.paquetes.filter(k => k.nombre).map(k => ({ paquete: k.nombre }));
   if (!n.idc) return msg('Elige a la clienta.');
   if (servicios.some(s => !s.servicio)) return msg('Falta elegir un servicio.');
-  if (n.servicios.some(s => s.s && s.m === '')) return msg('Falta el monto de un servicio.');
-  if (!servicios.length && !productos.length) return msg('Agrega al menos un servicio o un producto.');
+  if (n.servicios.some(s => s.s && !s.paq && s.m === '')) return msg('Falta el monto de un servicio.');
+  if (!servicios.length && !productos.length && !paquetes.length) return msg('Agrega al menos un servicio, un producto o un paquete.');
+  if (n.paquetes.some(k => !k.nombre)) return msg('Elige el paquete o quita esa línea.');
   const T = cuentas();
   let descuento = null;
-  if (n.desc.on && Number(n.desc.valor) > 0) {
+  if (esPrograma(n.desc)) descuento = { tipo: n.desc.tipo };
+  else if (n.desc.on && Number(n.desc.valor) > 0) {
     if ((n.desc.motivo || '').trim().length < 3) return msg('Escribe el motivo del descuento.');
     if (T.desc >= T.sub && n.desc.motivo !== 'Cortesía' && !confirm('El descuento es del 100%. ¿Es correcto?')) return;
     if (!esDuena() && T.sub && T.desc / T.sub * 100 > (D.descuentoMaxEmpleada || 15) + 0.01) return msg('Tu PIN permite descuentos de hasta ' + (D.descuentoMaxEmpleada || 15) + '%. Pide a la dueña que lo autorice.');
@@ -937,25 +1246,44 @@ async function guardar() {
     if (pagos.length > 1 && pagos.some(p => !(p.monto > 0))) return msg('Cada forma de pago debe llevar un monto. Revisa que la primera no cubra todo el total.');
   }
   const b = $('guardar'); b.disabled = true; b.textContent = 'Registrando…'; msg('');
+  if (!n.op) n.op = nuevoOp(); // el mismo op en cada reintento: nunca se cobra dos veces
+  const datos = { idClienta: n.idc, fecha: n.fecha || D.hoy, atendio: n.atendio, formaPago: pagos[0].forma, pagos: T.total > 0 ? pagos : [], descuento, idCita: n.idCita, servicios, productos, paquetes, proximaCita: n.proxima, fotos: '', notas: n.notas, forzarExistencia };
+  const cl = clientaPorId(n.idc);
   try {
-    const r = await srv('registrarAtencion', { idClienta: n.idc, fecha: n.fecha, atendio: n.atendio, formaPago: pagos[0].forma, pagos: T.total > 0 ? pagos : [], descuento, idCita: n.idCita, servicios, productos, proximaCita: n.proxima, fotos: '', notas: n.notas, forzarExistencia });
+    // Sin señal: se guarda en el celular (con existencias forzadas: la venta ya ocurrió) y se manda sola después
+    const r = await srvCola((cl ? cl.nombre : n.idc) + ' ' + dinero2(T.total), n.op, 'registrarAtencion', [datos], [Object.assign({}, datos, { forzarExistencia: true })]);
+    if (r.encolado) {
+      forzarExistencia = false;
+      n.res = { encolado: true, clienta: cl ? cl.nombre : '', total: T.total, pagos: pagos, idClienta: n.idc, servicios: servicios.map(x => x.servicio), proximaCita: n.proxima };
+      return vRegistrar();
+    }
     if (!r.ok && r.faltaExistencia) {
       forzarExistencia = true; b.disabled = false; b.textContent = 'Registrar de todas formas';
       return msg(r.mensaje + '\nToca el botón otra vez para venderlo de todas formas.', 'warn');
     }
     forzarExistencia = false; n.res = r; vRegistrar();
     if (n.idCita) AG.cache = {};
-    srv('appInicio').then(d => { D = d; }).catch(() => { });
+    refrescarDatos();
   } catch (e) { b.disabled = false; b.textContent = 'Cobrar ' + dinero2(cuentas().total); msg(errorTexto(e)); }
 }
 function vHecho() {
   const r = nueva.res;
+  if (r.encolado) {
+    $('vista').innerHTML = '<div style="text-align:center;padding-top:22px"><span class="chip warn">Guardado sin señal</span><h1 class="ficha-nom" style="margin-top:10px">' + dinero2(r.total) + '</h1><div style="color:var(--muted)">' + esc(r.clienta) + '</div>' +
+      '<div class="aviso warn" style="margin:16px 0;text-align:left">No hay internet. El cobro quedó guardado en este celular y se manda solo en cuanto regrese la señal (arriba verás "por enviar"). No lo vuelvas a capturar.</div>' +
+      '<div class="campos"><button class="btn btn-prim" type="button" id="otra">Nuevo cobro</button></div></div>';
+    $('otra').onclick = () => { nueva = nuevaAtencion(); vRegistrar(); };
+    return;
+  }
   const pag = (r.pagos || []).map(p => p.forma + ((r.pagos || []).length > 1 ? ' ' + dinero2(p.monto) : '')).join(' + ');
   $('vista').innerHTML = '<div style="text-align:center;padding-top:22px"><span class="chip ok">Cobrado</span><h1 class="ficha-nom" style="margin-top:10px">' + esc(r.ticket) + '</h1><div style="color:var(--muted)">' + esc(r.clienta) + '</div>' +
     '<div class="total" style="margin:16px 0"><span>Total' + (pag ? ' · ' + esc(pag) : '') + '</span><span class="v">' + dinero2(r.total) + '</span></div><div class="lista" style="text-align:left">' + r.detalle.map(d => '<div class="mov">' + esc(d) + '</div>').join('') + '</div>' +
+    (r.paquetesUsados || []).map(p => '<div class="aviso ' + (p.restantes <= 1 ? 'warn' : 'ok') + '" style="margin-top:10px;text-align:left">🎟️ ' + esc(p.paquete) + ': ' + (p.restantes ? 'le ' + (p.restantes === 1 ? 'queda 1 sesión' : 'quedan ' + p.restantes + ' sesiones') : 'ya usó todas sus sesiones. Buen momento para ofrecerle otro paquete.') + '</div>').join('') +
+    (r.paquetesVendidos || []).map(p => '<div class="aviso ok" style="margin-top:10px;text-align:left">🎟️ Paquete ' + esc(p.paquete) + ' (' + esc(p.id) + '): ' + p.sesiones + ' sesiones de ' + esc(p.servicio) + ' listas para usarse.</div>').join('') +
     '<div class="campos" style="margin-top:18px">' +
     (r.linkRecibo ? '<a class="btn btn-wa" style="padding:12px" target="_blank" rel="noopener" href="' + esc(r.linkRecibo) + '">Mandar recibo por WhatsApp</a>' : '') +
     (r.linkGracias ? '<a class="btn btn-sec" style="padding:12px" target="_blank" rel="noopener" href="' + esc(r.linkGracias) + '">Mandar agradecimiento y reseña</a>' : '') +
+    (r.avisoReferente && r.avisoReferente.link ? '<a class="btn btn-wa" style="padding:12px" target="_blank" rel="noopener" href="' + esc(r.avisoReferente.link) + '">Avisar a ' + esc(primer(r.avisoReferente.nombre)) + ' que ganó su premio</a>' : '') +
     '<button class="btn btn-sec" type="button" id="hAgP">Agendar su próxima cita' + (r.proximaCita ? ' (' + isoMx(r.proximaCita).slice(0, 5) + ')' : '') + '</button>' +
     '<button class="btn btn-prim" type="button" id="otra">Nuevo cobro</button></div></div>';
   $('otra').onclick = () => { nueva = nuevaAtencion(); vRegistrar(); };
@@ -1026,7 +1354,7 @@ function vEnvio() {
     '</div><button class="btn btn-ghost" type="button" id="pnueva" style="margin-top:14px">Nueva campaña</button>';
   $('vista').querySelectorAll('a.btn-wa').forEach(a => a.addEventListener('click', () => {
     const c = l[+a.dataset.i];
-    setTimeout(() => { c.estado = 'Enviado'; vEnvio(); srv('marcarEnviado', P.camp, c.id).catch(e => toast(errorTexto(e), 4000)); }, 300);
+    setTimeout(() => { c.estado = 'Enviado'; vEnvio(); srvCola(c.nombre, nuevoOp(), 'marcarEnviado', [P.camp, c.id]).catch(e => toast(errorTexto(e), 4000)); }, 300);
   }));
   $('pnueva').onclick = () => { P.envio = null; P.camp = null; P.lista = null; P.nombre = ''; vPromos(); };
 }
@@ -1307,7 +1635,8 @@ function abrirProducto(id, porEscaneo) {
       if (!n) { $('pmsg').innerHTML = '<div class="aviso bad">Escribe o escanea cuántas piezas entran.</div>'; return; }
       b.disabled = true; b.textContent = 'Guardando…';
       try {
-        const r = await srv('registrarEntrada', { idProducto: p.id, cantidad: n, nota: $('pnota').value.trim() });
+        const r = await srvCola(p.nombre + ' +' + n, nuevoOp(), 'registrarEntrada', [{ idProducto: p.id, cantidad: n, nota: $('pnota').value.trim() }]);
+        if (r.encolado) { cant = 0; pinta(); $('pmsg').innerHTML = '<div class="aviso warn">Sin señal: la entrada de ' + n + ' piezas se guardó en el celular y se manda sola cuando regrese el internet.</div>'; return; }
         p.existencia = r.existencia; cant = 0; pinta();
         $('pmsg').innerHTML = '<div class="aviso ok">' + esc(r.mensaje) + '</div>';
       } catch (e) { b.disabled = false; b.textContent = 'Agregar piezas'; $('pmsg').innerHTML = '<div class="aviso bad">' + esc(errorTexto(e)) + '</div>'; }
@@ -1375,7 +1704,15 @@ function abrirNuevoProducto(codigo) {
 /* ---------- Arranque ---------- */
 $('fecha').textContent = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
 document.querySelectorAll('nav.tabs button').forEach(b => b.onclick = () => { tab = b.dataset.tab; render(); });
-$('btnRecargar').onclick = () => cargar();
+$('btnRecargar').onclick = () => { cargar(); sincronizarCola(); };
+$('red').onclick = () => abrirCola();
+window.addEventListener('online', () => { EN_LINEA = true; pintarRed(); sincronizarCola(); });
+window.addEventListener('offline', () => { EN_LINEA = false; pintarRed(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) sincronizarCola(); });
+setInterval(() => { if (COLA.some(x => !x.error)) sincronizarCola(); }, 30000);
+pintarRed();
+// La app abre aunque no haya internet (guarda sus archivos en el celular)
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('sw.js').catch(() => { });
 pintarQuien();
 cargar();
 // Deja listo el lector de fotos para celulares sin lector integrado (iPhone)
