@@ -108,6 +108,23 @@ textarea { resize: vertical; min-height: 70px; }
 .agregar { border: 1px dashed var(--rosa); background: none; color: var(--rosa); border-radius: 12px; padding: 9px; font-weight: 600; width: 100%; }
 .total { display: flex; justify-content: space-between; align-items: baseline; background: var(--rosa-soft); border-radius: var(--r); padding: 12px 14px; }
 .total .v { font-family: var(--f-display); font-size: 26px; color: var(--rosa); font-variant-numeric: tabular-nums; }
+.pick { width: 100%; min-width: 0; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 30px 10px 12px; position: relative; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.pick::after { content: "⌄"; position: absolute; right: 11px; top: 50%; transform: translateY(-62%); color: var(--muted); }
+.pick.vacio { color: var(--muted); }
+.selsv { position: fixed; inset: 0; z-index: 60; background: rgba(30, 15, 25, .45); display: flex; align-items: flex-end; justify-content: center; }
+.selsv-in { background: var(--bg); width: 100%; max-width: 560px; height: 86vh; height: 86dvh; border-radius: 20px 20px 0 0; display: flex; flex-direction: column; overflow: hidden; }
+.selsv-top { padding: 14px 16px 10px; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid var(--line); }
+.selsv-top div { display: flex; justify-content: space-between; align-items: center; }
+.selsv-top input { font-size: 16px; padding: 12px 14px; }
+.selsv-lista { overflow-y: auto; flex: 1; padding: 4px 8px 24px; -webkit-overflow-scrolling: touch; }
+.selsv-lista button { display: flex; width: 100%; justify-content: space-between; gap: 12px; align-items: center; border: 0; border-bottom: 1px solid var(--line); background: none; text-align: left; padding: 13px 8px; }
+.selsv-lista button.on { color: var(--rosa); font-weight: 700; }
+.selsv-lista button span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 14px; }
+.selsv-lista .grupo { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 12px 8px 4px; }
+.selsv-lista .nada { padding: 24px 8px; color: var(--muted); text-align: center; }
+.cita-wa { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.cita-wa .btn-wa { padding: 10px 12px; }
+.cita-wa .btn-wa.ya { background: var(--ok-soft); color: var(--ok); }
 .buscar { position: relative; }
 .sug { position: absolute; z-index: 5; left: 0; right: 0; top: calc(100% + 4px); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 24px rgba(40, 20, 30, .12); }
 .sug button { display: block; width: 100%; border: 0; background: none; text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
@@ -318,6 +335,40 @@ const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ
 const primer = s => String(s || '').trim().split(/\s+/)[0] || '';
 const iniciales = s => String(s || '').trim().split(/\s+/).slice(0, 2).map(x => x[0] || '').join('').toUpperCase();
 const isoMx = s => s ? s.split('-').reverse().join('/') : '';
+/* ---- Selector de servicio con buscador (son muchos para un menú normal) ---- */
+const botonServicio = (attrs, valor, vacio) => '<button type="button" class="pick' + (valor ? '' : ' vacio') + '" ' + attrs + ' value="' + esc(valor || '') + '">' + esc(valor || vacio || 'Servicio…') + '</button>';
+function elegirServicio(actual, alElegir, conVacio) {
+  const lista = (D.listas && D.listas.servicio) || [];
+  const precio = s => { const x = D.servicios && D.servicios[s]; return x && x.precio ? dinero(x.precio) : ''; };
+  const ov = document.createElement('div');
+  ov.className = 'selsv';
+  ov.innerHTML = '<div class="selsv-in" role="dialog" aria-label="Elegir servicio"><div class="selsv-top"><div><b>Elegir servicio</b><button type="button" class="btn btn-ghost btn-mini" data-x>Cerrar</button></div>' +
+    '<input type="search" placeholder="Escribe: dermapen, pestañas, láser…" autocomplete="off" enterkeyhint="done"></div><div class="selsv-lista"></div></div>';
+  document.body.appendChild(ov);
+  const inp = ov.querySelector('input'), box = ov.querySelector('.selsv-lista');
+  let visibles = [];
+  const cerrar = () => { ov.remove(); document.removeEventListener('keydown', tecla); };
+  const elegir = v => { cerrar(); alElegir(v); };
+  const pintar = () => {
+    const pal = norm(inp.value).split(/\s+/).filter(Boolean);
+    visibles = pal.length ? lista.filter(s => { const t = norm(s); return pal.every(p => t.indexOf(p) >= 0); }) : lista.slice();
+    let h = '';
+    if (conVacio && !pal.length) h += '<button type="button" data-v=""><span>— Sin servicio —</span><span></span></button>';
+    if (!pal.length && actual && lista.indexOf(actual) >= 0) h += '<div class="grupo">Elegido</div><button type="button" class="on" data-v="' + esc(actual) + '"><span>' + esc(actual) + '</span><span>' + precio(actual) + '</span></button><div class="grupo">Todos (' + lista.length + ')</div>';
+    h += visibles.map(s => '<button type="button"' + (s === actual ? ' class="on"' : '') + ' data-v="' + esc(s) + '"><span>' + esc(s) + '</span><span>' + precio(s) + '</span></button>').join('');
+    if (!visibles.length) h += '<div class="nada">No hay ningún servicio con “' + esc(inp.value) + '”.<br>Revisa cómo está escrito en la hoja LISTAS.</div>';
+    box.innerHTML = h;
+    box.scrollTop = 0;
+  };
+  const tecla = e => { if (e.key === 'Escape') cerrar(); };
+  document.addEventListener('keydown', tecla);
+  inp.oninput = pintar;
+  inp.onkeydown = e => { if (e.key === 'Enter' && visibles.length === 1) { e.preventDefault(); elegir(visibles[0]); } };
+  box.onclick = e => { const b = e.target.closest('[data-v]'); if (b) elegir(b.dataset.v); };
+  ov.onclick = e => { if (e.target === ov || e.target.closest('[data-x]')) cerrar(); };
+  pintar();
+  setTimeout(() => inp.focus(), 60);
+}
 function toast(m, ms) { const t = $('toast'); t.textContent = m; t.hidden = false; clearTimeout(t._h); t._h = setTimeout(() => t.hidden = true, ms || 2800); }
 /* ---------- Sesión con PIN ---------- */
 const LLAVE = 'spatsy_sesion';
@@ -534,6 +585,7 @@ function filaCita(c, conFecha) {
     '<div class="txt" style="min-width:0"><div class="nom">' + esc(c.nombre) + '</div><div class="det">' + esc([conFecha ? isoMx(c.fecha).slice(0, 5) : '', c.servicio, c.atiende].filter(Boolean).join(' · ') || '—') + '</div></div>' +
     '<span class="chip e-' + esc(e) + '">' + esc(c.estado) + '</span></button>';
 }
+const recordadaHoy = c => !!c.recordada && (c.recordada === 'hoy' || String(c.recordada).slice(0, 10) === isoMx(D.hoy));
 function ligarCitas(cont) { cont.querySelectorAll('[data-cita]').forEach(b => b.onclick = () => abrirCita(b.dataset.cita)); }
 function citaPorId(id) {
   const todas = (D.citas || []).concat(...Object.keys(AG.cache).map(k => AG.cache[k]));
@@ -556,7 +608,13 @@ function vHoy() {
     '<div class="kpi"><div class="t">Activas</div><div class="v">' + k.activas + '</div><div class="s">de ' + k.clientas + ' clientas</div></div></div>' +
     (esDuena() ? '<div class="chips" style="margin-top:10px;gap:8px"><button class="btn btn-sec btn-mini" type="button" id="hRep">📊 Reportes del negocio</button></div>' : '');
   h += '<section class="seccion"><h2>Citas de hoy<span class="n">' + citasHoy.length + '</span></h2><div class="lista" id="hc">' +
-    (citasHoy.length ? citasHoy.map(c => filaCita(c)).join('') : '<div class="vacio">No hay citas para hoy.</div>') +
+    (citasHoy.length ? citasHoy.map(c => {
+      if (!/^(Pendiente|Confirmada)/.test(c.estado)) return filaCita(c);
+      const ya = recordadaHoy(c);
+      return '<div class="cita-wa">' + filaCita(c) + (c.linkRecordar
+        ? '<a class="btn btn-wa' + (ya ? ' ya' : '') + '" href="' + esc(c.linkRecordar) + '" target="_blank" rel="noopener" data-rec="' + esc(c.id) + '">' + (ya ? '✓ Otra vez' : 'Recordar') + '</a>'
+        : '<span class="chip bad">Sin WhatsApp</span>') + '</div>';
+    }).join('') : '<div class="vacio">No hay citas para hoy.</div>') +
     '</div><div class="chips" style="margin-top:10px;gap:8px"><button class="btn btn-sec btn-mini" type="button" id="hAg">Ver agenda</button><button class="btn btn-prim btn-mini" type="button" id="hNc">+ Agendar cita</button></div></section>';
   if (porConfirmar.length) {
     h += '<section class="seccion"><h2>Confirmar citas de mañana<span class="n">' + porConfirmar.length + '</span></h2><div class="lista">' +
@@ -577,6 +635,11 @@ function vHoy() {
   if ($('hRep')) $('hRep').onclick = () => abrirReportes();
   $('hAg').onclick = () => { AG.fecha = D.hoy; tab = 'agenda'; render(); };
   $('hNc').onclick = () => abrirFormCita(null, { fecha: D.hoy });
+  $('vista').querySelectorAll('a[data-rec]').forEach(a => a.addEventListener('click', () => {
+    const c = citaPorId(a.dataset.rec); if (c) c.recordada = isoMx(D.hoy);
+    srvCola('', nuevoOp(), 'marcarRecordatorioCita', [a.dataset.rec]).catch(() => { });
+    setTimeout(() => { a.textContent = '✓ Otra vez'; a.classList.add('ya'); }, 300);
+  }));
   $('vista').querySelectorAll('a[data-conf]').forEach(a => a.addEventListener('click', () => {
     const c = citaPorId(a.dataset.conf); if (c) c.recordada = 'hoy';
     srvCola('', nuevoOp(), 'marcarRecordatorioCita', [a.dataset.conf]).catch(() => { });
@@ -660,7 +723,8 @@ function abrirCita(id) {
     (c.notas ? '<div class="aviso warn" style="margin-top:10px">' + esc(c.notas) + '</div>' : '') +
     '<div class="acciones" style="margin-top:14px">' +
     (activa && c.fecha <= D.hoy ? '<button class="btn btn-prim ancho" type="button" id="ciCobrar" style="padding:13px">Llegó · cobrar</button>' : '') +
-    (activa && c.linkConfirmar ? '<a class="btn btn-wa ancho" style="padding:12px" target="_blank" rel="noopener" href="' + esc(c.linkConfirmar) + '" id="ciWa">' + (c.recordada ? 'Escribirle otra vez' : 'Pedir confirmación por WhatsApp') + '</a>' : '') +
+    (activa && c.linkRecordar ? '<a class="btn btn-wa ancho" style="padding:12px" target="_blank" rel="noopener" href="' + esc(c.linkRecordar) + '" id="ciWa">' + (recordadaHoy(c) ? 'Recordarle otra vez' : 'Recordarle su cita de hoy') + '</a>'
+      : activa && c.linkConfirmar ? '<a class="btn btn-wa ancho" style="padding:12px" target="_blank" rel="noopener" href="' + esc(c.linkConfirmar) + '" id="ciWa">' + (c.recordada ? 'Escribirle otra vez' : 'Pedir confirmación por WhatsApp') + '</a>' : '') +
     (c.estado === 'Pendiente' ? '<button class="btn btn-sec" type="button" data-est="Confirmada">Ya confirmó</button>' : '') +
     (activa ? '<button class="btn btn-sec" type="button" id="ciMover">Cambiar fecha u hora</button>' : '') +
     (activa && c.fecha <= D.hoy ? '<button class="btn btn-ghost" type="button" data-est="No llegó">No llegó</button>' : '') +
@@ -709,7 +773,7 @@ function abrirFormCita(c, pre) {
       '<div class="dos"><div><label class="l" for="gcF">Fecha</label><input type="date" id="gcF" min="' + (ed ? '' : D.hoy) + '" value="' + esc(F.fecha) + '"></div>' +
       '<div><label class="l" for="gcH">Hora</label><input type="time" id="gcH" step="900" value="' + esc(F.hora) + '"></div></div>' +
       '<div class="rapidos" id="gcHoras">' + ['10:00', '11:00', '12:00', '13:00', '16:00', '17:00', '18:00'].map(h => '<button type="button" data-h="' + h + '">' + (Number(h.slice(0, 2)) % 12 || 12) + (h.slice(3) !== '00' ? ':' + h.slice(3) : '') + (Number(h.slice(0, 2)) < 12 ? ' am' : ' pm') + '</button>').join('') + '</div>' +
-      '<div class="dos"><div><label class="l" for="gcSv">Servicio</label><select id="gcSv">' + opt(D.listas.servicio, F.serv, '—') + '</select></div>' +
+      '<div class="dos"><div><label class="l" for="gcSv">Servicio</label>' + botonServicio('id="gcSv"', F.serv, '—') + '</div>' +
       '<div><label class="l" for="gcD">Duración</label><select id="gcD">' + ((D.agenda && D.agenda.duraciones) || [30, 45, 60, 90, 120]).map(m => '<option value="' + m + '"' + (m === Number(F.dur) ? ' selected' : '') + '>' + (m < 60 ? m + ' min' : (m / 60) + ' h' + (m % 60 ? '' : '')).replace('1.5 h', '1 h 30').replace('1.25 h', '1 h 15') + '</option>').join('') + '</select></div></div>' +
       '<div><label class="l" for="gcA">Atiende</label><select id="gcA">' + opt(D.listas.atendio, F.atiende, 'Cualquiera') + '</select></div>' +
       '<div><label class="l" for="gcN">Notas</label><input id="gcN" maxlength="200" placeholder="Ej. viene con su hermana" value="' + esc(F.notas) + '"></div>' +
@@ -718,6 +782,7 @@ function abrirFormCita(c, pre) {
     $('cerrar').onclick = () => { if (ed) abrirCita(c.id); else $('panel').hidden = true; };
     if ($('gcCambiar')) $('gcCambiar').onclick = () => { leer(); F.idc = ''; pintar(); };
     $('gcHoras').querySelectorAll('[data-h]').forEach(b => b.onclick = () => { $('gcH').value = b.dataset.h; });
+    $('gcSv').onclick = () => elegirServicio($('gcSv').value, v => { leer(); F.serv = v; pintar(); }, true);
     if ($('gcB')) {
       const inp = $('gcB'), box = $('gcS');
       inp.oninput = () => {
@@ -1037,7 +1102,7 @@ function vRegistrar() {
   h += '<div class="dos"><div><label class="l" for="ra">Atendió</label><select id="ra">' + opt(D.listas.atendio, n.atendio, '—') + '</select></div><div><label class="l" for="rf">Fecha</label><input type="date" id="rf" value="' + n.fecha + '" max="' + D.hoy + '"></div></div>';
   h += '<div><label class="l">Servicios</label><div class="campos" style="gap:8px">' + n.servicios.map((s, i) => {
     const pq = paqueteDisponible(n, s, i);
-    return '<div class="linea"><select data-s="' + i + '">' + opt(D.listas.servicio, s.s, 'Servicio…') + '</select>' +
+    return '<div class="linea">' + botonServicio('data-s="' + i + '"', s.s, 'Servicio…') +
       (s.paq ? '<div class="paqmonto">Paquete</div>' : '<input data-m="' + i + '" type="number" inputmode="numeric" min="0" placeholder="$" value="' + esc(s.m) + '">') +
       '<button class="quitar" type="button" data-qs="' + i + '" aria-label="Quitar servicio">×</button></div>' +
       (pq ? '<div class="usa-paq"><button type="button" data-up="' + i + '" class="' + (s.paq ? 'on' : '') + '">' + (s.paq ? '✓ De su paquete' : 'Usar su paquete') + '</button><span>' + esc(pq.paquete) + ' · quedan ' + (pq.restantes - (s.paq ? 1 : 0)) + ' de ' + pq.sesiones + '</span></div>' : '');
@@ -1119,15 +1184,17 @@ function vRegistrar() {
   $('pMas').onclick = () => { sync(); if (n.pagos.length === 1) n.pagos[0].m = ''; n.pagos.push({ f: '', m: '' }); vRegistrar(); };
   document.querySelectorAll('[data-pq]').forEach(b => b.onclick = () => { sync(); n.pagos.splice(+b.dataset.pq, 1); if (!n.pagos.length) n.pagos.push({ f: '', m: '' }); vRegistrar(); });
   if ($('sinCita')) $('sinCita').onclick = () => { sync(); n.idCita = ''; n.horaCita = ''; vRegistrar(); };
-  document.querySelectorAll('[data-s]').forEach(el => el.onchange = () => {
-    sync(); const s = n.servicios[+el.dataset.s]; s.s = el.value; s.paq = '';
+  document.querySelectorAll('button[data-s]').forEach(el => el.onclick = () => elegirServicio(el.value, valor => {
+    sync(); const s = n.servicios[+el.dataset.s];
+    if (s.s !== valor) s.m = '';
+    s.s = valor; s.paq = '';
     const pqa = paqueteDisponible(n, s, +el.dataset.s);
     if (pqa) { s.paq = pqa.id; toast('Se toma de su paquete (' + pqa.paquete + ')'); }
-    const cfg = D.servicios[el.value];
+    const cfg = D.servicios[valor];
     if (cfg && cfg.precio && !s.m) s.m = cfg.precio;
     if (cfg && cfg.dias && !n.proxima) { n.proxima = sumaDias(n.fecha || D.hoy, cfg.dias); toast('Próxima cita sugerida en ' + cfg.dias + ' días'); }
     vRegistrar();
-  });
+  }));
   document.querySelectorAll('[data-p]').forEach(el => el.onchange = () => { sync(); const p = n.productos[+el.dataset.p]; p.id = el.value; const pr = D.productos.find(x => x.id === el.value); p.pr = pr ? pr.precio : ''; vRegistrar(); });
   document.querySelectorAll('[data-qs]').forEach(el => el.onclick = () => { sync(); n.servicios.splice(+el.dataset.qs, 1); vRegistrar(); });
   document.querySelectorAll('[data-qp]').forEach(el => el.onclick = () => { sync(); n.productos.splice(+el.dataset.qp, 1); vRegistrar(); });
