@@ -125,6 +125,30 @@ textarea { resize: vertical; min-height: 70px; }
 .cita-wa { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
 .cita-wa .btn-wa { padding: 10px 12px; }
 .cita-wa .btn-wa.ya { background: var(--ok-soft); color: var(--ok); }
+.modo { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: var(--rosa-soft); border-radius: 12px; margin-top: 6px; }
+.modo button { border: 0; background: none; border-radius: 9px; padding: 8px 0; font-weight: 600; color: var(--ciruela); }
+.modo button[aria-pressed="true"] { background: var(--surface); color: var(--rosa); box-shadow: 0 1px 3px rgba(40, 20, 30, .12); }
+.mes-top { display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; margin-top: 12px; text-align: center; }
+.mes-top h2 { font-family: var(--f-display); font-weight: 400; font-size: 21px; color: var(--ciruela); }
+.mes-top span { font-size: 12.5px; color: var(--muted); }
+.mes-top .flecha { border: 0; background: none; color: var(--rosa); font-size: 26px; font-weight: 700; padding: 0; height: 40px; }
+.mes { margin-top: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 8px 6px 10px; }
+.mes-sem, .mes-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+.mes-sem span { text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); padding-bottom: 4px; }
+.mdia { border: 1px solid transparent; background: none; border-radius: 10px; padding: 5px 0 4px; display: grid; justify-items: center; gap: 2px; min-width: 0; min-height: 48px; }
+.mdia .md { font-size: 15px; font-variant-numeric: tabular-nums; }
+.mdia.fuera { opacity: .35; }
+.mdia.pasado:not(.fuera) .md { color: var(--muted); }
+.mdia.hoy { border-color: var(--rosa); }
+.mdia.hoy .md { font-weight: 700; color: var(--rosa); }
+.mdia[aria-pressed="true"] { background: var(--rosa); border-color: var(--rosa); }
+.mdia[aria-pressed="true"] .md { color: var(--on-accent); }
+.mc { min-width: 18px; height: 18px; border-radius: 9px; font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; padding: 0 4px; background: var(--ok-soft); color: var(--ok); font-style: normal; display: inline-block; }
+.mc.pend { background: var(--warn-soft); color: var(--warn); }
+.mc.vacia { background: none; }
+.mdia[aria-pressed="true"] .mc:not(.vacia) { background: var(--on-accent); color: var(--rosa); }
+.mes-ley { display: flex; flex-wrap: wrap; gap: 4px 14px; justify-content: center; margin-top: 8px; font-size: 11.5px; color: var(--muted); }
+.mes-ley i { width: 10px; min-width: 10px; height: 10px; padding: 0; vertical-align: -1px; margin-right: 3px; }
 .buscar { position: relative; }
 .sug { position: absolute; z-index: 5; left: 0; right: 0; top: calc(100% + 4px); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 24px rgba(40, 20, 30, .12); }
 .sug button { display: block; width: 100%; border: 0; background: none; text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
@@ -675,16 +699,74 @@ function refrescarCitas() {
   srv('listarCitas', D.hoy, sumaDias(D.hoy, 1)).then(l => { D.citas = l; if (tab === 'hoy') vHoy(); }).catch(() => { });
   if (tab === 'agenda') vAgenda();
 }
+/* Semana o Mes: se recuerda en este celular */
+AG.modo = (() => { try { return localStorage.getItem('spatsy_agmodo') === 'mes' ? 'mes' : 'semana'; } catch (e) { return 'semana'; } })();
+const barraModo = () => '<div class="modo" role="tablist"><button type="button" data-modo="semana" aria-pressed="' + (AG.modo === 'semana') + '">Semana</button><button type="button" data-modo="mes" aria-pressed="' + (AG.modo === 'mes') + '">Mes</button></div>';
+function ligarModo() {
+  $('vista').querySelectorAll('[data-modo]').forEach(b => b.onclick = () => {
+    if (AG.modo === b.dataset.modo) return;
+    AG.modo = b.dataset.modo; try { localStorage.setItem('spatsy_agmodo', AG.modo); } catch (e) { }
+    vAgenda();
+  });
+}
+const primeroMes = (iso, k) => { const d = fechaD(iso.slice(0, 8) + '01'); d.setMonth(d.getMonth() + (k || 0)); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-01'; };
+const listaCita = (delDia) => '<section class="seccion"><h2>' + esc(fechaLargaC(AG.fecha)) + (delDia ? '<span class="n">' + delDia.filter(VIVAS).length + '</span>' : '') + '</h2><div class="lista" id="al">' +
+  (!delDia ? '<div class="carga"><span class="spin"></span>Cargando citas…</div>' : delDia.length ? delDia.map(c => filaCita(c)).join('') : '<div class="vacio">No hay citas este día.</div>') + '</div></section>' +
+  '<button class="btn btn-prim" type="button" id="aNueva" style="width:100%;padding:13px;margin-top:14px">+ Agendar cita' + (AG.fecha !== D.hoy ? ' el ' + isoMx(AG.fecha).slice(0, 5) : '') + '</button>';
+
+async function vAgendaMes() {
+  const m1 = primeroMes(AG.fecha), ini = lunesDe(m1), fin = sumaDias(lunesDe(sumaDias(primeroMes(AG.fecha, 1), -1)), 6);
+  const llave = 'M' + ini;
+  const pinta = lista => {
+    if (tab !== 'agenda' || AG.modo !== 'mes') return;
+    const dm = fechaD(m1), mes = dm.getMonth();
+    const vivas = lista ? lista.filter(VIVAS) : [];
+    const delMes = vivas.filter(c => c.fecha.slice(0, 7) === m1.slice(0, 7));
+    const nDias = Math.round((fechaD(fin) - fechaD(ini)) / 864e5) + 1;
+    let h = barraModo() + '<div class="mes-top"><button class="flecha" type="button" id="aPrev" aria-label="Mes anterior">‹</button><div><h2>' +
+      esc(MESES_C[mes].charAt(0).toUpperCase() + MESES_C[mes].slice(1) + ' ' + dm.getFullYear()) + '</h2><span>' + (lista ? delMes.length + ' cita' + (delMes.length === 1 ? '' : 's') + ' este mes' : 'Cargando…') + '</span></div>' +
+      '<button class="flecha" type="button" id="aNext" aria-label="Mes siguiente">›</button></div>';
+    if (AG.fecha !== D.hoy) h += '<div style="text-align:right;margin-top:-4px"><button class="linkbtn" type="button" id="aHoy">Ir a hoy</button></div>';
+    h += '<div class="mes"><div class="mes-sem">' + ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(x => '<span>' + x + '</span>').join('') + '</div><div class="mes-grid">' +
+      Array.from({ length: nDias }, (_, i) => {
+        const f = sumaDias(ini, i), d = fechaD(f), delD = vivas.filter(c => c.fecha === f);
+        const pend = delD.some(c => c.estado === 'Pendiente');
+        return '<button type="button" class="mdia' + (d.getMonth() !== mes ? ' fuera' : '') + (f === D.hoy ? ' hoy' : '') + (f < D.hoy ? ' pasado' : '') + '" data-f="' + f + '" aria-pressed="' + (f === AG.fecha) + '" aria-label="' + esc(fechaLargaC(f) + (delD.length ? ', ' + delD.length + ' citas' : '')) + '">' +
+          '<span class="md">' + d.getDate() + '</span>' + (delD.length ? '<span class="mc' + (pend ? ' pend' : '') + '">' + delD.length + '</span>' : '<span class="mc vacia"></span>') + '</button>';
+      }).join('') + '</div><div class="mes-ley"><span><i class="mc pend"></i> con pendientes de confirmar</span><span><i class="mc"></i> todas confirmadas</span></div></div>';
+    h += listaCita(lista ? lista.filter(c => c.fecha === AG.fecha) : null);
+    $('vista').innerHTML = h;
+    ligarModo(); ligarCitas($('vista'));
+    $('vista').querySelectorAll('.mdia').forEach(b => b.onclick = () => {
+      const f = b.dataset.f;
+      if (f.slice(0, 7) !== m1.slice(0, 7)) { AG.fecha = f; vAgenda(); return; } // día del mes anterior/siguiente
+      AG.fecha = f; pinta(lista);
+      const s = $('al'); if (s) s.closest('.seccion').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    const irMes = k => { const p = primeroMes(AG.fecha, k); AG.fecha = p.slice(0, 7) === D.hoy.slice(0, 7) ? D.hoy : p; vAgenda(); };
+    $('aPrev').onclick = () => irMes(-1);
+    $('aNext').onclick = () => irMes(1);
+    if ($('aHoy')) $('aHoy').onclick = () => { AG.fecha = D.hoy; vAgenda(); };
+    $('aNueva').onclick = () => abrirFormCita(null, { fecha: AG.fecha < D.hoy ? D.hoy : AG.fecha });
+  };
+  pinta(AG.cache[llave] || null);
+  if (!AG.cache[llave]) {
+    try { AG.cache[llave] = await srv('listarCitas', ini, fin); pinta(AG.cache[llave]); }
+    catch (e) { if (tab === 'agenda' && $('al')) $('al').innerHTML = '<div class="aviso bad">' + esc(errorTexto(e)) + '</div>'; }
+  }
+}
+
 async function vAgenda() {
   if (!AG.fecha) AG.fecha = D.hoy;
+  if (AG.modo === 'mes') return vAgendaMes();
   const lunes = lunesDe(AG.fecha);
   const pinta = lista => {
-    if (tab !== 'agenda') return;
+    if (tab !== 'agenda' || AG.modo !== 'semana') return;
     const dias = Array.from({ length: 7 }, (_, i) => sumaDias(lunes, i));
     const cuenta = f => lista ? lista.filter(c => c.fecha === f && VIVAS(c)).length : 0;
     const delDia = lista ? lista.filter(c => c.fecha === AG.fecha) : null;
     const d0 = fechaD(lunes), d6 = fechaD(dias[6]);
-    let h = '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:6px"><h2 style="font-family:var(--f-display);font-weight:400;font-size:19px;color:var(--ciruela)">' +
+    let h = barraModo() + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:6px"><h2 style="font-family:var(--f-display);font-weight:400;font-size:19px;color:var(--ciruela)">' +
       esc(MESES_C[d0.getMonth()].charAt(0).toUpperCase() + MESES_C[d0.getMonth()].slice(1) + (d0.getMonth() !== d6.getMonth() ? ' – ' + MESES_C[d6.getMonth()] : '') + ' ' + d6.getFullYear()) +
       '</h2>' + (AG.fecha !== D.hoy ? '<button class="linkbtn" type="button" id="aHoy">Ir a hoy</button>' : '') + '</div>';
     h += '<div class="semana"><button class="flecha" type="button" id="aPrev" aria-label="Semana anterior">‹</button>' + dias.map(f => {
@@ -695,7 +777,7 @@ async function vAgenda() {
       (!delDia ? '<div class="carga"><span class="spin"></span>Cargando citas…</div>' : delDia.length ? delDia.map(c => filaCita(c)).join('') : '<div class="vacio">No hay citas este día.</div>') + '</div></section>';
     h += '<button class="btn btn-prim" type="button" id="aNueva" style="width:100%;padding:13px;margin-top:14px">+ Agendar cita' + (AG.fecha !== D.hoy ? ' el ' + isoMx(AG.fecha).slice(0, 5) : '') + '</button>';
     $('vista').innerHTML = h;
-    ligarCitas($('vista'));
+    ligarModo(); ligarCitas($('vista'));
     $('vista').querySelectorAll('.dia').forEach(b => b.onclick = () => { AG.fecha = b.dataset.f; pinta(lista); });
     $('aPrev').onclick = () => { AG.fecha = sumaDias(AG.fecha, -7); vAgenda(); };
     $('aNext').onclick = () => { AG.fecha = sumaDias(AG.fecha, 7); vAgenda(); };
