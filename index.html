@@ -149,6 +149,10 @@ textarea { resize: vertical; min-height: 70px; }
 .mdia[aria-pressed="true"] .mc:not(.vacia) { background: var(--on-accent); color: var(--rosa); }
 .mes-ley { display: flex; flex-wrap: wrap; gap: 4px 14px; justify-content: center; margin-top: 8px; font-size: 11.5px; color: var(--muted); }
 .mes-ley i { width: 10px; min-width: 10px; height: 10px; padding: 0; vertical-align: -1px; margin-right: 3px; }
+.rapidos button.ocupada { background: var(--line); color: var(--muted); text-decoration: line-through; border-color: transparent; }
+.rapidos button.pasada { opacity: .4; }
+.rapidos button.on { background: var(--rosa); color: var(--on-accent); border-color: var(--rosa); }
+.ocup-l { font-size: 12.5px; color: var(--muted); margin-top: 2px; line-height: 1.45; }
 .buscar { position: relative; }
 .sug { position: absolute; z-index: 5; left: 0; right: 0; top: calc(100% + 4px); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 24px rgba(40, 20, 30, .12); }
 .sug button { display: block; width: 100%; border: 0; background: none; text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
@@ -854,7 +858,7 @@ function abrirFormCita(c, pre) {
         : '<div class="buscar"><input id="gcB" placeholder="Busca a la clienta" autocomplete="off"><div class="sug" id="gcS" hidden></div></div>') + '</div>' +
       '<div class="dos"><div><label class="l" for="gcF">Fecha</label><input type="date" id="gcF" min="' + (ed ? '' : D.hoy) + '" value="' + esc(F.fecha) + '"></div>' +
       '<div><label class="l" for="gcH">Hora</label><input type="time" id="gcH" step="900" value="' + esc(F.hora) + '"></div></div>' +
-      '<div class="rapidos" id="gcHoras">' + ['10:00', '11:00', '12:00', '13:00', '16:00', '17:00', '18:00'].map(h => '<button type="button" data-h="' + h + '">' + (Number(h.slice(0, 2)) % 12 || 12) + (h.slice(3) !== '00' ? ':' + h.slice(3) : '') + (Number(h.slice(0, 2)) < 12 ? ' am' : ' pm') + '</button>').join('') + '</div>' +
+      '<div class="rapidos" id="gcHoras"></div><div id="gcOcup"></div>' +
       '<div class="dos"><div><label class="l" for="gcSv">Servicio</label>' + botonServicio('id="gcSv"', F.serv, '—') + '</div>' +
       '<div><label class="l" for="gcD">Duración</label><select id="gcD">' + ((D.agenda && D.agenda.duraciones) || [30, 45, 60, 90, 120]).map(m => '<option value="' + m + '"' + (m === Number(F.dur) ? ' selected' : '') + '>' + (m < 60 ? m + ' min' : (m / 60) + ' h' + (m % 60 ? '' : '')).replace('1.5 h', '1 h 30').replace('1.25 h', '1 h 15') + '</option>').join('') + '</select></div></div>' +
       '<div><label class="l" for="gcA">Atiende</label><select id="gcA">' + opt(D.listas.atendio, F.atiende, 'Cualquiera') + '</select></div>' +
@@ -863,7 +867,45 @@ function abrirFormCita(c, pre) {
     const leer = () => { F.fecha = $('gcF').value; F.hora = $('gcH').value; F.serv = $('gcSv').value; F.dur = $('gcD').value; F.atiende = $('gcA').value; F.notas = $('gcN').value; };
     $('cerrar').onclick = () => { if (ed) abrirCita(c.id); else $('panel').hidden = true; };
     if ($('gcCambiar')) $('gcCambiar').onclick = () => { leer(); F.idc = ''; pintar(); };
-    $('gcHoras').querySelectorAll('[data-h]').forEach(b => b.onclick = () => { $('gcH').value = b.dataset.h; });
+    /* Horarios: los que ya están ocupados ese día salen en gris */
+    const HORAS = ['10:00', '11:00', '12:00', '13:00', '16:00', '17:00', '18:00'];
+    const mins = h => { const m = String(h || '').match(/(\d{1,2}):(\d{2})/); return m ? Number(m[1]) * 60 + Number(m[2]) : -1; };
+    const corta = h => { const n = Math.floor(mins(h) / 60), m = mins(h) % 60; return (n % 12 || 12) + (m ? ':' + String(m).padStart(2, '0') : '') + (n < 12 ? ' am' : ' pm'); };
+    const chocan = (lista, h) => {
+      const ini = mins(h), fin = ini + (Number(F.dur) || 60);
+      return (lista || []).filter(x => (!ed || x.id !== c.id) && VIVAS(x) && (!F.atiende || !x.atiende || x.atiende === F.atiende) &&
+        mins(x.hora) < fin && mins(x.hora) + (Number(x.duracion) || 60) > ini);
+    };
+    const pintarHoras = () => {
+      if (!$('gcHoras')) return;
+      const lista = AG.cache['D' + F.fecha];
+      const ahora = new Date(), minAhora = ahora.getHours() * 60 + ahora.getMinutes();
+      $('gcHoras').innerHTML = HORAS.map(h => {
+        const ch = lista ? chocan(lista, h) : [], pasada = F.fecha === D.hoy && mins(h) <= minAhora && !ed;
+        return '<button type="button" data-h="' + h + '" class="' + (ch.length ? 'ocupada' : pasada ? 'pasada' : '') + (F.hora === h ? ' on' : '') + '"' +
+          (ch.length ? ' title="Ocupado: ' + esc(ch[0].nombre) + '"' : '') + '>' + corta(h) + '</button>';
+      }).join('');
+      $('gcHoras').querySelectorAll('[data-h]').forEach(b => b.onclick = () => {
+        const h = b.dataset.h;
+        if (b.classList.contains('ocupada')) { const x = chocan(lista, h)[0]; toast('A las ' + corta(h) + ' ya está ' + primer(x.nombre) + ' (' + corta(x.hora) + (x.atiende ? ' con ' + x.atiende : '') + ')', 3500); return; }
+        if (b.classList.contains('pasada')) { toast('Esa hora ya pasó'); return; }
+        $('gcH').value = h; F.hora = h; pintarHoras();
+      });
+      const delDia = (lista || []).filter(x => (!ed || x.id !== c.id) && VIVAS(x)).sort((a, b2) => mins(a.hora) - mins(b2.hora));
+      const choque = F.hora && lista ? chocan(lista, F.hora)[0] : null;
+      $('gcOcup').innerHTML = !lista ? '<div class="ocup-l">Revisando horarios ocupados…</div>'
+        : (delDia.length ? '<div class="ocup-l"><b>Ya agendado ese día:</b> ' + delDia.map(x => esc(corta(x.hora)) + ' ' + esc(primer(x.nombre)) + (x.atiende ? ' (' + esc(x.atiende) + ')' : '')).join(' · ') + '</div>' : '<div class="ocup-l">Ese día está libre.</div>') +
+          (choque ? '<div class="aviso warn" style="margin-top:6px">A esa hora ya está <b>' + esc(choque.nombre) + '</b> (' + esc(corta(choque.hora)) + ', ' + choque.duracion + ' min' + (choque.atiende ? ', ' + esc(choque.atiende) : '') + ').</div>' : '');
+    };
+    const cargarDia = async () => {
+      const f = F.fecha; if (!f || AG.cache['D' + f]) return pintarHoras();
+      pintarHoras();
+      try { AG.cache['D' + f] = await srv('listarCitas', f, f); } catch (e) { AG.cache['D' + f] = null; if (F.fecha === f && $('gcOcup')) $('gcOcup').innerHTML = ''; return; }
+      if (F.fecha === f) pintarHoras();
+    };
+    ['gcF', 'gcH', 'gcD', 'gcA'].forEach(id => $(id).addEventListener('change', () => { const f0 = F.fecha; leer(); if (F.fecha !== f0) cargarDia(); else pintarHoras(); }));
+    $('gcH').addEventListener('input', () => { leer(); pintarHoras(); });
+    cargarDia();
     $('gcSv').onclick = () => elegirServicio($('gcSv').value, v => { leer(); F.serv = v; pintar(); }, true);
     if ($('gcB')) {
       const inp = $('gcB'), box = $('gcS');
