@@ -133,26 +133,42 @@ textarea { resize: vertical; min-height: 70px; }
 .mes-top span { font-size: 12.5px; color: var(--muted); }
 .mes-top .flecha { border: 0; background: none; color: var(--rosa); font-size: 26px; font-weight: 700; padding: 0; height: 40px; }
 .mes { margin-top: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 8px 6px 10px; }
-.mes-sem, .mes-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+.mes-sem, .mes-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
 .mes-sem span { text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); padding-bottom: 4px; }
-.mdia { border: 1px solid transparent; background: none; border-radius: 10px; padding: 5px 0 4px; display: grid; justify-items: center; gap: 2px; min-width: 0; min-height: 48px; }
-.mdia .md { font-size: 15px; font-variant-numeric: tabular-nums; }
+.mdia { border: 1px solid transparent; background: none; border-radius: 8px; padding: 3px 2px 4px; display: flex; flex-direction: column; align-items: stretch; gap: 2px; min-width: 0; min-height: 72px; overflow: hidden; }
+.mdia .md { align-self: center; width: 24px; height: 24px; line-height: 24px; border-radius: 12px; text-align: center; font-size: 14px; font-variant-numeric: tabular-nums; }
 .mdia.fuera { opacity: .35; }
 .mdia.pasado:not(.fuera) .md { color: var(--muted); }
-.mdia.hoy { border-color: var(--rosa); }
-.mdia.hoy .md { font-weight: 700; color: var(--rosa); }
-.mdia[aria-pressed="true"] { background: var(--rosa); border-color: var(--rosa); }
-.mdia[aria-pressed="true"] .md { color: var(--on-accent); }
-.mc { min-width: 18px; height: 18px; border-radius: 9px; font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; padding: 0 4px; background: var(--ok-soft); color: var(--ok); font-style: normal; display: inline-block; }
-.mc.pend { background: var(--warn-soft); color: var(--warn); }
-.mc.vacia { background: none; }
-.mdia[aria-pressed="true"] .mc:not(.vacia) { background: var(--on-accent); color: var(--rosa); }
+.mdia.hoy .md { font-weight: 700; background: var(--rosa); color: var(--on-accent); }
+.mdia[aria-pressed="true"] { background: var(--rosa-soft); border-color: var(--rosa); }
+.mdia[aria-pressed="true"]:not(.hoy) .md { font-weight: 700; color: var(--rosa); }
 .mes-ley { display: flex; flex-wrap: wrap; gap: 4px 14px; justify-content: center; margin-top: 8px; font-size: 11.5px; color: var(--muted); }
 .mes-ley i { width: 10px; min-width: 10px; height: 10px; padding: 0; vertical-align: -1px; margin-right: 3px; }
 .rapidos button.ocupada { background: var(--line); color: var(--muted); text-decoration: line-through; border-color: transparent; }
 .rapidos button.pasada { opacity: .4; }
 .rapidos button.on { background: var(--rosa); color: var(--on-accent); border-color: var(--rosa); }
 .ocup-l { font-size: 12.5px; color: var(--muted); margin-top: 2px; line-height: 1.45; }
+.dia .dev { display: flex; gap: 2px; justify-content: center; min-height: 6px; }
+.dia .dev i { width: 5px; height: 5px; border-radius: 3px; }
+.dia[aria-pressed="true"] .dev i { box-shadow: 0 0 0 1px var(--on-accent); }
+.evento { display: grid; grid-template-columns: 62px 1fr auto; gap: 10px; align-items: center; text-align: left; width: 100%; background: color-mix(in srgb, var(--c) 9%, var(--surface)); border: 1px solid color-mix(in srgb, var(--c) 25%, var(--line)); border-left: 4px solid var(--c); border-radius: var(--r); padding: 10px 12px; color: inherit; }
+.evento .h { font-family: var(--f-display); font-size: 16px; line-height: 1.1; color: var(--c); }
+.evento .h .td { font-family: var(--f-body); font-size: 11.5px; font-weight: 700; display: block; }
+.evento .nom { font-weight: 600; }
+.evento .det { font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cats { display: flex; flex-wrap: wrap; gap: 6px; }
+.cats button { border: 1.5px solid color-mix(in srgb, var(--c) 45%, transparent); background: var(--surface); color: var(--ciruela); border-radius: 99px; padding: 7px 12px; font-size: 13px; font-weight: 600; }
+.cats button[aria-pressed="true"] { background: var(--c); border-color: var(--c); color: #fff; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--ciruela); }
+.check input { width: 20px; height: 20px; accent-color: var(--rosa); margin: 0; }
+.tres { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 8px; }
+.tres > *, .dos > * { min-width: 0; }
+.tres input, .dos input, .dos select { width: 100%; min-width: 0; }
+.ml { display: block; font-size: 9.5px; line-height: 15px; font-weight: 600; padding: 0 3px; border-radius: 4px; white-space: nowrap; overflow: hidden; background: var(--c); color: #fff; font-style: normal; text-align: left; }
+.ml.cita { background: var(--ok-soft); color: var(--ok); }
+.ml.cita.pend { background: var(--warn-soft); color: var(--warn); }
+.mmas { font-size: 10px; color: var(--muted); font-weight: 700; text-align: center; line-height: 13px; }
+.mes-ley i.ml { display: inline-block; width: 14px; height: 10px; vertical-align: -1px; margin-right: 3px; padding: 0; }
 .buscar { position: relative; }
 .sug { position: absolute; z-index: 5; left: 0; right: 0; top: calc(100% + 4px); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 24px rgba(40, 20, 30, .12); }
 .sug button { display: block; width: 100%; border: 0; background: none; text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
@@ -427,7 +443,7 @@ function run(fn, args) {
   return llamarApi({ accion: 'api', token: args[0], fn: args[1], args: args[2], op: args[3] });
 }
 /* Acciones que escriben: llevan un "op" para que un reintento nunca duplique (el servidor lo recuerda). */
-const ESCRIBEN = { guardarClienta: 1, registrarAtencion: 1, registrarRecordatorioEnviado: 1, prepararCampana: 1, marcarEnviado: 1, registrarEntrada: 1, asignarCodigoProducto: 1, guardarCita: 1, cambiarEstadoCita: 1, marcarRecordatorioCita: 1, guardarProducto: 1, cancelarTicket: 1 };
+const ESCRIBEN = { guardarClienta: 1, registrarAtencion: 1, registrarRecordatorioEnviado: 1, prepararCampana: 1, marcarEnviado: 1, registrarEntrada: 1, asignarCodigoProducto: 1, guardarCita: 1, cambiarEstadoCita: 1, marcarRecordatorioCita: 1, guardarProducto: 1, cancelarTicket: 1, guardarEvento: 1, borrarEvento: 1 };
 function nuevoOp() {
   const r = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
   return (Date.now().toString(36) + '-' + r).replace(/[^\w-]/g, '').slice(0, 60);
@@ -549,7 +565,7 @@ function pintarQuien() {
     // Que la siguiente persona no vea nada de la sesión anterior
     nueva = null; filtro = ''; tab = 'hoy';
     try { P = { seg: 'toca', valor: '', plantilla: 'Te toca tratamiento', mensaje: '', lista: null, camp: null, envio: null, nombre: '' }; } catch (e) { }
-    try { AG = { fecha: '', cache: {} }; } catch (e) { }
+    try { AG = { fecha: '', cache: {}, ev: {}, modo: AG.modo, verPersonal: AG.verPersonal }; } catch (e) { }
     try { INV = { q: '', filtro: 'todos' }; } catch (e) { }
     $('panel').hidden = true; $('vista').innerHTML = ''; pedirPin();
   };
@@ -644,6 +660,8 @@ function vHoy() {
         : '<span class="chip bad">Sin WhatsApp</span>') + '</div>';
     }).join('') : '<div class="vacio">No hay citas para hoy.</div>') +
     '</div><div class="chips" style="margin-top:10px;gap:8px"><button class="btn btn-sec btn-mini" type="button" id="hAg">Ver agenda</button><button class="btn btn-prim btn-mini" type="button" id="hNc">+ Agendar cita</button></div></section>';
+  const evHoy = esDuena() ? (D.eventos || []).filter(e => e.fecha === D.hoy) : [];
+  if (evHoy.length) h += '<section class="seccion"><h2>Tu agenda personal<span class="n">' + evHoy.length + '</span></h2><div class="lista">' + evHoy.map(e => filaEvento(e)).join('') + '</div></section>';
   if (porConfirmar.length) {
     h += '<section class="seccion"><h2>Confirmar citas de mañana<span class="n">' + porConfirmar.length + '</span></h2><div class="lista">' +
       porConfirmar.map(c => '<div class="fila" id="pc_' + esc(c.id) + '"><div class="avatar">' + esc(c.horaTexto.split(' ')[0]) + '</div><div class="txt"><div class="nom">' + esc(c.nombre) + '</div><div class="det">' + esc((c.servicio || 'Cita') + (c.recordada ? ' · ya se le escribió' : '')) + '</div></div>' +
@@ -658,7 +676,7 @@ function vHoy() {
   });
   h += '<p class="ejemplo" style="margin-top:18px">Al tocar WhatsApp se abre el mensaje listo y la clienta sale de la lista unos días.</p>';
   $('vista').innerHTML = h;
-  ligarCitas($('vista'));
+  ligarCitas($('vista')); ligarEventos($('vista'));
   if ($('kCorte')) $('kCorte').onclick = () => abrirCorte(D.hoy);
   if ($('hRep')) $('hRep').onclick = () => abrirReportes();
   $('hAg').onclick = () => { AG.fecha = D.hoy; tab = 'agenda'; render(); };
@@ -683,7 +701,7 @@ function vHoy() {
 }
 
 /* ---------- Agenda ---------- */
-let AG = { fecha: '', cache: {} };
+let AG = { fecha: '', cache: {}, ev: {} };
 const DIAS_C = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 const MESES_C = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 const fechaD = iso => new Date(iso + 'T12:00:00');
@@ -699,10 +717,134 @@ async function citasSemana(lunes, forzar) {
   return AG.cache[lunes];
 }
 function refrescarCitas() {
-  AG.cache = {};
+  AG.cache = {}; AG.ev = {};
   srv('listarCitas', D.hoy, sumaDias(D.hoy, 1)).then(l => { D.citas = l; if (tab === 'hoy') vHoy(); }).catch(() => { });
   if (tab === 'agenda') vAgenda();
 }
+/* ---------- Agenda personal (eventos con categoría y color) ---------- */
+const CAT_COLOR = { 'Personal': '#8B63B5', 'Trabajo': '#3C8C55', 'Cumpleaños': '#D2493F', 'Pagos y tandas': '#C7860E', 'Familia': '#3A78BD', 'Cursos': '#1F8F95', 'Otro': '#7A6E78', 'Ocupado': '#8C8288' };
+const catColor = c => CAT_COLOR[c] || CAT_COLOR.Otro;
+const CAT_ICONO = { 'Personal': '⭐', 'Trabajo': '💼', 'Cumpleaños': '🎂', 'Pagos y tandas': '💰', 'Familia': '👨‍👩‍👧', 'Cursos': '📚', 'Otro': '📌', 'Ocupado': '⛔' };
+AG.ev = {};
+AG.verPersonal = (() => { try { return localStorage.getItem('spatsy_agper') !== 'no'; } catch (e) { return true; } })();
+async function eventosRango(ini, fin) {
+  const k = ini + '_' + fin;
+  if (!AG.ev[k]) { try { AG.ev[k] = await srv('listarEventos', ini, fin); } catch (e) { return []; } }
+  return AG.ev[k];
+}
+const evVisibles = l => (l || []).filter(() => AG.verPersonal || !esDuena());
+function eventoPorId(id, fecha) {
+  const todos = (D.eventos || []).concat(...Object.keys(AG.ev).map(k => AG.ev[k] || []));
+  return todos.find(e => e.id === id && (!fecha || e.fecha === fecha)) || todos.find(e => e.id === id);
+}
+const horaCorta = h => { const m = String(h || '').match(/(\d{1,2}):(\d{2})/); if (!m) return ''; const n = +m[1]; return (n % 12 || 12) + (m[2] !== '00' ? ':' + m[2] : '') + (n < 12 ? 'a' : 'p'); };
+function filaEvento(e, conFecha) {
+  const det = [conFecha ? isoMx(e.fecha).slice(0, 5) : '', e.todoDia ? '' : horaCorta(e.hora) + ' – ' + horaCorta(e.fin), e.categoria !== 'Ocupado' ? e.categoria : '', e.repite && e.repite !== 'No' ? '↻ ' + e.repite.toLowerCase() : '', e.persona && e.categoria === 'Ocupado' ? e.persona : ''].filter(Boolean).join(' · ');
+  const tag = e.id ? 'button type="button" data-ev="' + esc(e.id) + '" data-evf="' + esc(e.fecha) + '"' : 'div';
+  return '<' + tag + ' class="evento" style="--c:' + catColor(e.categoria) + '"><div class="h">' + (e.todoDia ? '<span class="td">Todo<br>el día</span>' : esc(horaCorta(e.hora).replace(/([ap])$/, ' $1m'))) + '</div>' +
+    '<div class="txt" style="min-width:0"><div class="nom">' + (CAT_ICONO[e.categoria] || '') + ' ' + esc(e.titulo) + '</div><div class="det">' + esc(det) + '</div></div>' +
+    (e.bloquea ? '<span class="chip">Ocupada</span>' : '<span></span>') + '</' + (e.id ? 'button' : 'div') + '>';
+}
+/** Citas y eventos del día juntos: primero lo de todo el día, luego por hora. */
+function listaDelDia(citas, evs) {
+  const td = evs.filter(e => e.todoDia), conHora = evs.filter(e => !e.todoDia);
+  const items = citas.map(c => ({ t: c.hora || '', h: filaCita(c) })).concat(conHora.map(e => ({ t: e.hora, h: filaEvento(e) })))
+    .sort((a, b) => a.t.localeCompare(b.t));
+  return td.map(e => filaEvento(e)).join('') + items.map(x => x.h).join('');
+}
+function ligarEventos(cont) { cont.querySelectorAll('[data-ev]').forEach(b => b.onclick = () => abrirFormEvento(eventoPorId(b.dataset.ev, b.dataset.evf))); }
+function refrescarEventos() {
+  AG.ev = {};
+  srv('listarEventos', D.hoy, sumaDias(D.hoy, 1)).then(l => { D.eventos = l; if (tab === 'hoy') vHoy(); }).catch(() => { });
+  if (tab === 'agenda') vAgenda();
+}
+const botonesAgendar = () => '<div class="dos" style="margin-top:14px;grid-template-columns:' + (esDuena() ? '1.4fr 1fr' : '1fr') + '"><button class="btn btn-prim" type="button" id="aNueva" style="padding:13px">+ Cita' + (AG.fecha !== D.hoy ? ' el ' + isoMx(AG.fecha).slice(0, 5) : '') + '</button>' +
+  (esDuena() ? '<button class="btn btn-sec" type="button" id="aEvento" style="padding:13px">+ Personal</button>' : '') + '</div>';
+const togglePersonal = () => esDuena() ? '<button class="linkbtn" type="button" id="aPer">' + (AG.verPersonal ? 'Ocultar personal' : 'Ver personal') + '</button>' : '';
+function ligarAgendaComun() {
+  $('aNueva').onclick = () => abrirFormCita(null, { fecha: AG.fecha < D.hoy ? D.hoy : AG.fecha });
+  if ($('aEvento')) $('aEvento').onclick = () => abrirFormEvento(null, { fecha: AG.fecha });
+  if ($('aPer')) $('aPer').onclick = () => { AG.verPersonal = !AG.verPersonal; try { localStorage.setItem('spatsy_agper', AG.verPersonal ? 'si' : 'no'); } catch (e) { } vAgenda(); };
+  ligarCitas($('vista')); ligarEventos($('vista'));
+}
+
+/** Formulario de evento personal (solo dueña). */
+function abrirFormEvento(e, pre) {
+  if (!esDuena()) return;
+  const ed = !!(e && e.id); pre = pre || {};
+  const CATS = (D.agenda && D.agenda.categorias) || Object.keys(CAT_COLOR).filter(c => c !== 'Ocupado');
+  const REPS = (D.agenda && D.agenda.repeticiones) || ['No', 'Cada semana', 'Cada mes', 'Cada año'];
+  const personas = (D.listas && D.listas.atendio) || [];
+  const F = ed ? { titulo: e.titulo, categoria: e.categoria, fecha: e.inicio || e.fecha, todoDia: e.todoDia, hora: e.hora, fin: e.fin, repite: e.repite, hasta: e.hasta || '', persona: e.persona, bloquea: e.bloquea || false, notas: e.notas || '' }
+    : { titulo: '', categoria: 'Personal', fecha: pre.fecha || D.hoy, todoDia: false, hora: '', fin: '', repite: 'No', hasta: '', persona: personas[0] || '', bloquea: true, notas: '' };
+  let tocoRep = ed;
+  const pintar = () => {
+    $('panelIn').innerHTML = '<button class="volver" type="button" id="cerrar">← Volver</button><h1 class="ficha-nom">' + (ed ? 'Evento personal' : 'Agregar a mi agenda') + '</h1>' +
+      '<p style="color:var(--muted);font-size:13px;margin-top:4px">Solo tú lo ves. Las empleadas solo ven "Ocupado" si bloquea citas.</p>' +
+      '<div class="campos" style="margin-top:14px">' +
+      '<div><label class="l" for="evT">¿Qué es?</label><input id="evT" maxlength="80" placeholder="Ej. Trabajo, Tanda, Cumpleaños de mamá" value="' + esc(F.titulo) + '"></div>' +
+      '<div><label class="l">Categoría</label><div class="cats">' + CATS.map(c => '<button type="button" data-cat="' + esc(c) + '" style="--c:' + catColor(c) + '" aria-pressed="' + (F.categoria === c) + '">' + (CAT_ICONO[c] || '') + ' ' + esc(c) + '</button>').join('') + '</div></div>' +
+      '<label class="check"><input type="checkbox" id="evTD"' + (F.todoDia ? ' checked' : '') + '> Todo el día</label>' +
+      '<div class="' + (F.todoDia ? '' : 'tres') + '"><div><label class="l" for="evF">' + (F.repite !== 'No' ? 'Empieza' : 'Fecha') + '</label><input type="date" id="evF" value="' + esc(F.fecha) + '"></div>' +
+      (F.todoDia ? '' : '<div><label class="l" for="evH">De</label><input type="time" id="evH" step="900" value="' + esc(F.hora) + '"></div><div><label class="l" for="evH2">A</label><input type="time" id="evH2" step="900" value="' + esc(F.fin) + '"></div>') + '</div>' +
+      '<div class="dos"><div><label class="l" for="evR">Se repite</label><select id="evR">' + REPS.map(r => '<option' + (r === F.repite ? ' selected' : '') + '>' + esc(r) + '</option>').join('') + '</select></div>' +
+      (F.repite !== 'No' ? '<div><label class="l" for="evHa">Hasta (opcional)</label><input type="date" id="evHa" value="' + esc(F.hasta) + '"></div>' : '<div></div>') + '</div>' +
+      (F.todoDia ? '' : '<div><label class="l" for="evP">De quién</label><select id="evP"><option value="">Todo el spa</option>' + personas.map(x => '<option' + (x === F.persona ? ' selected' : '') + '>' + esc(x) + '</option>').join('') + '</select></div>' +
+        '<label class="check"><input type="checkbox" id="evB"' + (F.bloquea ? ' checked' : '') + '> No dejar agendar citas a esa hora</label>') +
+      '<div><label class="l" for="evN">Notas</label><input id="evN" maxlength="300" placeholder="Opcional" value="' + esc(F.notas) + '"></div>' +
+      (ed && e.repite !== 'No' ? '<div class="aviso" style="font-size:13px">Los cambios se aplican a todas las repeticiones.</div>' : '') +
+      '<div id="evMsg"></div><button class="btn btn-prim" type="button" id="evG" style="padding:13px">' + (ed ? 'Guardar cambios' : 'Guardar') + '</button>' +
+      (ed ? '<div id="evBorrar"><button class="btn btn-ghost" type="button" id="evX" style="width:100%;color:var(--bad)">Borrar</button></div>' : '') + '</div>';
+    const leer = () => {
+      F.titulo = $('evT').value; F.fecha = $('evF').value; F.todoDia = $('evTD').checked; F.repite = $('evR').value; F.notas = $('evN').value;
+      if ($('evH')) { F.hora = $('evH').value; F.fin = $('evH2').value; }
+      if ($('evHa')) F.hasta = $('evHa').value;
+      if ($('evP')) { F.persona = $('evP').value; F.bloquea = $('evB').checked; }
+    };
+    $('cerrar').onclick = () => { $('panel').hidden = true; };
+    $('panelIn').querySelectorAll('[data-cat]').forEach(b => b.onclick = () => {
+      leer(); F.categoria = b.dataset.cat;
+      if (!tocoRep && F.categoria === 'Cumpleaños') { F.todoDia = true; F.repite = 'Cada año'; }
+      if (!F.titulo && F.categoria === 'Trabajo') F.titulo = 'Trabajo';
+      pintar();
+    });
+    $('evTD').onchange = () => { leer(); pintar(); };
+    $('evR').onchange = () => { tocoRep = true; leer(); pintar(); };
+    if ($('evH')) $('evH').onchange = () => { if (!$('evH2').value && $('evH').value) { const m = $('evH').value.split(':').map(Number); const t = Math.min(m[0] * 60 + m[1] + 60, 23 * 60 + 45); $('evH2').value = String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); } };
+    const msg = (h, cl) => $('evMsg').innerHTML = h ? '<div class="aviso ' + (cl || 'bad') + '">' + h + '</div>' : '';
+    const listo = (texto, fecha) => { pitido(true); toast(texto); $('panel').hidden = true; if (fecha) AG.fecha = fecha; refrescarEventos(); };
+    $('evG').onclick = async () => {
+      leer();
+      if (!F.titulo.trim()) return msg('Escribe qué es.');
+      if (!F.fecha) return msg('Elige la fecha.');
+      if (!F.todoDia && !F.hora) return msg('Elige la hora o marca "Todo el día".');
+      const b = $('evG'); b.disabled = true; b.textContent = 'Guardando…'; msg('');
+      try {
+        const r = await srv('guardarEvento', { id: ed ? e.id : '', titulo: F.titulo, categoria: F.categoria, fecha: F.fecha, todoDia: F.todoDia, hora: F.hora, fin: F.fin, repite: F.repite, hasta: F.hasta, persona: F.persona, bloquea: F.bloquea, notas: F.notas });
+        listo(r.mensaje || 'Guardado', ed ? '' : F.fecha);
+      } catch (er) { b.disabled = false; b.textContent = ed ? 'Guardar cambios' : 'Guardar'; msg(esc(errorTexto(er))); }
+    };
+    if ($('evX')) $('evX').onclick = () => {
+      const borrar = async solo => {
+        $('evBorrar').innerHTML = '<div class="carga"><span class="spin"></span>Borrando…</div>';
+        try { const r = await srv('borrarEvento', e.id, solo || ''); listo(r.mensaje || 'Borrado'); }
+        catch (er) { msg(esc(errorTexto(er))); pintar(); }
+      };
+      if (e.repite === 'No') {
+        $('evBorrar').innerHTML = '<div class="aviso warn">¿Borrar «' + esc(e.titulo) + '»?</div><div class="dos" style="margin-top:8px"><button class="btn btn-ghost" type="button" id="evNo">No</button><button class="btn btn-prim" type="button" id="evSi" style="background:var(--bad)">Sí, borrar</button></div>';
+        $('evSi').onclick = () => borrar(''); $('evNo').onclick = () => pintar();
+      } else {
+        $('evBorrar').innerHTML = '<div class="aviso warn">Este evento se repite. ¿Qué quieres borrar?</div><div class="campos" style="margin-top:8px">' +
+          '<button class="btn btn-sec" type="button" id="evSolo">Solo el ' + esc(isoMx(e.fecha).slice(0, 5)) + '</button><button class="btn btn-prim" type="button" id="evTodos" style="background:var(--bad)">Todas las repeticiones</button><button class="btn btn-ghost" type="button" id="evNo">Cancelar</button></div>';
+        $('evSolo').onclick = () => borrar(e.fecha); $('evTodos').onclick = () => borrar(''); $('evNo').onclick = () => pintar();
+      }
+    };
+  };
+  $('panel').hidden = false; $('panel').scrollTop = 0;
+  pintar();
+  if (!ed) setTimeout(() => $('evT') && $('evT').focus(), 60);
+}
+
 /* Semana o Mes: se recuerda en este celular */
 AG.modo = (() => { try { return localStorage.getItem('spatsy_agmodo') === 'mes' ? 'mes' : 'semana'; } catch (e) { return 'semana'; } })();
 const barraModo = () => '<div class="modo" role="tablist"><button type="button" data-modo="semana" aria-pressed="' + (AG.modo === 'semana') + '">Semana</button><button type="button" data-modo="mes" aria-pressed="' + (AG.modo === 'mes') + '">Mes</button></div>';
@@ -714,15 +856,15 @@ function ligarModo() {
   });
 }
 const primeroMes = (iso, k) => { const d = fechaD(iso.slice(0, 8) + '01'); d.setMonth(d.getMonth() + (k || 0)); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-01'; };
-const listaCita = (delDia) => '<section class="seccion"><h2>' + esc(fechaLargaC(AG.fecha)) + (delDia ? '<span class="n">' + delDia.filter(VIVAS).length + '</span>' : '') + '</h2><div class="lista" id="al">' +
-  (!delDia ? '<div class="carga"><span class="spin"></span>Cargando citas…</div>' : delDia.length ? delDia.map(c => filaCita(c)).join('') : '<div class="vacio">No hay citas este día.</div>') + '</div></section>' +
-  '<button class="btn btn-prim" type="button" id="aNueva" style="width:100%;padding:13px;margin-top:14px">+ Agendar cita' + (AG.fecha !== D.hoy ? ' el ' + isoMx(AG.fecha).slice(0, 5) : '') + '</button>';
+const listaCita = (delDia, evDia) => '<section class="seccion"><h2>' + esc(fechaLargaC(AG.fecha)) + (delDia ? '<span class="n">' + delDia.filter(VIVAS).length + '</span>' : '') + '</h2><div class="lista" id="al">' +
+  (!delDia ? '<div class="carga"><span class="spin"></span>Cargando citas…</div>' : (delDia.length || (evDia || []).length) ? listaDelDia(delDia, evDia || []) : '<div class="vacio">No hay citas este día.</div>') + '</div></section>' + botonesAgendar();
 
 async function vAgendaMes() {
   const m1 = primeroMes(AG.fecha), ini = lunesDe(m1), fin = sumaDias(lunesDe(sumaDias(primeroMes(AG.fecha, 1), -1)), 6);
   const llave = 'M' + ini;
-  const pinta = lista => {
+  const pinta = (lista, evs) => {
     if (tab !== 'agenda' || AG.modo !== 'mes') return;
+    evs = evVisibles(evs);
     const dm = fechaD(m1), mes = dm.getMonth();
     const vivas = lista ? lista.filter(VIVAS) : [];
     const delMes = vivas.filter(c => c.fecha.slice(0, 7) === m1.slice(0, 7));
@@ -730,32 +872,35 @@ async function vAgendaMes() {
     let h = barraModo() + '<div class="mes-top"><button class="flecha" type="button" id="aPrev" aria-label="Mes anterior">‹</button><div><h2>' +
       esc(MESES_C[mes].charAt(0).toUpperCase() + MESES_C[mes].slice(1) + ' ' + dm.getFullYear()) + '</h2><span>' + (lista ? delMes.length + ' cita' + (delMes.length === 1 ? '' : 's') + ' este mes' : 'Cargando…') + '</span></div>' +
       '<button class="flecha" type="button" id="aNext" aria-label="Mes siguiente">›</button></div>';
-    if (AG.fecha !== D.hoy) h += '<div style="text-align:right;margin-top:-4px"><button class="linkbtn" type="button" id="aHoy">Ir a hoy</button></div>';
+    h += '<div style="display:flex;justify-content:flex-end;gap:12px;margin-top:-4px;min-height:20px">' + togglePersonal() + (AG.fecha !== D.hoy ? '<button class="linkbtn" type="button" id="aHoy">Ir a hoy</button>' : '') + '</div>';
     h += '<div class="mes"><div class="mes-sem">' + ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(x => '<span>' + x + '</span>').join('') + '</div><div class="mes-grid">' +
       Array.from({ length: nDias }, (_, i) => {
-        const f = sumaDias(ini, i), d = fechaD(f), delD = vivas.filter(c => c.fecha === f);
+        const f = sumaDias(ini, i), d = fechaD(f), delD = vivas.filter(c => c.fecha === f), evD = evs.filter(e => e.fecha === f);
         const pend = delD.some(c => c.estado === 'Pendiente');
-        return '<button type="button" class="mdia' + (d.getMonth() !== mes ? ' fuera' : '') + (f === D.hoy ? ' hoy' : '') + (f < D.hoy ? ' pasado' : '') + '" data-f="' + f + '" aria-pressed="' + (f === AG.fecha) + '" aria-label="' + esc(fechaLargaC(f) + (delD.length ? ', ' + delD.length + ' citas' : '')) + '">' +
-          '<span class="md">' + d.getDate() + '</span>' + (delD.length ? '<span class="mc' + (pend ? ' pend' : '') + '">' + delD.length + '</span>' : '<span class="mc vacia"></span>') + '</button>';
-      }).join('') + '</div><div class="mes-ley"><span><i class="mc pend"></i> con pendientes de confirmar</span><span><i class="mc"></i> todas confirmadas</span></div></div>';
-    h += listaCita(lista ? lista.filter(c => c.fecha === AG.fecha) : null);
+        const etiquetas = (delD.length ? ['<span class="ml cita' + (pend ? ' pend' : '') + '">' + delD.length + (delD.length === 1 ? ' cita' : ' citas') + '</span>'] : [])
+          .concat(evD.map(e => '<span class="ml" style="--c:' + catColor(e.categoria) + '">' + esc(e.titulo) + '</span>'));
+        const caben = 3;
+        return '<button type="button" class="mdia' + (d.getMonth() !== mes ? ' fuera' : '') + (f === D.hoy ? ' hoy' : '') + (f < D.hoy ? ' pasado' : '') + '" data-f="' + f + '" aria-pressed="' + (f === AG.fecha) + '" aria-label="' + esc(fechaLargaC(f) + (delD.length ? ', ' + delD.length + ' citas' : '') + (evD.length ? ', ' + evD.map(e => e.titulo).join(', ') : '')) + '">' +
+          '<span class="md">' + d.getDate() + '</span>' + etiquetas.slice(0, etiquetas.length > caben ? caben - 1 : caben).join('') + (etiquetas.length > caben ? '<span class="mmas">+' + (etiquetas.length - caben + 1) + '</span>' : '') + '</button>';
+      }).join('') + '</div><div class="mes-ley"><span><i class="ml cita pend"></i> citas por confirmar</span><span><i class="ml cita"></i> citas confirmadas</span>' + (esDuena() && AG.verPersonal ? '<span>colores = tu agenda personal</span>' : '') + '</div></div>';
+    h += listaCita(lista ? lista.filter(c => c.fecha === AG.fecha) : null, evs.filter(e => e.fecha === AG.fecha));
     $('vista').innerHTML = h;
-    ligarModo(); ligarCitas($('vista'));
+    ligarModo(); ligarAgendaComun();
     $('vista').querySelectorAll('.mdia').forEach(b => b.onclick = () => {
       const f = b.dataset.f;
       if (f.slice(0, 7) !== m1.slice(0, 7)) { AG.fecha = f; vAgenda(); return; } // día del mes anterior/siguiente
-      AG.fecha = f; pinta(lista);
+      AG.fecha = f; pinta(lista, evs);
       const s = $('al'); if (s) s.closest('.seccion').scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
     const irMes = k => { const p = primeroMes(AG.fecha, k); AG.fecha = p.slice(0, 7) === D.hoy.slice(0, 7) ? D.hoy : p; vAgenda(); };
     $('aPrev').onclick = () => irMes(-1);
     $('aNext').onclick = () => irMes(1);
     if ($('aHoy')) $('aHoy').onclick = () => { AG.fecha = D.hoy; vAgenda(); };
-    $('aNueva').onclick = () => abrirFormCita(null, { fecha: AG.fecha < D.hoy ? D.hoy : AG.fecha });
   };
-  pinta(AG.cache[llave] || null);
-  if (!AG.cache[llave]) {
-    try { AG.cache[llave] = await srv('listarCitas', ini, fin); pinta(AG.cache[llave]); }
+  const kev = ini + '_' + fin;
+  pinta(AG.cache[llave] || null, AG.ev[kev] || []);
+  if (!AG.cache[llave] || !AG.ev[kev]) {
+    try { const r = await Promise.all([AG.cache[llave] || srv('listarCitas', ini, fin), eventosRango(ini, fin)]); AG.cache[llave] = r[0]; pinta(r[0], r[1]); }
     catch (e) { if (tab === 'agenda' && $('al')) $('al').innerHTML = '<div class="aviso bad">' + esc(errorTexto(e)) + '</div>'; }
   }
 }
@@ -763,34 +908,37 @@ async function vAgendaMes() {
 async function vAgenda() {
   if (!AG.fecha) AG.fecha = D.hoy;
   if (AG.modo === 'mes') return vAgendaMes();
-  const lunes = lunesDe(AG.fecha);
-  const pinta = lista => {
+  const lunes = lunesDe(AG.fecha), domingo = sumaDias(lunes, 6);
+  const pinta = (lista, evs) => {
     if (tab !== 'agenda' || AG.modo !== 'semana') return;
+    evs = evVisibles(evs);
     const dias = Array.from({ length: 7 }, (_, i) => sumaDias(lunes, i));
     const cuenta = f => lista ? lista.filter(c => c.fecha === f && VIVAS(c)).length : 0;
+    const puntos = f => evs.filter(e => e.fecha === f).slice(0, 3).map(e => '<i style="background:' + catColor(e.categoria) + '"></i>').join('');
     const delDia = lista ? lista.filter(c => c.fecha === AG.fecha) : null;
+    const evDia = evs.filter(e => e.fecha === AG.fecha);
     const d0 = fechaD(lunes), d6 = fechaD(dias[6]);
     let h = barraModo() + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:6px"><h2 style="font-family:var(--f-display);font-weight:400;font-size:19px;color:var(--ciruela)">' +
       esc(MESES_C[d0.getMonth()].charAt(0).toUpperCase() + MESES_C[d0.getMonth()].slice(1) + (d0.getMonth() !== d6.getMonth() ? ' – ' + MESES_C[d6.getMonth()] : '') + ' ' + d6.getFullYear()) +
-      '</h2>' + (AG.fecha !== D.hoy ? '<button class="linkbtn" type="button" id="aHoy">Ir a hoy</button>' : '') + '</div>';
+      '</h2><span style="display:flex;gap:12px">' + togglePersonal() + (AG.fecha !== D.hoy ? '<button class="linkbtn" type="button" id="aHoy">Ir a hoy</button>' : '') + '</span></div>';
     h += '<div class="semana"><button class="flecha" type="button" id="aPrev" aria-label="Semana anterior">‹</button>' + dias.map(f => {
       const d = fechaD(f), n = cuenta(f);
-      return '<button type="button" class="dia' + (f === D.hoy ? ' hoy' : '') + '" data-f="' + f + '" aria-pressed="' + (f === AG.fecha) + '"><span class="dn">' + DIAS_C[d.getDay()] + '</span><span class="dd">' + d.getDate() + '</span><span class="dc">' + (n ? n : '') + '</span></button>';
+      return '<button type="button" class="dia' + (f === D.hoy ? ' hoy' : '') + '" data-f="' + f + '" aria-pressed="' + (f === AG.fecha) + '"><span class="dn">' + DIAS_C[d.getDay()] + '</span><span class="dd">' + d.getDate() + '</span><span class="dc">' + (n ? n : '') + '</span><span class="dev">' + puntos(f) + '</span></button>';
     }).join('') + '<button class="flecha" type="button" id="aNext" aria-label="Semana siguiente">›</button></div>';
     h += '<section class="seccion"><h2>' + esc(fechaLargaC(AG.fecha)) + (delDia ? '<span class="n">' + delDia.filter(VIVAS).length + '</span>' : '') + '</h2><div class="lista" id="al">' +
-      (!delDia ? '<div class="carga"><span class="spin"></span>Cargando citas…</div>' : delDia.length ? delDia.map(c => filaCita(c)).join('') : '<div class="vacio">No hay citas este día.</div>') + '</div></section>';
-    h += '<button class="btn btn-prim" type="button" id="aNueva" style="width:100%;padding:13px;margin-top:14px">+ Agendar cita' + (AG.fecha !== D.hoy ? ' el ' + isoMx(AG.fecha).slice(0, 5) : '') + '</button>';
+      (!delDia ? '<div class="carga"><span class="spin"></span>Cargando citas…</div>' : (delDia.length || evDia.length) ? listaDelDia(delDia, evDia) : '<div class="vacio">No hay citas este día.</div>') + '</div></section>';
+    h += botonesAgendar();
     $('vista').innerHTML = h;
-    ligarModo(); ligarCitas($('vista'));
-    $('vista').querySelectorAll('.dia').forEach(b => b.onclick = () => { AG.fecha = b.dataset.f; pinta(lista); });
+    ligarModo(); ligarAgendaComun();
+    $('vista').querySelectorAll('.dia').forEach(b => b.onclick = () => { AG.fecha = b.dataset.f; pinta(lista, evs); });
     $('aPrev').onclick = () => { AG.fecha = sumaDias(AG.fecha, -7); vAgenda(); };
     $('aNext').onclick = () => { AG.fecha = sumaDias(AG.fecha, 7); vAgenda(); };
     if ($('aHoy')) $('aHoy').onclick = () => { AG.fecha = D.hoy; vAgenda(); };
-    $('aNueva').onclick = () => abrirFormCita(null, { fecha: AG.fecha < D.hoy ? D.hoy : AG.fecha });
   };
-  pinta(AG.cache[lunes] || null);
-  if (!AG.cache[lunes]) {
-    try { pinta(await citasSemana(lunes)); }
+  const kev = lunes + '_' + domingo;
+  pinta(AG.cache[lunes] || null, AG.ev[kev] || []);
+  if (!AG.cache[lunes] || !AG.ev[kev]) {
+    try { const r = await Promise.all([citasSemana(lunes), eventosRango(lunes, domingo)]); pinta(r[0], r[1]); }
     catch (e) { if (tab === 'agenda' && $('al')) $('al').innerHTML = '<div class="aviso bad">' + esc(errorTexto(e)) + '</div>'; }
   }
 }
@@ -876,9 +1024,15 @@ function abrirFormCita(c, pre) {
       return (lista || []).filter(x => (!ed || x.id !== c.id) && VIVAS(x) && (!F.atiende || !x.atiende || x.atiende === F.atiende) &&
         mins(x.hora) < fin && mins(x.hora) + (Number(x.duracion) || 60) > ini);
     };
+    /* Citas del día + ratos bloqueados de la agenda personal */
+    const ocupDia = () => {
+      const l = AG.cache['D' + F.fecha]; if (!l) return null;
+      return l.concat((AG.ev[F.fecha + '_' + F.fecha] || []).filter(e => e.bloquea && e.hora).map(e => ({ id: '', hora: e.hora, duracion: e.duracion || 60, atiende: e.persona, nombre: e.titulo, estado: 'Confirmada', personal: true })));
+    };
+    const quien = x => x.personal ? (x.atiende ? x.atiende + ' tiene ' : '') + '«' + x.nombre + '»' : primer(x.nombre);
     const pintarHoras = () => {
       if (!$('gcHoras')) return;
-      const lista = AG.cache['D' + F.fecha];
+      const lista = ocupDia();
       const ahora = new Date(), minAhora = ahora.getHours() * 60 + ahora.getMinutes();
       $('gcHoras').innerHTML = HORAS.map(h => {
         const ch = lista ? chocan(lista, h) : [], pasada = F.fecha === D.hoy && mins(h) <= minAhora && !ed;
@@ -887,20 +1041,21 @@ function abrirFormCita(c, pre) {
       }).join('');
       $('gcHoras').querySelectorAll('[data-h]').forEach(b => b.onclick = () => {
         const h = b.dataset.h;
-        if (b.classList.contains('ocupada')) { const x = chocan(lista, h)[0]; toast('A las ' + corta(h) + ' ya está ' + primer(x.nombre) + ' (' + corta(x.hora) + (x.atiende ? ' con ' + x.atiende : '') + ')', 3500); return; }
+        if (b.classList.contains('ocupada')) { const x = chocan(lista, h)[0]; toast(x.personal ? 'A las ' + corta(h) + ' ' + (x.atiende || 'la dueña') + ' tiene «' + x.nombre + '» (' + corta(x.hora) + ')' : 'A las ' + corta(h) + ' ya está ' + primer(x.nombre) + ' (' + corta(x.hora) + (x.atiende ? ' con ' + x.atiende : '') + ')', 3500); return; }
         if (b.classList.contains('pasada')) { toast('Esa hora ya pasó'); return; }
         $('gcH').value = h; F.hora = h; pintarHoras();
       });
       const delDia = (lista || []).filter(x => (!ed || x.id !== c.id) && VIVAS(x)).sort((a, b2) => mins(a.hora) - mins(b2.hora));
       const choque = F.hora && lista ? chocan(lista, F.hora)[0] : null;
       $('gcOcup').innerHTML = !lista ? '<div class="ocup-l">Revisando horarios ocupados…</div>'
-        : (delDia.length ? '<div class="ocup-l"><b>Ya agendado ese día:</b> ' + delDia.map(x => esc(corta(x.hora)) + ' ' + esc(primer(x.nombre)) + (x.atiende ? ' (' + esc(x.atiende) + ')' : '')).join(' · ') + '</div>' : '<div class="ocup-l">Ese día está libre.</div>') +
-          (choque ? '<div class="aviso warn" style="margin-top:6px">A esa hora ya está <b>' + esc(choque.nombre) + '</b> (' + esc(corta(choque.hora)) + ', ' + choque.duracion + ' min' + (choque.atiende ? ', ' + esc(choque.atiende) : '') + ').</div>' : '');
+        : (delDia.length ? '<div class="ocup-l"><b>Ya agendado ese día:</b> ' + delDia.map(x => esc(corta(x.hora)) + ' ' + (x.personal ? '⛔ ' + esc(x.nombre) : esc(primer(x.nombre))) + (x.atiende ? ' (' + esc(x.atiende) + ')' : '')).join(' · ') + '</div>' : '<div class="ocup-l">Ese día está libre.</div>') +
+          (choque ? '<div class="aviso warn" style="margin-top:6px">' + (choque.personal ? 'A esa hora ' + esc(choque.atiende || 'la dueña') + ' tiene <b>' + esc(choque.nombre) + '</b> (' + esc(corta(choque.hora)) + ', agenda personal).' : 'A esa hora ya está <b>' + esc(choque.nombre) + '</b> (' + esc(corta(choque.hora)) + ', ' + choque.duracion + ' min' + (choque.atiende ? ', ' + esc(choque.atiende) : '') + ').') + '</div>' : '');
     };
     const cargarDia = async () => {
-      const f = F.fecha; if (!f || AG.cache['D' + f]) return pintarHoras();
+      const f = F.fecha; if (!f || (AG.cache['D' + f] && AG.ev[f + '_' + f])) return pintarHoras();
       pintarHoras();
-      try { AG.cache['D' + f] = await srv('listarCitas', f, f); } catch (e) { AG.cache['D' + f] = null; if (F.fecha === f && $('gcOcup')) $('gcOcup').innerHTML = ''; return; }
+      try { const r = await Promise.all([AG.cache['D' + f] || srv('listarCitas', f, f), eventosRango(f, f)]); AG.cache['D' + f] = r[0]; }
+      catch (e) { delete AG.cache['D' + f]; if (F.fecha === f && $('gcOcup')) $('gcOcup').innerHTML = ''; return; }
       if (F.fecha === f) pintarHoras();
     };
     ['gcF', 'gcH', 'gcD', 'gcA'].forEach(id => $(id).addEventListener('change', () => { const f0 = F.fecha; leer(); if (F.fecha !== f0) cargarDia(); else pintarHoras(); }));
