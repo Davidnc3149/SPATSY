@@ -1,6 +1,6 @@
 /* SPATSY · sw.js — guarda los archivos de la App en el celular para que abra aunque no haya internet.
    Las llamadas a la hoja (script.google.com) NUNCA pasan por aquí: siempre van directo. */
-const CACHE = 'spatsy-v8';
+const CACHE = 'spatsy-v10';
 const BASE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

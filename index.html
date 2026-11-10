@@ -132,18 +132,6 @@ textarea { resize: vertical; min-height: 70px; }
 .mes-top h2 { font-family: var(--f-display); font-weight: 400; font-size: 21px; color: var(--ciruela); }
 .mes-top span { font-size: 12.5px; color: var(--muted); }
 .mes-top .flecha { border: 0; background: none; color: var(--rosa); font-size: 26px; font-weight: 700; padding: 0; height: 40px; }
-.mes { margin-top: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 8px 6px 10px; }
-.mes-sem, .mes-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
-.mes-sem span { text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); padding-bottom: 4px; }
-.mdia { border: 1px solid transparent; background: none; border-radius: 8px; padding: 3px 2px 4px; display: flex; flex-direction: column; align-items: stretch; gap: 2px; min-width: 0; min-height: 72px; overflow: hidden; }
-.mdia .md { align-self: center; width: 24px; height: 24px; line-height: 24px; border-radius: 12px; text-align: center; font-size: 14px; font-variant-numeric: tabular-nums; }
-.mdia.fuera { opacity: .35; }
-.mdia.pasado:not(.fuera) .md { color: var(--muted); }
-.mdia.hoy .md { font-weight: 700; background: var(--rosa); color: var(--on-accent); }
-.mdia[aria-pressed="true"] { background: var(--rosa-soft); border-color: var(--rosa); }
-.mdia[aria-pressed="true"]:not(.hoy) .md { font-weight: 700; color: var(--rosa); }
-.mes-ley { display: flex; flex-wrap: wrap; gap: 4px 14px; justify-content: center; margin-top: 8px; font-size: 11.5px; color: var(--muted); }
-.mes-ley i { width: 10px; min-width: 10px; height: 10px; padding: 0; vertical-align: -1px; margin-right: 3px; }
 .rapidos button.ocupada { background: var(--line); color: var(--muted); text-decoration: line-through; border-color: transparent; }
 .rapidos button.pasada { opacity: .4; }
 .rapidos button.on { background: var(--rosa); color: var(--on-accent); border-color: var(--rosa); }
@@ -164,11 +152,69 @@ textarea { resize: vertical; min-height: 70px; }
 .tres { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 8px; }
 .tres > *, .dos > * { min-width: 0; }
 .tres input, .dos input, .dos select { width: 100%; min-width: 0; }
-.ml { display: block; font-size: 9.5px; line-height: 15px; font-weight: 600; padding: 0 3px; border-radius: 4px; white-space: nowrap; overflow: hidden; background: var(--c); color: #fff; font-style: normal; text-align: left; }
-.ml.cita { background: var(--ok-soft); color: var(--ok); }
-.ml.cita.pend { background: var(--warn-soft); color: var(--warn); }
-.mmas { font-size: 10px; color: var(--muted); font-weight: 700; text-align: center; line-height: 13px; }
-.mes-ley i.ml { display: inline-block; width: 14px; height: 10px; vertical-align: -1px; margin-right: 3px; padding: 0; }
+.mes { margin-top: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 8px 6px 10px; }
+.mes { margin-top: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 8px 6px 10px; }
+.mes-acc { display: flex; justify-content: flex-end; gap: 14px; margin-top: -2px; min-height: 22px; }
+.txt-warn { color: var(--warn); font-weight: 700; }
+.modo { grid-template-columns: repeat(3, 1fr); }
+.mes { padding: 6px 4px 10px; }
+.mes-sem, .mes-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.mes-sem span { text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); padding-bottom: 6px; }
+.mes-grid { border-top: 1px solid var(--line); }
+.mdia { border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: none; padding: 3px 1px 4px; display: flex; flex-direction: column; align-items: stretch; gap: 2px; min-width: 0; min-height: 66px; overflow: hidden; position: relative; }
+.mdia.finde { background: color-mix(in srgb, var(--line) 30%, transparent); }
+.mdia .md { align-self: center; width: 22px; height: 22px; line-height: 22px; border-radius: 11px; text-align: center; font-size: 13px; font-variant-numeric: tabular-nums; }
+.mdia.fuera { opacity: .35; }
+.mdia.pasado:not(.fuera) .md { color: var(--muted); }
+.mdia.pasado:not(.fuera) .ml { opacity: .7; }
+.mdia.hoy .md { font-weight: 700; background: var(--rosa); color: var(--on-accent); }
+.mdia[aria-pressed="true"] { background: var(--rosa-soft); box-shadow: inset 0 0 0 2px var(--rosa); border-radius: 8px; }
+.mdia[aria-pressed="true"]:not(.hoy) .md { font-weight: 700; color: var(--rosa); }
+.filtro { display: flex; gap: 6px; margin-top: 10px; }
+.filtro button { flex: 1; border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 8px 0; font-size: 13px; font-weight: 600; color: var(--ciruela); }
+.filtro button[aria-pressed="true"] { background: var(--rosa); border-color: var(--rosa); color: var(--on-accent); }
+.fcats { display: flex; gap: 6px; overflow-x: auto; margin-top: 8px; padding-bottom: 2px; scrollbar-width: none; }
+.fcats::-webkit-scrollbar { display: none; }
+.fcats button { flex: none; border: 1.5px solid color-mix(in srgb, var(--c) 45%, transparent); background: var(--surface); color: var(--ciruela); border-radius: 99px; padding: 5px 11px; font-size: 12.5px; font-weight: 600; }
+.fcats button[aria-pressed="true"] { background: var(--c); border-color: var(--c); color: #fff; }
+.mdia { min-height: 54px; gap: 3px; padding-top: 4px; }
+.mi { display: flex; justify-content: center; min-height: 18px; }
+.mcnt { display: inline-block; min-width: 20px; height: 18px; line-height: 18px; border-radius: 9px; background: var(--rosa); color: var(--on-accent); font-size: 11px; font-weight: 700; padding: 0 5px; text-align: center; font-variant-numeric: tabular-nums; }
+.mcnt.pend { background: var(--warn); color: #fff; }
+.mdia.pasado:not(.fuera) .mcnt { opacity: .55; }
+.mdots { display: flex; gap: 3px; justify-content: center; min-height: 6px; }
+.mdots i, .mdot { width: 6px; height: 6px; border-radius: 3px; display: inline-block; }
+.mes-ley .mcnt { min-width: 16px; height: 14px; line-height: 14px; font-size: 9.5px; margin-right: 3px; }
+.mes-ley .mdot { margin-right: 2px; vertical-align: 1px; }
+.mres { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.mres > * { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 6px; text-align: center; color: inherit; }
+.mres b { display: block; font-family: var(--f-display); font-size: 24px; font-weight: 400; color: var(--ciruela); line-height: 1.1; }
+.mres span { font-size: 12px; color: var(--muted); }
+.mres .warn b { color: var(--warn); }
+.mtip { text-align: center; font-size: 12px; color: var(--muted); margin-top: 8px; }
+.dia-in { height: auto; max-height: 88vh; max-height: 88dvh; }
+.dhd { display: block; min-width: 0; }
+.dtit { display: block; font-family: var(--f-display); font-size: 20px; font-weight: 400; color: var(--ciruela); }
+.dsub { display: block; font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.dia-body { overflow-y: auto; flex: 1; padding: 4px 16px 14px; display: flex; flex-direction: column; gap: 8px; -webkit-overflow-scrolling: touch; }
+.dh { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin-top: 12px; }
+.dh .n { margin-left: auto; }
+.dcat { font-size: 13px; font-weight: 700; color: var(--c); margin-top: 4px; }
+.dvacio { color: var(--muted); font-size: 14px; padding: 4px 2px; }
+.dia-pie { display: grid; gap: 8px; padding: 10px 16px calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--bg); }
+.dia-pie .btn { padding: 13px; }
+.ml { display: block; font-size: 9.5px; line-height: 14px; font-weight: 600; padding: 0 2px; border-radius: 3px; white-space: nowrap; overflow: hidden; background: var(--c); color: #fff; font-style: normal; text-align: left; letter-spacing: -.1px; }
+.ml.mc-Pendiente { background: var(--warn-soft); color: var(--warn); box-shadow: inset 2px 0 0 var(--warn); }
+.ml.mc-Confirmada { background: var(--ok-soft); color: var(--ok); box-shadow: inset 2px 0 0 var(--ok); }
+.ml.mc-Atendida, .ml.mc-No { background: var(--line); color: var(--muted); }
+.mmas { font-size: 9.5px; color: var(--muted); font-weight: 700; text-align: center; line-height: 13px; }
+.mes-ley { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: center; margin-top: 8px; font-size: 11.5px; color: var(--muted); }
+.mes-ley i.ml { display: inline-block; width: 12px; height: 10px; vertical-align: -1px; margin-right: 4px; padding: 0; }
+.ldia { margin-top: 16px; }
+.ldia h3 { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: var(--muted); margin-bottom: 8px; text-transform: capitalize; }
+.ldia h3 .ln { font-family: var(--f-display); font-size: 24px; font-weight: 400; color: var(--ciruela); min-width: 30px; }
+.ldia.hoy h3 .ln { color: var(--rosa); }
+.ldia h3 .n { margin-left: auto; }
 .buscar { position: relative; }
 .sug { position: absolute; z-index: 5; left: 0; right: 0; top: calc(100% + 4px); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 24px rgba(40, 20, 30, .12); }
 .sug button { display: block; width: 100%; border: 0; background: none; text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
@@ -332,8 +378,8 @@ textarea { resize: vertical; min-height: 70px; }
 <main id="vista"><div class="carga"><span class="spin"></span>Cargando SPATSY…</div></main>
 
 <nav class="tabs" role="tablist">
-  <button type="button" role="tab" data-tab="hoy" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>Hoy</button>
-  <button type="button" role="tab" data-tab="agenda" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h2.5M13.5 14H16M8 17.5h2.5"/></svg>Agenda</button>
+  <button type="button" role="tab" data-tab="agenda" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h2.5M13.5 14H16M8 17.5h2.5"/></svg>Agenda</button>
+  <button type="button" role="tab" data-tab="hoy" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>Hoy</button>
   <button type="button" role="tab" data-tab="clientas" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c1.9.7 3 2.4 3.5 5.2"/></svg>Clientas</button>
   <button type="button" role="tab" data-tab="registrar" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Cobrar</button>
   <button type="button" role="tab" data-tab="promos" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10v4a1 1 0 0 0 1 1h2l5 4V5L7 9H5a1 1 0 0 0-1 1z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>Promos</button>
@@ -371,7 +417,7 @@ textarea { resize: vertical; min-height: 70px; }
    prepararCampana, marcarEnviado, registrarEntrada, guardarProducto,
    asignarCodigoProducto.
    ============================================================ */
-let D = null, tab = 'hoy';
+let D = null, tab = 'agenda';
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const dinero = n => '$' + Math.round(Number(n) || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -563,9 +609,9 @@ function pintarQuien() {
     guardarSesion(null); D = null; q.hidden = true;
     try { localStorage.removeItem(DATOS_K); } catch (e) { }
     // Que la siguiente persona no vea nada de la sesión anterior
-    nueva = null; filtro = ''; tab = 'hoy';
+    nueva = null; filtro = ''; tab = 'agenda';
     try { P = { seg: 'toca', valor: '', plantilla: 'Te toca tratamiento', mensaje: '', lista: null, camp: null, envio: null, nombre: '' }; } catch (e) { }
-    try { AG = { fecha: '', cache: {}, ev: {}, modo: AG.modo, verPersonal: AG.verPersonal }; } catch (e) { }
+    try { AG = { fecha: '', cache: {}, ev: {}, modo: AG.modo, filtro: AG.filtro, cat: AG.cat }; } catch (e) { }
     try { INV = { q: '', filtro: 'todos' }; } catch (e) { }
     $('panel').hidden = true; $('vista').innerHTML = ''; pedirPin();
   };
@@ -726,13 +772,20 @@ const CAT_COLOR = { 'Personal': '#8B63B5', 'Trabajo': '#3C8C55', 'Cumpleaños': 
 const catColor = c => CAT_COLOR[c] || CAT_COLOR.Otro;
 const CAT_ICONO = { 'Personal': '⭐', 'Trabajo': '💼', 'Cumpleaños': '🎂', 'Pagos y tandas': '💰', 'Familia': '👨‍👩‍👧', 'Cursos': '📚', 'Otro': '📌', 'Ocupado': '⛔' };
 AG.ev = {};
-AG.verPersonal = (() => { try { return localStorage.getItem('spatsy_agper') !== 'no'; } catch (e) { return true; } })();
+AG.filtro = (() => { try { const f = localStorage.getItem('spatsy_agfil'); return ['todo', 'spa', 'personal'].indexOf(f) >= 0 ? f : 'todo'; } catch (e) { return 'todo'; } })();
+AG.cat = (() => { try { return localStorage.getItem('spatsy_agcat') || ''; } catch (e) { return ''; } })();
 async function eventosRango(ini, fin) {
   const k = ini + '_' + fin;
   if (!AG.ev[k]) { try { AG.ev[k] = await srv('listarEventos', ini, fin); } catch (e) { return []; } }
   return AG.ev[k];
 }
-const evVisibles = l => (l || []).filter(() => AG.verPersonal || !esDuena());
+const evVisibles = l => !esDuena() ? (l || []) : AG.filtro === 'spa' ? [] : (l || []).filter(e => !AG.cat || e.categoria === AG.cat);
+const citasVisibles = l => (l && esDuena() && AG.filtro === 'personal') ? [] : l;
+const CATS_EV = () => (D.agenda && D.agenda.categorias) || Object.keys(CAT_COLOR).filter(c => c !== 'Ocupado');
+/* Filtro de la agenda (solo dueña): Todo · Spa · Personal, y por categoría */
+const barraFiltro = () => !esDuena() ? '' : '<div class="filtro" role="group" aria-label="Qué ver">' +
+  [['todo', 'Todo'], ['spa', '💆 Spa'], ['personal', '⭐ Personal']].map(f => '<button type="button" data-fil="' + f[0] + '" aria-pressed="' + (AG.filtro === f[0]) + '">' + f[1] + '</button>').join('') + '</div>' +
+  (AG.filtro === 'personal' ? '<div class="fcats">' + [''].concat(CATS_EV()).map(c => '<button type="button" data-fcat="' + esc(c) + '" style="--c:' + (c ? catColor(c) : 'var(--rosa)') + '" aria-pressed="' + (AG.cat === c) + '">' + (c ? (CAT_ICONO[c] || '') + ' ' + esc(c) : 'Todas') + '</button>').join('') + '</div>' : '');
 function eventoPorId(id, fecha) {
   const todos = (D.eventos || []).concat(...Object.keys(AG.ev).map(k => AG.ev[k] || []));
   return todos.find(e => e.id === id && (!fecha || e.fecha === fecha)) || todos.find(e => e.id === id);
@@ -760,11 +813,19 @@ function refrescarEventos() {
 }
 const botonesAgendar = () => '<div class="dos" style="margin-top:14px;grid-template-columns:' + (esDuena() ? '1.4fr 1fr' : '1fr') + '"><button class="btn btn-prim" type="button" id="aNueva" style="padding:13px">+ Cita' + (AG.fecha !== D.hoy ? ' el ' + isoMx(AG.fecha).slice(0, 5) : '') + '</button>' +
   (esDuena() ? '<button class="btn btn-sec" type="button" id="aEvento" style="padding:13px">+ Personal</button>' : '') + '</div>';
-const togglePersonal = () => esDuena() ? '<button class="linkbtn" type="button" id="aPer">' + (AG.verPersonal ? 'Ocultar personal' : 'Ver personal') + '</button>' : '';
+const togglePersonal = () => '';
 function ligarAgendaComun() {
   $('aNueva').onclick = () => abrirFormCita(null, { fecha: AG.fecha < D.hoy ? D.hoy : AG.fecha });
   if ($('aEvento')) $('aEvento').onclick = () => abrirFormEvento(null, { fecha: AG.fecha });
-  if ($('aPer')) $('aPer').onclick = () => { AG.verPersonal = !AG.verPersonal; try { localStorage.setItem('spatsy_agper', AG.verPersonal ? 'si' : 'no'); } catch (e) { } vAgenda(); };
+  $('vista').querySelectorAll('[data-fil]').forEach(b => b.onclick = () => {
+    AG.filtro = b.dataset.fil; if (AG.filtro !== 'personal') AG.cat = '';
+    try { localStorage.setItem('spatsy_agfil', AG.filtro); localStorage.setItem('spatsy_agcat', AG.cat); } catch (e) { }
+    vAgenda();
+  });
+  $('vista').querySelectorAll('[data-fcat]').forEach(b => b.onclick = () => {
+    AG.cat = b.dataset.fcat; try { localStorage.setItem('spatsy_agcat', AG.cat); } catch (e) { }
+    vAgenda();
+  });
   ligarCitas($('vista')); ligarEventos($('vista'));
 }
 
@@ -845,9 +906,47 @@ function abrirFormEvento(e, pre) {
   if (!ed) setTimeout(() => $('evT') && $('evT').focus(), 60);
 }
 
+/** Ventana con el detalle de un día: citas del spa y agenda personal agrupada por categoría. */
+function abrirDia(f, citas, evs) {
+  const vivas = citas.filter(VIVAS), pend = vivas.filter(c => c.estado === 'Pendiente').length;
+  const verSpa = !esDuena() || AG.filtro !== 'personal', verPer = !esDuena() || AG.filtro !== 'spa';
+  const sub = [verSpa ? vivas.length + (vivas.length === 1 ? ' cita' : ' citas') : '', verSpa && pend ? pend + ' por confirmar' : '', verPer && evs.length ? evs.length + (esDuena() ? (evs.length === 1 ? ' personal' : ' personales') : ' ocupado') : ''].filter(Boolean).join(' · ') || 'Día libre';
+  let cuerpo = '';
+  if (verSpa) {
+    const orden = citas.slice().sort((a, b) => (a.hora || '').localeCompare(b.hora || ''));
+    cuerpo += '<h3 class="dh">💆 Citas del spa<span class="n">' + vivas.length + '</span></h3>' + (orden.length ? orden.map(c => filaCita(c)).join('') : '<p class="dvacio">Sin citas este día.</p>');
+  }
+  if (verPer && evs.length) {
+    if (esDuena()) {
+      cuerpo += '<h3 class="dh">⭐ Mi agenda personal<span class="n">' + evs.length + '</span></h3>';
+      const cats = []; evs.forEach(e => { if (cats.indexOf(e.categoria) < 0) cats.push(e.categoria); });
+      cats.forEach(c => {
+        const delCat = evs.filter(e => e.categoria === c).sort((a, b) => (a.todoDia ? '' : a.hora).localeCompare(b.todoDia ? '' : b.hora));
+        cuerpo += '<h4 class="dcat" style="--c:' + catColor(c) + '">' + (CAT_ICONO[c] || '') + ' ' + esc(c) + '</h4>' + delCat.map(e => filaEvento(e)).join('');
+      });
+    } else cuerpo += '<h3 class="dh">⛔ Horario ocupado</h3>' + evs.map(e => filaEvento(e)).join('');
+  }
+  const ov = document.createElement('div');
+  ov.className = 'selsv';
+  ov.innerHTML = '<div class="selsv-in dia-in" role="dialog" aria-label="' + esc(fechaLargaC(f)) + '"><div class="selsv-top"><div><span class="dhd"><b class="dtit">' + esc(fechaLargaC(f)) + '</b><span class="dsub">' + esc(sub) + '</span></span>' +
+    '<button type="button" class="btn btn-ghost btn-mini" data-x>Cerrar</button></div></div><div class="dia-body">' + cuerpo + '</div>' +
+    '<div class="dia-pie" style="grid-template-columns:' + (esDuena() ? '1.4fr 1fr' : '1fr') + '"><button class="btn btn-prim" type="button" data-nc>+ Cita</button>' + (esDuena() ? '<button class="btn btn-sec" type="button" data-np>+ Personal</button>' : '') + '</div></div>';
+  document.body.appendChild(ov);
+  const cerrar = () => { ov.remove(); document.removeEventListener('keydown', tecla); };
+  const tecla = e => { if (e.key === 'Escape') cerrar(); };
+  document.addEventListener('keydown', tecla);
+  ligarCitas(ov); ligarEventos(ov);
+  ov.addEventListener('click', e => {
+    if (e.target === ov || e.target.closest('[data-x]')) return cerrar();
+    if (e.target.closest('[data-cita],[data-ev]')) return setTimeout(cerrar, 0); // se abrió el detalle
+    if (e.target.closest('[data-nc]')) { cerrar(); return abrirFormCita(null, { fecha: f < D.hoy ? D.hoy : f }); }
+    if (e.target.closest('[data-np]')) { cerrar(); return abrirFormEvento(null, { fecha: f }); }
+  });
+}
+
 /* Semana o Mes: se recuerda en este celular */
-AG.modo = (() => { try { return localStorage.getItem('spatsy_agmodo') === 'mes' ? 'mes' : 'semana'; } catch (e) { return 'semana'; } })();
-const barraModo = () => '<div class="modo" role="tablist"><button type="button" data-modo="semana" aria-pressed="' + (AG.modo === 'semana') + '">Semana</button><button type="button" data-modo="mes" aria-pressed="' + (AG.modo === 'mes') + '">Mes</button></div>';
+AG.modo = (() => { try { const m = localStorage.getItem('spatsy_agmodo'); return ['semana', 'mes', 'lista'].indexOf(m) >= 0 ? m : 'mes'; } catch (e) { return 'mes'; } })();
+const barraModo = () => '<div class="modo" role="tablist">' + [['semana', 'Semana'], ['mes', 'Mes'], ['lista', 'Lista']].map(m => '<button type="button" data-modo="' + m[0] + '" aria-pressed="' + (AG.modo === m[0]) + '">' + m[1] + '</button>').join('') + '</div>';
 function ligarModo() {
   $('vista').querySelectorAll('[data-modo]').forEach(b => b.onclick = () => {
     if (AG.modo === b.dataset.modo) return;
@@ -860,65 +959,103 @@ const listaCita = (delDia, evDia) => '<section class="seccion"><h2>' + esc(fecha
   (!delDia ? '<div class="carga"><span class="spin"></span>Cargando citas…</div>' : (delDia.length || (evDia || []).length) ? listaDelDia(delDia, evDia || []) : '<div class="vacio">No hay citas este día.</div>') + '</div></section>' + botonesAgendar();
 
 async function vAgendaMes() {
+  const modo = AG.modo;
   const m1 = primeroMes(AG.fecha), ini = lunesDe(m1), fin = sumaDias(lunesDe(sumaDias(primeroMes(AG.fecha, 1), -1)), 6);
   const llave = 'M' + ini;
+  const etqCita = c => '<span class="ml mc-' + esc((c.estado || '').split(' ')[0]) + '">' + esc(horaCorta(c.hora)) + ' ' + esc(primer(c.nombre)) + '</span>';
+  const etqEv = e => '<span class="ml" style="--c:' + catColor(e.categoria) + '">' + (e.todoDia ? '' : esc(horaCorta(e.hora)) + ' ') + esc(e.titulo) + '</span>';
   const pinta = (lista, evs) => {
-    if (tab !== 'agenda' || AG.modo !== 'mes') return;
-    evs = evVisibles(evs);
-    const dm = fechaD(m1), mes = dm.getMonth();
+    if (tab !== 'agenda' || AG.modo !== modo) return;
+    evs = evVisibles(evs); lista = citasVisibles(lista);
+    const dm = fechaD(m1), mes = dm.getMonth(), mesIso = m1.slice(0, 7);
     const vivas = lista ? lista.filter(VIVAS) : [];
-    const delMes = vivas.filter(c => c.fecha.slice(0, 7) === m1.slice(0, 7));
+    const delMes = vivas.filter(c => c.fecha.slice(0, 7) === mesIso);
+    const pend = delMes.filter(c => c.estado === 'Pendiente' && c.fecha >= D.hoy).length;
     const nDias = Math.round((fechaD(fin) - fechaD(ini)) / 864e5) + 1;
-    let h = barraModo() + '<div class="mes-top"><button class="flecha" type="button" id="aPrev" aria-label="Mes anterior">‹</button><div><h2>' +
-      esc(MESES_C[mes].charAt(0).toUpperCase() + MESES_C[mes].slice(1) + ' ' + dm.getFullYear()) + '</h2><span>' + (lista ? delMes.length + ' cita' + (delMes.length === 1 ? '' : 's') + ' este mes' : 'Cargando…') + '</span></div>' +
+    let h = barraModo() + barraFiltro() + '<div class="mes-top"><button class="flecha" type="button" id="aPrev" aria-label="Mes anterior">‹</button><div><h2>' +
+      esc(MESES_C[mes].charAt(0).toUpperCase() + MESES_C[mes].slice(1) + ' ' + dm.getFullYear()) + '</h2><span>' +
+      (esDuena() && AG.filtro === 'personal' ? evs.filter(e => e.fecha.slice(0, 7) === mesIso).length + ' en tu agenda personal' : lista ? delMes.length + ' cita' + (delMes.length === 1 ? '' : 's') + (pend ? ' · <b class="txt-warn">' + pend + ' por confirmar</b>' : '') : 'Cargando…') + '</span></div>' +
       '<button class="flecha" type="button" id="aNext" aria-label="Mes siguiente">›</button></div>';
-    h += '<div style="display:flex;justify-content:flex-end;gap:12px;margin-top:-4px;min-height:20px">' + togglePersonal() + (AG.fecha !== D.hoy ? '<button class="linkbtn" type="button" id="aHoy">Ir a hoy</button>' : '') + '</div>';
-    h += '<div class="mes"><div class="mes-sem">' + ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(x => '<span>' + x + '</span>').join('') + '</div><div class="mes-grid">' +
-      Array.from({ length: nDias }, (_, i) => {
-        const f = sumaDias(ini, i), d = fechaD(f), delD = vivas.filter(c => c.fecha === f), evD = evs.filter(e => e.fecha === f);
-        const pend = delD.some(c => c.estado === 'Pendiente');
-        const etiquetas = (delD.length ? ['<span class="ml cita' + (pend ? ' pend' : '') + '">' + delD.length + (delD.length === 1 ? ' cita' : ' citas') + '</span>'] : [])
-          .concat(evD.map(e => '<span class="ml" style="--c:' + catColor(e.categoria) + '">' + esc(e.titulo) + '</span>'));
-        const caben = 3;
-        return '<button type="button" class="mdia' + (d.getMonth() !== mes ? ' fuera' : '') + (f === D.hoy ? ' hoy' : '') + (f < D.hoy ? ' pasado' : '') + '" data-f="' + f + '" aria-pressed="' + (f === AG.fecha) + '" aria-label="' + esc(fechaLargaC(f) + (delD.length ? ', ' + delD.length + ' citas' : '') + (evD.length ? ', ' + evD.map(e => e.titulo).join(', ') : '')) + '">' +
-          '<span class="md">' + d.getDate() + '</span>' + etiquetas.slice(0, etiquetas.length > caben ? caben - 1 : caben).join('') + (etiquetas.length > caben ? '<span class="mmas">+' + (etiquetas.length - caben + 1) + '</span>' : '') + '</button>';
-      }).join('') + '</div><div class="mes-ley"><span><i class="ml cita pend"></i> citas por confirmar</span><span><i class="ml cita"></i> citas confirmadas</span>' + (esDuena() && AG.verPersonal ? '<span>colores = tu agenda personal</span>' : '') + '</div></div>';
-    h += listaCita(lista ? lista.filter(c => c.fecha === AG.fecha) : null, evs.filter(e => e.fecha === AG.fecha));
+    h += '<div class="mes-acc">' + togglePersonal() + (AG.fecha !== D.hoy ? '<button class="linkbtn" type="button" id="aHoy">Ir a hoy</button>' : '') + '</div>';
+
+    if (modo === 'mes') {
+      const evMes = evs.filter(e => e.fecha.slice(0, 7) === mesIso);
+      h += '<div class="mes" id="mesBox"><div class="mes-sem">' + ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(x => '<span>' + x + '</span>').join('') + '</div><div class="mes-grid">' +
+        Array.from({ length: nDias }, (_, i) => {
+          const f = sumaDias(ini, i), d = fechaD(f), delD = vivas.filter(c => c.fecha === f), evD = evs.filter(e => e.fecha === f);
+          const pendD = delD.some(c => c.estado === 'Pendiente');
+          const cats = []; evD.forEach(e => { if (cats.indexOf(e.categoria) < 0) cats.push(e.categoria); });
+          return '<button type="button" class="mdia' + (d.getMonth() !== mes ? ' fuera' : '') + (f === D.hoy ? ' hoy' : '') + (f < D.hoy ? ' pasado' : '') + (i % 7 > 4 ? ' finde' : '') + '" data-f="' + f + '" aria-pressed="' + (f === AG.fecha) + '" aria-label="' + esc(fechaLargaC(f) + (delD.length ? ', ' + delD.length + ' citas' : '') + (evD.length ? ', ' + evD.length + ' personales' : '')) + '">' +
+            '<span class="md">' + d.getDate() + '</span><span class="mi">' + (delD.length ? '<b class="mcnt' + (pendD ? ' pend' : '') + '">' + delD.length + '</b>' : '') + '</span>' +
+            '<span class="mdots">' + cats.slice(0, 4).map(c => '<i style="background:' + catColor(c) + '"></i>').join('') + '</span></button>';
+        }).join('') + '</div><div class="mes-ley">' +
+        (!esDuena() || AG.filtro !== 'personal' ? '<span><b class="mcnt">3</b> citas del spa</span><span><b class="mcnt pend">2</b> con citas por confirmar</span>' : '') +
+        (esDuena() && AG.filtro !== 'spa' ? '<span><i class="mdot" style="background:' + catColor('Trabajo') + '"></i><i class="mdot" style="background:' + catColor('Cumpleaños') + '"></i> personal</span>' : '') + '</div></div>';
+      const atendidas = delMes.filter(c => c.estado === 'Atendida').length;
+      h += '<div class="mres">' +
+        (!esDuena() || AG.filtro !== 'personal' ? '<button type="button" data-ir="lista"><b>' + (lista ? delMes.length : '…') + '</b><span>Citas del mes</span></button><button type="button" data-ir="lista"' + (pend ? ' class="warn"' : '') + '><b>' + (lista ? pend : '…') + '</b><span>Por confirmar</span></button>' : '') +
+        (!esDuena() || AG.filtro !== 'personal' ? '<div><b>' + atendidas + '</b><span>Atendidas</span></div>' : '') +
+        (esDuena() && AG.filtro === 'personal' ? CATS_EV().filter(c => !AG.cat || c === AG.cat).map(c => ({ c: c, n: evMes.filter(e => e.categoria === c).length })).filter(x => x.n).slice(0, 6).map(x => '<div style="--c:' + catColor(x.c) + '"><b style="color:var(--c)">' + x.n + '</b><span>' + (CAT_ICONO[x.c] || '') + ' ' + esc(x.c) + '</span></div>').join('') || '<div style="grid-column:1/-1"><span>Sin eventos personales este mes</span></div>' : '') +
+        '</div><p class="mtip">Toca un día para ver el detalle</p>';
+      h += botonesAgendar();
+    } else {
+      // Lista: todo el mes agrupado por día (desde hoy si es el mes actual)
+      const desde = mesIso === D.hoy.slice(0, 7) ? D.hoy : m1;
+      const dias = [];
+      for (let f = desde; f.slice(0, 7) === mesIso; f = sumaDias(f, 1)) {
+        const delD = (lista || []).filter(c => c.fecha === f), evD = evs.filter(e => e.fecha === f);
+        if (delD.length || evD.length) dias.push('<section class="ldia' + (f === D.hoy ? ' hoy' : '') + '"><h3><span class="ln">' + fechaD(f).getDate() + '</span><span>' + (f === D.hoy ? '<b>Hoy</b> · ' : f === sumaDias(D.hoy, 1) ? 'Mañana · ' : '') + ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'][fechaD(f).getDay()] + '</span>' +
+          (delD.filter(VIVAS).length ? '<span class="n">' + delD.filter(VIVAS).length + '</span>' : '') + '</h3><div class="lista">' + listaDelDia(delD, evD) + '</div></section>');
+      }
+      h += '<div id="mesBox">' + (!lista ? '<div class="carga"><span class="spin"></span>Cargando citas…</div>' : dias.length ? dias.join('') : '<div class="vacio" style="margin-top:14px">No hay nada agendado ' + (desde === D.hoy ? 'lo que queda del mes' : 'este mes') + '.</div>') + '</div>';
+      h += botonesAgendar();
+    }
     $('vista').innerHTML = h;
     ligarModo(); ligarAgendaComun();
     $('vista').querySelectorAll('.mdia').forEach(b => b.onclick = () => {
       const f = b.dataset.f;
-      if (f.slice(0, 7) !== m1.slice(0, 7)) { AG.fecha = f; vAgenda(); return; } // día del mes anterior/siguiente
+      if (f.slice(0, 7) !== mesIso) { AG.fecha = f; vAgenda(); return; } // día del mes anterior/siguiente
       AG.fecha = f; pinta(lista, evs);
-      const s = $('al'); if (s) s.closest('.seccion').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      abrirDia(f, (lista || []).filter(c => c.fecha === f), evs.filter(e => e.fecha === f));
     });
+    if (modo === 'mes' && lista && AG.abrir && AG.abrir.slice(0, 7) === mesIso) { const f = AG.abrir; AG.abrir = ''; abrirDia(f, lista.filter(c => c.fecha === f), evs.filter(e => e.fecha === f)); }
+    $('vista').querySelectorAll('[data-ir]').forEach(b => b.onclick = () => { AG.modo = b.dataset.ir; try { localStorage.setItem('spatsy_agmodo', AG.modo); } catch (e) { } vAgenda(); });
     const irMes = k => { const p = primeroMes(AG.fecha, k); AG.fecha = p.slice(0, 7) === D.hoy.slice(0, 7) ? D.hoy : p; vAgenda(); };
     $('aPrev').onclick = () => irMes(-1);
     $('aNext').onclick = () => irMes(1);
     if ($('aHoy')) $('aHoy').onclick = () => { AG.fecha = D.hoy; vAgenda(); };
+    // Deslizar a los lados para cambiar de mes
+    const box = $('mesBox'); let x0 = null, y0 = 0;
+    if (box) {
+      box.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+      box.addEventListener('touchend', e => {
+        if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+        if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) irMes(dx < 0 ? 1 : -1);
+      });
+    }
   };
   const kev = ini + '_' + fin;
   pinta(AG.cache[llave] || null, AG.ev[kev] || []);
   if (!AG.cache[llave] || !AG.ev[kev]) {
     try { const r = await Promise.all([AG.cache[llave] || srv('listarCitas', ini, fin), eventosRango(ini, fin)]); AG.cache[llave] = r[0]; pinta(r[0], r[1]); }
-    catch (e) { if (tab === 'agenda' && $('al')) $('al').innerHTML = '<div class="aviso bad">' + esc(errorTexto(e)) + '</div>'; }
+    catch (e) { if (tab === 'agenda' && $('mesBox')) $('mesBox').insertAdjacentHTML('afterend', '<div class="aviso bad">' + esc(errorTexto(e)) + '</div>'); }
   }
 }
 
 async function vAgenda() {
   if (!AG.fecha) AG.fecha = D.hoy;
-  if (AG.modo === 'mes') return vAgendaMes();
+  if (AG.modo === 'mes' || AG.modo === 'lista') return vAgendaMes();
   const lunes = lunesDe(AG.fecha), domingo = sumaDias(lunes, 6);
   const pinta = (lista, evs) => {
     if (tab !== 'agenda' || AG.modo !== 'semana') return;
-    evs = evVisibles(evs);
+    evs = evVisibles(evs); lista = citasVisibles(lista);
     const dias = Array.from({ length: 7 }, (_, i) => sumaDias(lunes, i));
     const cuenta = f => lista ? lista.filter(c => c.fecha === f && VIVAS(c)).length : 0;
     const puntos = f => evs.filter(e => e.fecha === f).slice(0, 3).map(e => '<i style="background:' + catColor(e.categoria) + '"></i>').join('');
     const delDia = lista ? lista.filter(c => c.fecha === AG.fecha) : null;
     const evDia = evs.filter(e => e.fecha === AG.fecha);
     const d0 = fechaD(lunes), d6 = fechaD(dias[6]);
-    let h = barraModo() + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:6px"><h2 style="font-family:var(--f-display);font-weight:400;font-size:19px;color:var(--ciruela)">' +
+    let h = barraModo() + barraFiltro() + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:6px"><h2 style="font-family:var(--f-display);font-weight:400;font-size:19px;color:var(--ciruela)">' +
       esc(MESES_C[d0.getMonth()].charAt(0).toUpperCase() + MESES_C[d0.getMonth()].slice(1) + (d0.getMonth() !== d6.getMonth() ? ' – ' + MESES_C[d6.getMonth()] : '') + ' ' + d6.getFullYear()) +
       '</h2><span style="display:flex;gap:12px">' + togglePersonal() + (AG.fecha !== D.hoy ? '<button class="linkbtn" type="button" id="aHoy">Ir a hoy</button>' : '') + '</span></div>';
     h += '<div class="semana"><button class="flecha" type="button" id="aPrev" aria-label="Semana anterior">‹</button>' + dias.map(f => {
@@ -1097,7 +1234,7 @@ function abrirFormCita(c, pre) {
           '<div class="campos" style="margin-top:18px">' + (r.linkAviso ? '<a class="btn btn-wa" style="padding:12px" target="_blank" rel="noopener" href="' + esc(r.linkAviso) + '">Avisarle por WhatsApp</a>' : '') +
           '<button class="btn btn-sec" type="button" id="gcVer">Ver agenda</button></div></div>';
         $('cerrar').onclick = () => { $('panel').hidden = true; render(); };
-        $('gcVer').onclick = () => { $('panel').hidden = true; tab = 'agenda'; render(); };
+        $('gcVer').onclick = () => { $('panel').hidden = true; tab = 'agenda'; AG.abrir = AG.fecha; render(); };
       } catch (e) { b.disabled = false; b.textContent = ed ? 'Guardar cambios' : 'Agendar'; msg(esc(errorTexto(e))); }
     };
     $('gcG').onclick = () => guardarC(false);
